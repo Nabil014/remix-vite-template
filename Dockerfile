@@ -45,7 +45,7 @@ FROM base
 COPY --from=build /app /app
 
 # Entrypoint prepares the database.
-ENTRYPOINT ["/app/docker-entrypoint"]
+# ENTRYPOINT ["/app/docker-entrypoint"]
 
 # Start the server by default, this can be overwritten at runtime
 CMD [ "npm", "run", "start" ]
