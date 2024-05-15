@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for remix-vite-template2 on 2024-05-13T22:08:24-03:00
+# fly.toml app configuration file generated for crypto-ghost on 2024-05-13T22:14:36-03:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'remix-vite-template2'
+app = 'crypto-ghost'
 primary_region = 'scl'
 
 [build]
@@ -17,6 +17,6 @@ primary_region = 'scl'
   processes = ['app']
 
 [[vm]]
-  memory = '1gb'
+  memory = '4gb'
   cpu_kind = 'shared'
-  cpus = 1
+  cpus = 4
