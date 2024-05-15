@@ -5,7 +5,7 @@ interface CryptoData {
   name: string;
   symbol: string;
   logo: string;
-  price: number | string; 
+  price: number;
   x?: number;
   y?: number;
   fx?: number | null;
@@ -17,171 +17,215 @@ interface BubbleChartProps {
 }
 
 export default function BubbleChart(props: BubbleChartProps) {
-  const d3ContainerRef = useRef<HTMLDivElement>(null);
+  const outputRef = useRef<Element>();
 
   useEffect(() => {
-    if (!d3ContainerRef.current) return;
+    if (outputRef.current) {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      const minBubbleSize = 20;
+      const maxBubbleSize = 100;
+      const threshold = 40; // Umbral para mostrar solo el logo
 
-    const width = d3ContainerRef.current?.offsetWidth;
-    const height = d3ContainerRef.current?.offsetHeight;
+      const svg = d3
+        .select(outputRef.current)
+        .append("svg")
+        .classed("w-full h-full", true)
+        .attr("viewBox", `0 0 ${width} ${height}`)
+        .attr("preserveAspectRatio", "xMidYMid meet");
 
-    const minBubbleSize = 30;
-    const maxBubbleSize = 70;
+      const defs = svg.append("defs");
 
-    const minX = 0.06 * width;
-    const maxX = 0.98 * width;
-    const minY = 0.15 * height;
-    const maxY = 0.87 * height;
+      const createGradient = (id: string, color: string) => {
+        const gradient = defs.append("radialGradient")
+          .attr("id", id)
+          .attr("cx", "50%")
+          .attr("cy", "50%")
+          .attr("r", "50%")
+          .attr("fx", "50%")
+          .attr("fy", "50%");
 
-    const svg = d3
-      .select(d3ContainerRef.current)
-      .append("svg")
-      .classed("bg-transparent", true);
+        gradient.append("stop")
+          .attr("offset", "0%")
+          .attr("style", `stop-color:${color}; stop-opacity:0.5`);
 
-    const updateViewBox = () => {
-      const width = d3ContainerRef.current?.offsetWidth;
-      const height = d3ContainerRef.current?.offsetHeight;
-      svg.attr("viewBox", `0 0 ${width} ${height}`);
-    };
+        gradient.append("stop")
+          .attr("offset", "100%")
+          .attr("style", `stop-color:${color}; stop-opacity:0`);
+      };
 
-    updateViewBox();
-    window.addEventListener("resize", updateViewBox);
+      createGradient("positiveGradient", "rgba(98, 222, 147, 1)");
+      createGradient("negativeGradient", "rgba(255, 99, 132, 1)");
 
-    const bubbleSizeScale = d3
-      .scaleLinear()
-      .domain([
-        d3.min(props.cryptoData, (d: any) => d.price || 0), 
-        d3.max(props.cryptoData, (d: any) => d.price || 0), 
-      ])
-      .range([minBubbleSize, maxBubbleSize]);
+      // Add drop shadow filter
+      const filter = defs.append("filter")
+        .attr("id", "drop-shadow")
+        .attr("height", "130%");
 
-    const simulation = d3.forceSimulation<CryptoData>(Object.values(props.cryptoData))
-      .force("collide", d3.forceCollide<CryptoData>().radius((d: any) => bubbleSizeScale(Math.abs(d.price || 0)) + 2).strength(1))
-      .force("x", d3.forceX(width / 2).strength(0.05))
-      .force("y", d3.forceY(height / 2).strength(0.05));
+      filter.append("feGaussianBlur")
+        .attr("in", "SourceAlpha")
+        .attr("stdDeviation", 5)
+        .attr("result", "blur");
 
-   
-    props.cryptoData.forEach((crypto) => {
-      const randomX = Math.random() < 0.5 ? -100 : width + 100;
-      const randomY = Math.random() * height;
-      
-      crypto.x = randomX;
-      crypto.y = randomY;
-    });
+      filter.append("feOffset")
+        .attr("in", "blur")
+        .attr("dx", 0)
+        .attr("dy", 3)
+        .attr("result", "offsetBlur");
 
-    const node = svg
-      .selectAll("g")
-      .data(props.cryptoData)
-      .enter()
-      .append("g")
-      .attr("transform", (d: any) => `translate(${d.x},${d.y})`);
+      const feMerge = filter.append("feMerge");
+      feMerge.append("feMergeNode").attr("in", "offsetBlur");
+      feMerge.append("feMergeNode").attr("in", "SourceGraphic");
 
-    node
-      .append("circle")
-      .attr("r", (d: any) => bubbleSizeScale(Math.abs(d.price || 0))) 
-      .style(
-        "fill",
-        (d: any) =>
-          d.price !== null && d.price >= 0 
-            ? "rgba(98, 222, 147, 0.1)"
-            : "rgba(255, 99, 132, 0.1)"
-      )
-      .attr("stroke", (d: any) =>
-        d.price !== null && d.price >= 0 
-          ? "rgba(98, 222, 148, 0.9)"
-          : "rgba(255, 99, 132, 0.9)"
-      )
-      .attr("data-name", (d: any) => d.name)
-      .style("strokeWidth", 4)
-      .attr("data-value", (d: any) => d.price) 
-      .on("click", function () {
-        const name = d3.select(this).attr("data-name");
-        window.location.href = `https://www.coingecko.com/en/coins/${name
-          .toLowerCase()
-          .replace(/\s/g, "-")}`;
-      })
-      .on("mouseover", function () {
-        const value = parseFloat(d3.select(this).attr("data-value") || "0");
-        const circles = svg.selectAll("g");
-        circles.style("opacity", function (d: any) {
-          return value >= 0 && d.price >= 0 || value < 0 && d.price < 0 ? 40 : 0.2; 
+      const scaleSize = d3.scaleSqrt()
+        .domain([d3.min(props.cryptoData, d => d.price) || 0, d3.max(props.cryptoData, d => d.price) || 1])
+        .range([minBubbleSize, maxBubbleSize]);
+
+      // Initialize the positions of the nodes
+      props.cryptoData.forEach((d, i) => {
+        d.x = Math.random() * width;
+        d.y = Math.random() * height;
+      });
+
+      const simulation = d3
+        .forceSimulation<CryptoData>(props.cryptoData)
+        .force("collide", d3.forceCollide<CryptoData>().radius(d => scaleSize(d.price) + 10).strength(1))
+        .force("center", d3.forceCenter(width / 2, height / 2).strength(0.01)) // Very light center force
+        .force("x", d3.forceX(width / 2).strength(0.01))
+        .force("y", d3.forceY(height / 2).strength(0.01))
+        .force("charge", d3.forceManyBody().strength(-30))
+        .alphaTarget(0.3)
+        .restart();
+
+      const node = svg.selectAll("g").data(props.cryptoData).enter().append("g");
+
+      node
+        .append("circle")
+        .attr("r", d => scaleSize(d.price))
+        .style("fill", (d: any) =>
+          d.price !== null && d.price >= 0
+            ? "url(#positiveGradient)"
+            : "url(#negativeGradient)"
+        )
+        .attr("stroke", (d: any) =>
+          d.price !== null && d.price >= 0
+            ? "rgba(98, 222, 148, 0.9)"
+            : "rgba(255, 99, 132, 0.9)"
+        )
+        .style("stroke-width", 4) // More pronounced border
+        .style("filter", "url(#drop-shadow)")
+        .attr("data-name", (d: any) => d.name)
+        .attr("data-value", (d: any) => d.price)
+        .on("click", function () {
+          const name = d3.select(this).attr("data-name");
+          window.location.href = `https://www.coingecko.com/en/coins/${name.toLowerCase().replace(/\s/g, "-")}`;
+        })
+        .on("mouseover", function (event, d) {
+          const isPositive = d.price >= 0;
+          node.selectAll("circle")
+            .transition()
+            .duration(200)
+            .style("opacity", function (d2: any) {
+              return (isPositive && d2.price >= 0) || (!isPositive && d2.price < 0) ? 1 : 0.2;
+            });
+
+          node.selectAll("image, text")
+            .transition()
+            .duration(200)
+            .style("opacity", function (d2: any) {
+              return (isPositive && d2.price >= 0) || (!isPositive && d2.price < 0) ? 1 : 0.2;
+            });
+        })
+        .on("mouseout", function () {
+          node.selectAll("circle, image, text")
+            .transition()
+            .duration(200)
+            .style("opacity", 1);
         });
-      })
-      .on("mouseout", function () {
-        svg.selectAll("circle").style("opacity", 1);
+
+      node.each(function(d) {
+        const group = d3.select(this);
+        const bubbleSize = scaleSize(d.price);
+        if (bubbleSize > threshold) {
+          group.append("image")
+            .attr("xlink:href", d.logo)
+            .attr("x", -bubbleSize * 0.45)
+            .attr("y", -bubbleSize * 0.9)
+            .attr("width", bubbleSize * 0.9)
+            .attr("height", bubbleSize * 0.9);
+
+          group.append("text")
+            .attr("x", 0)
+            .attr("y", bubbleSize / 4)
+            .attr("text-anchor", "middle")
+            .style("font-size", `${bubbleSize / 3}px`)
+            .style("font-weight", "bold")
+            .style("fill", "white")
+            .text(d.symbol);
+
+          group.append("text")
+            .attr("x", 0)
+            .attr("y", bubbleSize / 2 + 10)
+            .attr("text-anchor", "middle")
+            .style("font-size", `${bubbleSize / 4}px`)
+            .style("font-weight", "bold")
+            .text(() => {
+              const percentage = Math.round((d.price || 0) * 100);
+              return `${(percentage / 100).toFixed(2)}%`;
+            })
+            .style("fill", d.price !== null && d.price >= 0 ? "green" : "red");
+        } else {
+          group.append("image")
+            .attr("xlink:href", d.logo)
+            .attr("x", -bubbleSize * 0.5)
+            .attr("y", -bubbleSize * 0.5)
+            .attr("width", bubbleSize)
+            .attr("height", bubbleSize);
+        }
       });
 
-    node
-      .append("image")
-      .attr("xlink:href", (d: any) => d.logo)
-      .attr("x", (d: any) => -bubbleSizeScale(Math.abs(d.price || 0)) * 0.45) 
-      .attr("y", (d: any) => -bubbleSizeScale(Math.abs(d.price || 0)) * 0.9) 
-      .attr("width", (d: any) => bubbleSizeScale(Math.abs(d.price || 0)) * 0.9) 
-      .attr("height", (d: any) => bubbleSizeScale(Math.abs(d.price || 0)) * 1); 
+      node
+        .call(
+          d3
+            .drag<SVGGElement, CryptoData>()
+            .on("start", (event, d) => {
+              if (!event.active) simulation.alphaTarget(0.3).restart();
+              d.fx = d.x!;
+              d.fy = d.y!;
+            })
+            .on("drag", (event, d) => {
+              d.fx = event.x;
+              d.fy = event.y;
+            })
+            .on("end", (event, d) => {
+              if (!event.active) simulation.alphaTarget(0);
+              d.fx = null;
+              d.fy = null;
+            })
+        )
+        .call((node) =>
+          node
+            .append("title")
+            .text((d) => `Symbol: ${d.symbol}, Price: ${d.price}`)
+        );
 
-    node
-      .append("text")
-      .attr("x", 0)
-      .attr("y", (d: any) => bubbleSizeScale(Math.abs(d.price || 0)) / 3) 
-      .attr("text-anchor", "middle")
-      .style("font-size", (d: any) => `${bubbleSizeScale(Math.abs(d.price || 0)) / 3}px`) 
-      .style("font-weight", "bold")
-      .style("fill", "white")
-      .text((d: any) => d.symbol);
-
-    node
-      .append("text")
-      .attr("x", 0)
-      .attr("y", (d: any) => bubbleSizeScale(Math.abs(d.price || 0)) / 2 + 10) 
-      .attr("text-anchor", "middle")
-      .style("font-size", (d: any) => `${bubbleSizeScale(Math.abs(d.price || 0)) / 4}px`) 
-      .style("font-weight", "bold")
-      .text((d: any) => {
-        const percentage = Math.round((d.price || 0) * 100); 
-        return `${(percentage / 100).toFixed(2)}%`;
-      })
-      .style("fill", (d: any) => (d.price !== null && d.price >= 0 ? "green" : "red")); 
-
-    node
-      .call(
-        d3
-          .drag<SVGGElement, CryptoData>()
-          .on("start", (event: any, d: any) => {
-            if (!event.active) simulation.alphaTarget(0.3).restart();
-            d.fx = d.x!;
-            d.fy = d.y!;
-          })
-          .on("drag", (event: any, d: any) => {
-            d.fx = event.x;
-            d.fy = event.y;
-          })
-          .on("end", (event: any, d: any) => {
-            if (!event.active) simulation.alphaTarget(0);
-            d.fx = null;
-            d.fy = null;
-          })
-      )
-      .call((node: any) =>
-        node
-          .append("title")
-          .text((d: any) => `Symbol: ${d.symbol}, LatestH1: ${d.price}`) 
-      );
-
-    simulation.nodes(props.cryptoData).on("tick", () => {
-      node.attr("transform", (d: any) => {
-        d.x = Math.max(minX, Math.min(maxX, d.x!));
-        d.y = Math.max(minY, Math.min(maxY, d.y!));
-        return `translate(${d.x},${d.y})`;
+      simulation.nodes(props.cryptoData).on("tick", () => {
+        node.attr("transform", (d) => {
+          const minX = 0.06 * width;
+          const maxX = 0.98 * width;
+          const minY = 0.15 * height;
+          const maxY = 0.87 * height;
+          d.x = Math.max(minX, Math.min(maxX, d.x!));
+          d.y = Math.max(minY, Math.min(maxY, d.y!));
+          return `translate(${d.x},${d.y})`;
+        });
       });
-    });
 
-    return () => {
-      window.removeEventListener("resize", updateViewBox);
-      svg.remove();
-    };
-  }, [d3ContainerRef, props.cryptoData]);
+      return () => {
+        svg.remove();
+      };
+    }
+  }, [props.cryptoData]);
 
-  return (
-    <div className="bg-transparent h-[74vh]" ref={d3ContainerRef}></div>
-  );
+  return <div ref={outputRef} className="h-[66.4vh]"></div>;
 }

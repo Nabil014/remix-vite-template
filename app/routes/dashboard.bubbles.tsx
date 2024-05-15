@@ -63,7 +63,7 @@ export async function loader({ params }: any) {
         };
       });
 
-  
+
       updateLastUpdateTime(currentTime);
       cachedData = cryptoData;
     } else {
@@ -132,31 +132,30 @@ export default function Bubbles() {
 
   return (
     <div>
-      <div className="flex justify-center space-x-4 bg-transparent mt-10">
+      <div className="flex justify-center mt-20 space-x-4 bg-transparent">
         <button
           type="button"
-          className={`min-h-[38px] min-w-[38px] flex justify-center items-center ${filter === "1 Hour" ? "bg-white text-gray-800" : "text-gray-800 hover:bg-gray-100"} py-2 px-3 text-sm rounded-lg focus:outline-none focus:bg-gray-300 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-600 dark:text-white dark:focus:bg-neutral-500`}
+          className={`min-h-[38px] min-w-[38px] flex justify-center items-center ${filter === "1 Hour" ? "bg-white text-gray-800" : "text-[#6EEAEA] hover:bg-gray-100"} py-2 px-3 text-sm rounded-lg focus:outline-none focus:bg-gray-300 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-600 dark:text-white dark:focus:bg-neutral-500`}
           onClick={() => handleFilterChange("1 Hour")}
         >
           1 Hour
         </button>
         <button
           type="button"
-          className={`min-h-[38px] min-w-[38px] flex justify-center items-center ${filter === "7 Hours" ? "bg-white text-gray-800" : "text-gray-800 hover:bg-gray-100"} py-2 px-3 text-sm rounded-lg focus:outline-none focus:bg-gray-300 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-600 dark:text-white dark:focus:bg-neutral-500`}
+          className={`min-h-[38px] min-w-[38px] flex justify-center items-center ${filter === "7 Hours" ? "bg-white text-gray-800" : "text-[#6EEAEA] hover:bg-gray-100"} py-2 px-3 text-sm rounded-lg focus:outline-none focus:bg-gray-300 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-600 dark:text-white dark:focus:bg-neutral-500`}
           onClick={() => handleFilterChange("7 Hours")}
         >
           7 Hours
         </button>
         <button
           type="button"
-          className={`min-h-[38px] min-w-[38px] flex justify-center items-center ${filter === "7 Days" ? "bg-white text-gray-800" : "text-gray-800 hover:bg-gray-100"} py-2 px-3 text-sm rounded-lg focus:outline-none focus:bg-gray-300 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-600 dark:text-white dark:focus:bg-neutral-500`}
+          className={`min-h-[38px] min-w-[38px] flex justify-center items-center ${filter === "7 Days" ? "bg-white text-gray-800" : "text-[#6EEAEA] hover:bg-gray-100"} py-2 px-3 text-sm rounded-lg focus:outline-none focus:bg-gray-300 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-600 dark:text-white dark:focus:bg-neutral-500`}
           onClick={() => handleFilterChange("7 Days")}
         >
           7 Days
         </button>
       </div>
       <BubbleChart cryptoData={currentPageData} />
-
       <div className="flex items-center justify-center p-2 bg-transparent">
         <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={handlePageChange} />
       </div>
