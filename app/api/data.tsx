@@ -1,7 +1,7 @@
 export const getMapData = async (currentPage: number) => {
     try {
         const start = (currentPage - 1) * 30 + 1;
-        const resp = await fetch(`https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=${start}&limit=500`, {
+        const resp = await fetch(`https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=${start}&limit=100`, {
             headers: {
                 'X-CMC_PRO_API_KEY': "316de030-e7c7-418b-b2d2-26e172d59119"
             },
