@@ -1,3 +1,4 @@
+import React, { useMemo, useCallback } from 'react';
 
 interface PaginationProps {
   totalPages: number;
@@ -6,6 +7,50 @@ interface PaginationProps {
 }
 
 const Pagination: React.FC<PaginationProps> = ({ totalPages, currentPage, onPageChange }) => {
+  const getPages = useCallback(() => {
+    const pages = [];
+    const maxPagesToShow = 3;
+    const halfMaxPagesToShow = Math.floor(maxPagesToShow / 2);
+
+    if (totalPages <= maxPagesToShow) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      const startPages = [1];
+      const endPages = [totalPages];
+
+      let start = Math.max(2, currentPage - halfMaxPagesToShow);
+      let end = Math.min(totalPages - 1, currentPage + halfMaxPagesToShow);
+
+      if (currentPage - halfMaxPagesToShow <= 1) {
+        start = 2;
+        end = start + maxPagesToShow - 3;
+      }
+
+      if (currentPage + halfMaxPagesToShow >= totalPages) {
+        end = totalPages - 1;
+        start = end - maxPagesToShow + 3;
+      }
+
+      pages.push(...startPages);
+      if (start > 2) {
+        pages.push('...');
+      }
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+      if (end < totalPages - 1) {
+        pages.push('...');
+      }
+      pages.push(...endPages);
+    }
+
+    return pages;
+  }, [currentPage, totalPages]);
+
+  const pages = useMemo(() => getPages(), [getPages]);
+
   return (
     <nav className="flex items-center gap-x-1">
       <button
@@ -31,17 +76,18 @@ const Pagination: React.FC<PaginationProps> = ({ totalPages, currentPage, onPage
           Previous
         </span>
       </button>
-      {[...Array(totalPages).keys()].map((pageNumber) => (
+      {pages.map((pageNumber, index) => (
         <button
-          key={pageNumber + 1}
-          onClick={() => onPageChange(pageNumber + 1)}
+          key={index}
+          onClick={() => typeof pageNumber === 'number' && onPageChange(pageNumber)}
+          disabled={pageNumber === '...'}
           className={`min-h-[38px] min-w-[38px] flex justify-center items-center border border-transparent text-[#6EEAEA] py-2 px-3 text-sm rounded-lg focus:outline-none ${
-            currentPage === pageNumber + 1
+            currentPage === pageNumber
               ? "bg-gray-100"
               : "hover:bg-gray-100 dark:border-neutral-700 dark:text-white dark:focus:bg-white/10"
           }`}
         >
-          {pageNumber + 1}
+          {pageNumber}
         </button>
       ))}
       <button
@@ -52,8 +98,8 @@ const Pagination: React.FC<PaginationProps> = ({ totalPages, currentPage, onPage
         <span aria-hidden="true" className="sr-only">
           Next
         </span>
-        <svg 
-          className="flex-shrink-0 size-3.5" 
+        <svg
+          className="flex-shrink-0 size-3.5"
           xmlns="http://www.w3.org/2000/svg"
           width="24"
           height="24"
@@ -71,4 +117,4 @@ const Pagination: React.FC<PaginationProps> = ({ totalPages, currentPage, onPage
   );
 };
 
-export default Pagination;
+export default React.memo(Pagination);

@@ -1,3 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+/* Estilo general para el botón */
+.nav-button {
+    display: none; /* Oculto por defecto */
+  }
+  
+  /* Mostrar el botón solo en pantallas pequeñas */
+  @media (max-width: 768px) {
+    .nav-button {
+      display: flex; /* Mostrar en pantallas pequeñas */
+      align-items: center;
+    }
+  }

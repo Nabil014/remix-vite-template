@@ -1,8 +1,6 @@
-import { json, useLoaderData } from "@remix-run/react";
-import { useEffect, useState } from "react";
+import { json, useLoaderData, useFetcher } from "@remix-run/react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { getInfoData, getLatestData, getMapData } from "~/api/data";
-
-
 import BubbleChart from "~/components/bubble-chart";
 import Pagination from "~/components/paginated";
 
@@ -15,104 +13,123 @@ interface CryptoData {
   latestD7: number | string;
 }
 
-let lastUpdateTime: number | null = null;
-let cachedData: any[] = [];
-const updateInterval = 60000; // 1 minuto
-
-
-function getLastUpdateTime(): number | null {
-  return lastUpdateTime;
+interface LoaderData {
+  cryptoData: CryptoData[];
+  currentPage: number;
+  error: string | null;
 }
 
-function updateLastUpdateTime(time: number): void {
-  lastUpdateTime = time;
-}
-
-function getCachedData(): any[] {
-  return cachedData;
-}
-
-export async function loader({ params }: any) {
-  const currentPage = parseInt(params.page) || 1;
+export const loader = async ({ request }: { request: Request }): Promise<Response> => {
+  const url = new URL(request.url);
+  const currentPage = parseInt(url.searchParams.get("page") || "1");
+  const pageSize = 400;
+  const start = (currentPage - 1) * pageSize + 1;
   let cryptoData: CryptoData[] = [];
+  let error: string | null = null;
+
   try {
-    const currentTime = new Date().getTime();
-    const lastUpdateTime = getLastUpdateTime();
-    const shouldUpdate = !lastUpdateTime || currentTime - lastUpdateTime > updateInterval;
+    performance.mark('fetch-mapData-start');
+    const mapData = await getMapData(start, pageSize);
+    performance.mark('fetch-mapData-end');
+    performance.measure('fetch-mapData', 'fetch-mapData-start', 'fetch-mapData-end');
+    console.log(`Time to fetch mapData: ${performance.getEntriesByName('fetch-mapData')[0].duration}ms`);
 
-    if (shouldUpdate) {
-      const mapData = await getMapData(currentPage);
-      const ids = mapData.map((crypto: any) => crypto.id);
-      const infoData = await getInfoData(ids);
-      const latestData = await getLatestData(ids);
+    performance.mark('fetch-infoData-latestData-start');
+    const ids = mapData.map((crypto: { id: number }) => crypto.id);
+    const [infoData, latestData] = await Promise.all([getInfoData(ids), getLatestData(ids)]);
+    performance.mark('fetch-infoData-latestData-end');
+    performance.measure('fetch-infoData-latestData', 'fetch-infoData-latestData-start', 'fetch-infoData-latestData-end');
+    console.log(`Time to fetch infoData and latestData concurrently: ${performance.getEntriesByName('fetch-infoData-latestData')[0].duration}ms`);
 
-      cryptoData = mapData.map((crypto: any) => {
-        const logo = infoData[crypto.id]?.logo;
-        const symbol = infoData[crypto.id]?.symbol;
-        const name = latestData[crypto.id]?.name;
-        const latestH1 = latestData[crypto.id]?.quote?.USD?.percent_change_1h;
-        const latestH7 = latestData[crypto.id]?.quote?.USD?.percent_change_7d;
-        const latestD7 = latestData[crypto.id]?.quote?.USD?.percent_change_24h;
-        return {
-          name,
-          symbol,
-          logo,
-          latestH1,
-          latestH7,
-          latestD7
-        };
-      });
-
-
-      updateLastUpdateTime(currentTime);
-      cachedData = cryptoData;
-    } else {
-      cryptoData = getCachedData();
-    }
-
-    return json(cryptoData);
-  } catch (error) {
-    console.error("Error fetching data:", error);
-    return json([]);
+    performance.mark('process-data-start');
+    cryptoData = mapData.map((crypto: any) => ({
+      name: latestData[crypto.id]?.name,
+      symbol: infoData[crypto.id]?.symbol,
+      logo: infoData[crypto.id]?.logo,
+      latestH1: latestData[crypto.id]?.quote?.USD?.percent_change_1h,
+      latestH7: latestData[crypto.id]?.quote?.USD?.percent_change_7d,
+      latestD7: latestData[crypto.id]?.quote?.USD?.percent_change_24h,
+    }));
+    performance.mark('process-data-end');
+    performance.measure('process-data', 'process-data-start', 'process-data-end');
+    console.log(`Time to process data: ${performance.getEntriesByName('process-data')[0].duration}ms`);
+  } catch (err: any) {
+    console.error("Error fetching data:", err);
+    error = err.message;
   }
-}
 
+  return json({ cryptoData, currentPage, error });
+};
 
 export default function Bubbles() {
-  const data = useLoaderData<CryptoData[]>();
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [filter, setFilter] = useState<"1 Hour" | "7 Hours" | "7 Days">("1 Hour");
+  const { cryptoData: initialCryptoData, currentPage: initialPage, error: initialError } = useLoaderData<LoaderData>();
+  const fetcher = useFetcher<LoaderData>();
+  const [currentPage, setCurrentPage] = useState(initialPage);
+  const [data, setData] = useState(initialCryptoData);
+  const [filter, setFilter] = useState("1 Hour");
+  const [error, setError] = useState(initialError);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const totalPages = useMemo(() => Math.ceil(data.length / 50), [data.length]);
+
+  useEffect(() => {
+    performance.mark('component-mounted');
+    performance.measure('component-render-time', 'navigationStart', 'component-mounted');
+    const measure = performance.getEntriesByName('component-render-time')[0];
+    console.log(`Component initial render time: ${measure.duration}ms`);
+  }, []);
+
+  useEffect(() => {
+    if (fetcher.data && fetcher.data.currentPage === currentPage) {
+      performance.mark('data-loaded');
+      performance.measure('data-fetch-time', 'data-fetch-start', 'data-loaded');
+      const measure = performance.getEntriesByName('data-fetch-time')[0];
+      console.log(`Data fetch time for page ${currentPage}: ${measure.duration}ms`);
+      
+      setData(prevData => [...prevData, ...fetcher.data.cryptoData]);
+      setError(fetcher.data.error);
+      setIsLoading(false);
+    }
+  }, [fetcher.data, currentPage]);
+
+  useEffect(() => {
+    if (currentPage !== initialPage && data.length < currentPage * 50) {
+      performance.mark('data-fetch-start');
+      setIsLoading(true);
+      fetcher.load(`/dashboard/bubbles?page=${currentPage}`);
+    }
+  }, [currentPage, initialPage, data.length, fetcher]);
 
   useEffect(() => {
     setCurrentPage(1);
   }, [filter]);
 
-  const handlePageChange = (pageNumber: number) => {
+  const handlePageChange = useCallback((pageNumber: number) => {
     setCurrentPage(pageNumber);
-  };
+  }, []);
 
-  const handleFilterChange = (selectedFilter: "1 Hour" | "7 Hours" | "7 Days") => {
+  const handleFilterChange = useCallback((selectedFilter: string) => {
     setFilter(selectedFilter);
-  };
+  }, []);
 
-  const filterData = (cryptoData: CryptoData[]) => {
+  const filteredData = useMemo(() => {
     switch (filter) {
       case "1 Hour":
-        return cryptoData.map(({ name, symbol, logo, latestH1 }) => ({
+        return data.map(({ name, symbol, logo, latestH1 }) => ({
           name,
           symbol,
           logo,
           price: latestH1,
         }));
       case "7 Hours":
-        return cryptoData.map(({ name, symbol, logo, latestH7 }) => ({
+        return data.map(({ name, symbol, logo, latestH7 }) => ({
           name,
           symbol,
           logo,
           price: latestH7,
         }));
       case "7 Days":
-        return cryptoData.map(({ name, symbol, logo, latestD7 }) => ({
+        return data.map(({ name, symbol, logo, latestD7 }) => ({
           name,
           symbol,
           logo,
@@ -121,43 +138,45 @@ export default function Bubbles() {
       default:
         return [];
     }
-  };
+  }, [filter, data]);
 
-  const filteredData = filterData(data);
-
-  const totalPages = Math.ceil(filteredData.length / 30);
-  const startIndex = (currentPage - 1) * 30;
-  const endIndex = Math.min(startIndex + 30, filteredData.length);
-  const currentPageData = filteredData.slice(startIndex, endIndex);
+  const displayedData = useMemo(() => {
+    const startIndex = (currentPage - 1) * 30;
+    return filteredData.slice(startIndex, startIndex + 30);
+  }, [filteredData, currentPage]);
 
   return (
-    <div>
-      <div className="flex justify-center mt-20 space-x-4 bg-transparent">
-        <button
-          type="button"
-          className={`min-h-[38px] min-w-[38px] flex justify-center items-center ${filter === "1 Hour" ? "bg-white text-gray-800" : "text-[#6EEAEA] hover:bg-gray-100"} py-2 px-3 text-sm rounded-lg focus:outline-none focus:bg-gray-300 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-600 dark:text-white dark:focus:bg-neutral-500`}
-          onClick={() => handleFilterChange("1 Hour")}
-        >
-          1 Hour
-        </button>
-        <button
-          type="button"
-          className={`min-h-[38px] min-w-[38px] flex justify-center items-center ${filter === "7 Hours" ? "bg-white text-gray-800" : "text-[#6EEAEA] hover:bg-gray-100"} py-2 px-3 text-sm rounded-lg focus:outline-none focus:bg-gray-300 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-600 dark:text-white dark:focus:bg-neutral-500`}
-          onClick={() => handleFilterChange("7 Hours")}
-        >
-          7 Hours
-        </button>
-        <button
-          type="button"
-          className={`min-h-[38px] min-w-[38px] flex justify-center items-center ${filter === "7 Days" ? "bg-white text-gray-800" : "text-[#6EEAEA] hover:bg-gray-100"} py-2 px-3 text-sm rounded-lg focus:outline-none focus:bg-gray-300 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-600 dark:text-white dark:focus:bg-neutral-500`}
-          onClick={() => handleFilterChange("7 Days")}
-        >
-          7 Days
-        </button>
+    <div className="relative min-h-screen bg-transparent">
+      <div className="flex justify-center space-x-4 bg-transparent mt-20">
+        {["1 Hour", "7 Hours", "7 Days"].map((f) => (
+          <button
+            key={f}
+            type="button"
+            className={`min-h-[38px] min-w-[38px] flex justify-center items-center ${filter === f ? "bg-white text-gray-800" : "text-[#6EEAEA] hover:bg-gray-100"} py-2 px-3 text-sm rounded-lg focus:outline-none focus:bg-gray-300 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-600 dark:text-white dark:focus:bg-neutral-500`}
+            onClick={() => handleFilterChange(f)}
+          >
+            {f}
+          </button>
+        ))}
       </div>
-      <BubbleChart cryptoData={currentPageData} />
-      <div className="flex items-center justify-center p-2 bg-transparent">
-        <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={handlePageChange} />
+      {error && <div className="text-red-500">{error}</div>}
+      <div className="flex flex-col items-center">
+        {isLoading ? (
+          <div className="flex items-center justify-center w-full h-full min-h-[400px] bg-transparent">
+            <div className="flex flex-col justify-center items-center p-4 md:p-5">
+              <div className="flex justify-center">
+                <div className="animate-spin inline-block h-10 w-10 border-4 border-current border-t-transparent text-blue-600 rounded-full dark:text-blue-500" role="status" aria-label="loading">
+                  <span className="sr-only">Loading...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <BubbleChart cryptoData={displayedData} />
+        )}
+        <div className="flex items-center justify-center p-2 bg-transparent">
+          <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={handlePageChange} />
+        </div>
       </div>
     </div>
   );
