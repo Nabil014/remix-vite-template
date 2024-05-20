@@ -146,8 +146,8 @@ export default function Bubbles() {
   }, [filteredData, currentPage]);
 
   return (
-    <div className="relative min-h-screen bg-transparent">
-      <div className="flex justify-center space-x-4 bg-transparent mt-20">
+    <div className="relative bg-transparent">
+      <div className="flex justify-center space-x-4 bg-transparent0">
         {["1 Hour", "7 Hours", "7 Days"].map((f) => (
           <button
             key={f}
@@ -174,7 +174,7 @@ export default function Bubbles() {
         ) : (
           <BubbleChart cryptoData={displayedData} />
         )}
-        <div className="flex items-center justify-center p-2 bg-transparent">
+        <div className="flex items-center justify-center bg-transparent">
           <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={handlePageChange} />
         </div>
       </div>

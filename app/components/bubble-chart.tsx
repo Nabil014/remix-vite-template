@@ -17,15 +17,33 @@ interface BubbleChartProps {
 }
 
 export default function BubbleChart(props: BubbleChartProps) {
-  const outputRef = useRef<Element>();
+  const outputRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const resizeListener = () => {
+      renderChart();
+    };
+
+    window.addEventListener('resize', resizeListener);
+
+    renderChart();
+
+    return () => {
+      window.removeEventListener('resize', resizeListener);
+    };
+  }, [props.cryptoData]);
+
+  const renderChart = () => {
     if (outputRef.current) {
-      const width = window.innerWidth;
-      const height = window.innerHeight;
-      const minBubbleSize = 20;
-      const maxBubbleSize = 100;
-      const threshold = 40; // Umbral para mostrar solo el logo
+      const width = outputRef.current.clientWidth;
+      const height = outputRef.current.clientHeight;
+
+      const isMobile = width < 768;
+      const minBubbleSize = isMobile ? 20 : 20;
+      const maxBubbleSize = isMobile ? 50 : 70;
+      const threshold = 40;
+
+      d3.select(outputRef.current).select("svg").remove();
 
       const svg = d3
         .select(outputRef.current)
@@ -57,7 +75,6 @@ export default function BubbleChart(props: BubbleChartProps) {
       createGradient("positiveGradient", "rgba(98, 222, 147, 1)");
       createGradient("negativeGradient", "rgba(255, 99, 132, 1)");
 
-      // Add drop shadow filter
       const filter = defs.append("filter")
         .attr("id", "drop-shadow")
         .attr("height", "130%");
@@ -81,8 +98,7 @@ export default function BubbleChart(props: BubbleChartProps) {
         .domain([d3.min(props.cryptoData, d => d.price) || 0, d3.max(props.cryptoData, d => d.price) || 1])
         .range([minBubbleSize, maxBubbleSize]);
 
-      // Initialize the positions of the nodes
-      props.cryptoData.forEach((d, i) => {
+      props.cryptoData.forEach((d) => {
         d.x = Math.random() * width;
         d.y = Math.random() * height;
       });
@@ -90,7 +106,7 @@ export default function BubbleChart(props: BubbleChartProps) {
       const simulation = d3
         .forceSimulation<CryptoData>(props.cryptoData)
         .force("collide", d3.forceCollide<CryptoData>().radius(d => scaleSize(d.price) + 10).strength(1))
-        .force("center", d3.forceCenter(width / 2, height / 2).strength(0.01)) // Very light center force
+        .force("center", d3.forceCenter(width / 2, height / 2).strength(0.01))
         .force("x", d3.forceX(width / 2).strength(0.01))
         .force("y", d3.forceY(height / 2).strength(0.01))
         .force("charge", d3.forceManyBody().strength(-30))
@@ -112,7 +128,7 @@ export default function BubbleChart(props: BubbleChartProps) {
             ? "rgba(98, 222, 148, 0.9)"
             : "rgba(255, 99, 132, 0.9)"
         )
-        .style("stroke-width", 4) // More pronounced border
+        .style("stroke-width", 4)
         .style("filter", "url(#drop-shadow)")
         .attr("data-name", (d: any) => d.name)
         .attr("data-value", (d: any) => d.price)
@@ -143,7 +159,7 @@ export default function BubbleChart(props: BubbleChartProps) {
             .style("opacity", 1);
         });
 
-      node.each(function(d) {
+      node.each(function (d) {
         const group = d3.select(this);
         const bubbleSize = scaleSize(d.price);
         if (bubbleSize > threshold) {
@@ -225,7 +241,7 @@ export default function BubbleChart(props: BubbleChartProps) {
         svg.remove();
       };
     }
-  }, [props.cryptoData]);
+  };
 
-  return <div ref={outputRef} className="h-[66.4vh]"></div>;
+  return <div ref={outputRef} className="h-[74vh] w-full"></div>;
 }
