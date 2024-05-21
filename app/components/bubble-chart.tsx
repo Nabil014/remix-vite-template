@@ -41,7 +41,7 @@ export default function BubbleChart(props: BubbleChartProps) {
       const isMobile = width < 768;
       const minBubbleSize = isMobile ? 20 : 20;
       const maxBubbleSize = isMobile ? 50 : 70;
-      const threshold = 40;
+      const threshold = 30;
 
       d3.select(outputRef.current).select("svg").remove();
 
