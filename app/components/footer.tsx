@@ -15,19 +15,19 @@ const Footer = () => {
         </div>
         <div className="flex flex-col items-center justify-center mb-4 md:mb-0">
           <div className="flex space-x-4 text-center text-[#04E6E6]">
-            <a href="/about" className="hover:underline">
+            <a href="/about" className="hover:underline font-bold">
               About
             </a>
             <span>/</span>
-            <a href="/services" className="hover:underline">
+            <a href="/services" className="hover:underline font-bold">
               Service
             </a>
             <span>/</span>
-            <a href="/blog" className="hover:underline">
+            <a href="/blog" className="hover:underline font-bold">
               Blog
             </a>
           </div>
-          <div className="mt-2 text-center text-sm text-[#04E6E6]">
+          <div className="mt-2 text-center text-sm text-[#04E6E6] font-bold">
             CryptoGhost © 2024. All rights reserved.
           </div>
         </div>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-const lineChart = () => {
+const LineChart = () => {
   const [isClient, setIsClient] = useState(false);
   const [Chart, setChart] = useState(null);
 
@@ -20,22 +20,23 @@ const lineChart = () => {
       type: 'area',
       toolbar: { show: false },
       zoom: { enabled: false },
-      background: '#1f2937', 
+      background: 'transparent',
     },
     series: [
-      { name: '2023', data: [18000, 51000, 60000, 38000, 88000, 50000, 40000, 52000, 88000, 80000, 60000, 70000] },
-      { name: '2022', data: [27000, 38000, 60000, 77000, 40000, 50000, 49000, 29000, 42000, 27000, 42000, 50000] },
+      { name: '2023', data: [3500, 3400, 3600, 3500, 3700, 3300, 3100, 3200, 3150, 3100, 3300, 3700] },
     ],
-    legend: { show: false },
+    legend: { show: true, labels: { colors: '#ffffff' } },
     dataLabels: { enabled: false },
-    stroke: { curve: 'smooth', width: 2 },
+    stroke: { curve: 'smooth', width: 2, colors: ['#4ade80'] },
     grid: { borderColor: '#374151', strokeDashArray: 2 },
     fill: {
       type: 'gradient',
       gradient: { 
         shadeIntensity: 1, 
-        opacityFrom: 0.1, 
-        opacityTo: 0.8, 
+        inverseColors: false,
+        gradientToColors: ['#4ade80'], 
+        opacityFrom: 0.7, // Más notorio en los picos altos
+        opacityTo: 0.01, // Casi transparente en los picos bajos
         stops: [0, 100] 
       },
     },
@@ -49,19 +50,29 @@ const lineChart = () => {
       axisBorder: { show: false },
       axisTicks: { show: false },
       labels: {
-        style: { colors: '#d1d5db', fontSize: '13px', fontFamily: 'Inter, sans-serif', fontWeight: 600 },
+        style: { colors: '#9ca3af', fontSize: '12px', fontFamily: 'Inter, sans-serif', fontWeight: 400 },
       },
     },
     yaxis: {
+      min: 2900,
+      max: 3800,
       labels: {
-        style: { colors: '#d1d5db', fontSize: '13px', fontFamily: 'Inter, sans-serif', fontWeight: 600 },
-        formatter: (value) => value >= 1000 ? `${value / 1000}k` : value,
+        style: { colors: '#9ca3af', fontSize: '12px', fontFamily: 'Inter, sans-serif', fontWeight: 400 },
+        formatter: (value) => value,
       },
     },
     tooltip: {
       theme: 'dark',
       x: { format: 'MMMM yyyy' },
-      y: { formatter: (value) => `$${value >= 1000 ? `${value / 1000}k` : value}` },
+      y: { 
+        formatter: (value) => `$${value}`,
+        title: {
+          formatter: () => 'Price: ',
+        }
+      },
+      marker: {
+        fillColors: ['#4ade80'], // Cambia el color del marcador en el tooltip
+      },
     },
     responsive: [{
       breakpoint: 768,
@@ -69,12 +80,12 @@ const lineChart = () => {
         chart: { height: 300 },
         xaxis: {
           labels: {
-            style: { fontSize: '11px', fontWeight: 600 },
+            style: { fontSize: '11px', fontWeight: 400 },
           },
         },
         yaxis: {
           labels: {
-            style: { fontSize: '11px', fontWeight: 600 },
+            style: { fontSize: '11px', fontWeight: 400 },
           },
         },
       },
@@ -82,8 +93,7 @@ const lineChart = () => {
   };
 
   const series = [
-    { name: '2023', data: [18000, 51000, 60000, 38000, 88000, 50000, 40000, 52000, 88000, 80000, 60000, 70000] },
-    { name: '2022', data: [27000, 38000, 60000, 77000, 40000, 50000, 49000, 29000, 42000, 27000, 42000, 50000] },
+    { name: 'Price', data: [3500, 3400, 3600, 3500, 3700, 3300, 3100, 3200, 3150, 3100, 3300, 3700] },
   ];
 
   if (!isClient || !Chart) {
@@ -91,22 +101,19 @@ const lineChart = () => {
   }
 
   return (
-    <div className='bg-black p-4 rounded-lg shadow'>
+    <div className='bg-transparent p-4 rounded-lg shadow'>
+      <h2 className="text-white text-lg font-bold mb-4">Token Price Movement</h2>
       <div className="flex justify-center sm:justify-end items-center gap-x-4 mb-4">
-        <div className="flex items-center rounded-lg">
-          <span className="w-2.5 h-2.5 inline-block bg-blue-600 rounded-full mr-2"></span>
-          <span className="text-sm text-gray-300 font-semibold">Price</span>
-        </div>
         <div className="flex items-center">
-          <span className="w-2.5 h-2.5 inline-block bg-purple-600 rounded-full mr-2"></span>
-          <span className="text-sm text-gray-300 font-semibold">Volume</span>
+          <span className="w-2.5 h-2.5 inline-block bg-green-600 rounded-full mr-2"></span>
+          <span className="text-sm text-gray-300 font-semibold">Price</span>
         </div>
       </div>
       <div id="chart">
-        <Chart options={options} series={series} type="area" height={490} />
+        <Chart options={options} series={series} type="area" height={400} />
       </div>
     </div>
   );
 };
 
-export default lineChart;
+export default LineChart;
