@@ -8,9 +8,9 @@ export default function SidebarMain({ showSidebar }: Props) {
     <aside
       className={`fixed ${
         showSidebar ? 'left-0' : '-left-full'
-      }  z-50 w-64 md:left-0  h-screen transition-all duration-300  bg-[#1a1a1a] border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700`}
+      }  z-50 w-64 md:left-0  h-screen transition-all duration-300 bg-gradient-to-r  from-[#043033] via-[#000D0E] to-[#000D0E] border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700`}
     >
-      <div className={`  px-3 pb-4  bg-[#1a1a1a] dark:bg-gray-800`}>
+      <div className={`  px-3 pb-4  bg-transparent dark:bg-gray-800`}>
         <ul className='space-y-2  mt-8 font-medium'>
           <li>
             <Link

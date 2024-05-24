@@ -13,7 +13,7 @@ const Footer = () => {
             className="mr-3 h-8"
           />
         </div>
-        <div className="flex flex-col items-center justify-center mb-4 md:mb-0">
+        <div className="flex flex-col items-center justify-center mb-4 md:mb-0 mr-20">
           <div className="flex space-x-4 text-center text-[#04E6E6]">
             <a href="/about" className="hover:underline font-bold">
               About

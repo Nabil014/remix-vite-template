@@ -101,7 +101,7 @@ const LineChart = () => {
   }
 
   return (
-    <div className='bg-transparent p-4 rounded-lg shadow'>
+    <div className='bg-transparent rounded-lg shadow'>
       <h2 className="text-white text-lg font-bold mb-4">Token Price Movement</h2>
       <div className="flex justify-center sm:justify-end items-center gap-x-4 mb-4">
         <div className="flex items-center">

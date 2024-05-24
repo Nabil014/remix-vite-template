@@ -13,7 +13,7 @@ export default function NavbarMain({
 }: Props) {
   
   return (
-    <nav className='fixed bg-gradient-to-r from-[#1a1a1a]  via-black to-[#00f0ff] top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700'>
+    <nav className='fixed bg-[#000d0e] top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700'>
       <div className='px-3 py-3 lg:px-5 lg:pl-3'>
         <div className='flex items-center justify-between'>
           <div className='flex items-center justify-start rtl:justify-end'>
