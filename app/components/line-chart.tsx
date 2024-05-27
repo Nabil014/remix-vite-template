@@ -71,7 +71,7 @@ const LineChart = () => {
         }
       },
       marker: {
-        fillColors: ['#4ade80'], // Cambia el color del marcador en el tooltip
+        fillColors: ['#4ade80'], 
       },
     },
     responsive: [{
@@ -101,8 +101,7 @@ const LineChart = () => {
   }
 
   return (
-    <div className='bg-transparent rounded-lg shadow'>
-      <h2 className="text-white text-lg font-bold mb-4">Token Price Movement</h2>
+    <div className='h-full bg-transparent rounded-[30px] p-4'>
       <div className="flex justify-center sm:justify-end items-center gap-x-4 mb-4">
         <div className="flex items-center">
           <span className="w-2.5 h-2.5 inline-block bg-green-600 rounded-full mr-2"></span>
@@ -110,7 +109,7 @@ const LineChart = () => {
         </div>
       </div>
       <div id="chart">
-        <Chart options={options} series={series} type="area" height={400} />
+        <Chart options={options} series={series} type="area" height={270} />
       </div>
     </div>
   );

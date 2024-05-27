@@ -42,7 +42,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body className='bg-gradient-radial relative min-h-auto font-sans font-custom text-custom'>
+      <body className='bg-gradient-radial relative min-h-auto font-sans font-custom text-custom h-screen'>
         <LayoutMain userId={userId}>
           {children}
         </LayoutMain>
