@@ -1,4 +1,4 @@
-// app/root.tsx or app/entry.client.tsx (whichever file is the main entry point)
+// app/root.tsx o app/entry.client.tsx (cualquier archivo que sea el punto de entrada principal)
 import type { LinksFunction, LoaderFunction } from '@remix-run/node';
 import {
   Links,
@@ -42,7 +42,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body className='bg-gradient-radial font-custom text-custom'>
+      <body className='bg-gradient-radial relative min-h-auto font-sans font-custom text-custom'>
         <LayoutMain userId={userId}>
           {children}
         </LayoutMain>

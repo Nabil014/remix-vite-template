@@ -5,7 +5,6 @@ import Table from '~/components/table-list'
 import Footer from '~/components/footer'
 import LineChart from '~/components/line-chart'
 
-
 export default function Index() {
   // carrousel
   const items = [
@@ -91,7 +90,13 @@ export default function Index() {
   }
 
   return (
-    <div className="bg-gradient-radial flex min-h-screen flex-col gap-8 from-[#043033] via-[#000D0E] to-[#000D0E] p-8">
+    <div className="bg-gradient-radial relative flex min-h-screen flex-col gap-8 from-[#043033] via-[#000D0E] to-[#000D0E] p-8 overflow-hidden">
+      {/* Primer círculo */}
+      <div className='absolute w-[523px] h-[523px] bg-custom-radial rounded-full opacity-50' style={{ top: '80px', left: '800px', transform: 'rotate(90deg)' }}></div>
+      {/* Segundo círculo */}
+      <div className='absolute w-[771px] h-[771px] bg-custom-radial rounded-full opacity-50' style={{ top: '500px', left: '-450px', transform: 'rotate(-90deg)' }}></div>
+      {/* Tercer círculo */}
+      <div className='absolute w-[523px] h-[523px] bg-custom-radial rounded-full opacity-50' style={{ top: '1200px', left: '800px', transform: 'rotate(90deg)' }}></div>
       <PlaceholdersAndVanishInput
         placeholders={['Placeholder 1', 'Placeholder 2', 'Placeholder 3']}
         onChange={handleChange}
@@ -120,7 +125,6 @@ export default function Index() {
         </h2>
         <Table data={data} />
       </div>
-      <LineChart />
       <Footer/>
     </div>
   )

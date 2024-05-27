@@ -1,4 +1,3 @@
-// tailwind.config.ts
 const defaultTheme = require("tailwindcss/defaultTheme");
 const colors = require("tailwindcss/colors");
 const { default: flattenColorPalette } = require("tailwindcss/lib/util/flattenColorPalette");
@@ -51,12 +50,15 @@ module.exports = {
         customCard: "#1e293b",
         customText: "#94a3b8",
         customTitle: "#e2e8f0",
+        customCircle: "rgba(4, 230, 230, 0.1)",
+        customCircleBorder: "rgba(4, 230, 230, 0.5)",
       },
       borderRadius: {
         custom: "15px",
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(circle, #043033 0%, #000D0E 100%)',
+        'custom-radial': 'radial-gradient(50.48% 50.48% at 47.61% 57.74%, rgba(4, 230, 230, 0.5) 0%, rgba(115, 115, 115, 0) 70%)',
       },
     },
   },
@@ -69,7 +71,7 @@ module.exports = {
   ],
 } satisfies Config;
 
-function addVariablesForColors({ addBase, theme }: any) {
+function addVariablesForColors({ addBase, theme }) {
   let allColors = flattenColorPalette(theme("colors"));
   let newVars = Object.fromEntries(Object.entries(allColors).map(([key, val]) => [`--${key}`, val]));
 
