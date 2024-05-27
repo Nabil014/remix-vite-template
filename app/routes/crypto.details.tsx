@@ -1,11 +1,11 @@
-import TokenInfo from '~/components/token-info'
-import TokenDetails from '~/components/token-detail'
-import LineChart from '~/components/line-chart'
-import Footer from '~/components/footer'
+import TokenInfo from '~/components/token-info';
+import TokenDetails from '~/components/token-detail';
+import LineChart from '~/components/line-chart';
+import Footer from '~/components/footer';
 
 export default function CryptoDetails() {
   return (
-    <div className='bg-transparent h-screen'>
+    <div className="bg-gradient-radial h-auto">
       <div className="flex flex-col items-center p-4 lg:items-start">
         <TokenInfo />
         <div className="mt-8 flex w-full flex-col lg:flex-row lg:items-start">
@@ -21,5 +21,5 @@ export default function CryptoDetails() {
       </div>
       <Footer />
     </div>
-  )
+  );
 }
