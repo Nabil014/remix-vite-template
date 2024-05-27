@@ -5,7 +5,7 @@ import Footer from '~/components/footer';
 
 export default function CryptoDetails() {
   return (
-    <div className="bg-gradient-radial h-auto">
+    <div className="bg-gradient-radial h-auto p-8">
       <div className="flex flex-col items-center p-4 lg:items-start">
         <TokenInfo />
         <div className="mt-8 flex w-full flex-col lg:flex-row lg:items-start">
