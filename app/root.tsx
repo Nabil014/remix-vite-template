@@ -1,3 +1,4 @@
+// app/root.tsx or app/entry.client.tsx (whichever file is the main entry point)
 import type { LinksFunction, LoaderFunction } from '@remix-run/node';
 import {
   Links,
@@ -17,7 +18,6 @@ import "./nprogress.css";
 
 export const links: LinksFunction = () => [
   { rel: 'stylesheet', href: stylesheet },
-
 ];
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -27,11 +27,11 @@ export const loader: LoaderFunction = async ({ request }) => {
     /Android|BlackBerry|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i
   );
 
-  return {userId ,isMobile };
+  return { userId, isMobile };
 };
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const { isMobile,userId } = useLoaderData<typeof loader>();
+  const { isMobile, userId } = useLoaderData<typeof loader>();
   useRouteProgressBar(!isMobile);
 
   return (
@@ -42,7 +42,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body className='bg-gradient-to-r from-[#1a1a1a] via-black to-[#00f0ff]'>
+      <body className='bg-gradient-radial font-custom text-custom'>
         <LayoutMain userId={userId}>
           {children}
         </LayoutMain>

@@ -2,8 +2,8 @@ import React from 'react'
 import { InfiniteMovingCards } from '~/components/infinite-moving-cards'
 import { PlaceholdersAndVanishInput } from '~/components/placeholders-and-vanish-input'
 import Table from '~/components/table-list'
-import ChartComponent from '~/components/line-chart';
 import Footer from '~/components/footer'
+import LineChart from '~/components/line-chart'
 
 
 export default function Index() {
@@ -120,6 +120,7 @@ export default function Index() {
         </h2>
         <Table data={data} />
       </div>
+      <LineChart />
       <Footer/>
     </div>
   )

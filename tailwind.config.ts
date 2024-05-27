@@ -14,6 +14,15 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Inter', ...defaultTheme.fontFamily.sans],
+      },
+      fontWeight: {
+        custom: 600,
+      },
+      fontSize: {
+        custom: ['16px', { lineHeight: '19.36px' }],
+      },
       boxShadow: {
         input: `0px 2px 3px -1px rgba(0,0,0,0.1), 0px 1px 0px 0px rgba(25,28,33,0.02), 0px 0px 0px 1px rgba(25,28,33,0.08)`,
         custom: `0 4px 6px rgba(0, 0, 0, 0.1)`,
