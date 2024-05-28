@@ -1,7 +1,9 @@
+import React from 'react';
 import TokenInfo from '~/components/token-info';
 import TokenDetails from '~/components/token-detail';
 import LineChart from '~/components/line-chart';
 import Footer from '~/components/footer';
+import TokenAnalysis from '~/components/token-analysis';
 
 export default function CryptoDetails() {
   return (
@@ -17,6 +19,9 @@ export default function CryptoDetails() {
             <h3 className="text-[16px] font-semibold leading-[19.36px] text-[#F5F5F5] mb-4">Token Price Movement</h3>
             <LineChart />
           </div>
+        </div>
+        <div className="mt-8 w-full">
+          <TokenAnalysis />
         </div>
       </div>
       <Footer />
