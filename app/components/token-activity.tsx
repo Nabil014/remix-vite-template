@@ -4,7 +4,7 @@ import { FaCopy } from 'react-icons/fa';
 const ActivityCard = () => {
   return (
     <div
-      className="relative mx-auto rounded-[30px] border border-[#04E6E6] bg-[#022527] text-white shadow-inner w-[1000px] h-[203px] p-[24px_48px_48px_32px] shadow-[inset_0_15px_10px_0_rgba(0,0,0,0.25)]"
+      className=" mt-8 relative mx-auto rounded-[30px] border border-[#04E6E6] bg-[#022527] text-white shadow-inner w-[1000px] h-[203px] p-[24px_48px_48px_32px] shadow-[inset_0_15px_10px_0_rgba(0,0,0,0.25)]"
     >
       <div className="absolute left-[32px] top-[24px] text-[#F5F5F5] font-inter font-semibold text-[20px] leading-[24.2px]">
         Activity
