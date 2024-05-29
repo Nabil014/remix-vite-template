@@ -74,7 +74,7 @@ const TokenAnalysis: React.FC = () => {
   const tabs = ['Token Transfers', 'Token Holders', 'Holder Insights', 'Profitable Wallets', 'Token Swaps', 'Token Pairs'];
 
   return (
-    <div className="bg-transparent text-white p-4 rounded-2xl shadow-lg w-full">
+    <div className="bg-transparent text-white p-4 rounded-2xl w-full">
       <h1 className="text-[#F5F5F5] font-inter font-semibold text-lg leading-tight mb-4">Token Analysis</h1>
       <div className="flex space-x-2 pb-3 border-b border-[#04E6E6] overflow-x-auto whitespace-nowrap">
         {tabs.map((tab) => (
@@ -91,9 +91,9 @@ const TokenAnalysis: React.FC = () => {
       </div>
       <div className="mt-6">
         <h2 className="text-[#F5F5F5] font-inter font-semibold text-xl leading-tight mb-4">Activity</h2>
-        <div className="bg-[#022527] p-4 rounded-2xl border border-[#04E6E6]">
+        <div className="bg-transparent p-4 rounded-2xl border border-[#04E6E6]">
           <div
-            className={`overflow-y-auto ${activities.length > 5 ? 'max-h-80' : ''}`}
+            className={`overflow-y-auto ${activities.length > 4 ? 'max-h-80' : ''}`}
             style={{
               scrollbarWidth: 'thin',
               scrollbarColor: '#000000 transparent',
