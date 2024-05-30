@@ -15,7 +15,7 @@ const data = [
 
 export default function WalletInteractions() {
   return (
-    <div className="wallet-interactions mt-6 w-full max-w-[662px] h-auto rounded-[30px] bg-transparent p-6 sm:p-[32px] text-white">
+    <div className="wallet-interactions mt-6 w-full max-w-[590px] h-auto min-h-[500px] rounded-[30px] bg-transparent p-6 sm:p-[32px] text-white">
       <h2 className="text-[14px] font-semibold text-[#F5F5F5] leading-[16.94px]">Wallet Interactions</h2>
       <p className="text-[10px] font-semibold text-[#F5F5F5] leading-[12.1px] opacity-50 mt-2">
         Wallet interactions based on the last 90 days
@@ -46,9 +46,9 @@ export default function WalletInteractions() {
           </thead>
           <tbody>
             {data.map((interaction, index) => (
-              <tr key={index}>
-                <td className="border-b border-[#04E6E6] py-2 text-left text-[10px] font-semibold text-[#F5F5F5] leading-[12.1px]">{interaction.address}</td>
-                <td className="border-b border-[#04E6E6] py-2 text-right text-[10px] font-semibold text-[#F5F5F5] leading-[12.1px]">{interaction.interactions}</td>
+              <tr key={index} className="space-y-2">
+                <td className="border-b border-[#04E6E6] py-3 text-left text-[10px] font-semibold text-[#F5F5F5] leading-[12.1px]">{interaction.address}</td>
+                <td className="border-b border-[#04E6E6] py-3 text-right text-[10px] font-semibold text-[#F5F5F5] leading-[12.1px]">{interaction.interactions}</td>
               </tr>
             ))}
           </tbody>
