@@ -13,7 +13,7 @@ export default function NavbarMain({
 }: Props) {
   
   return (
-    <nav className='fixed bg-gradient-radial from-[#043033] via-[#000D0E] to-[#000D0E] top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700'>
+    <nav className='fixed bg-gradient-radial from-[#043033] via-[#000D0E] to-[#000D0E] top-0 z-50 w-full  dark:bg-gray-800 dark:border-gray-700'>
       <div className='px-3 py-3 lg:px-5 lg:pl-3'>
         <div className='flex items-center justify-between'>
           <div className='flex items-center justify-start rtl:justify-end'>
@@ -79,7 +79,7 @@ export default function NavbarMain({
             </div>
           </div>
           {userId && (
-            <Link to='/dashboard/bubbles'>
+            <Link to='/dashboard/home'>
               <button
                 type='button'
                 className='text-black mr-4 bg-white hover:bg-[#04E6E6] focus:ring-4 focus:outline-none focus:ring-black font-medium rounded-lg text-sm px-4 py-2 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-[#04E6E6]'
