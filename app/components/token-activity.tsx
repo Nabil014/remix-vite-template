@@ -14,13 +14,13 @@ const ActivityCard = () => {
           <div className="mb-4">
             <span className="text-sm text-[#F5F5F5] opacity-50 font-inter text-[12px] leading-[14.52px]">Address</span>
             <div className="flex items-center">
-              <div className="mr-1 text-lg font-inter font-semibold text-[#F5F5F5] text-[14px] leading-[14.52px]">0xd8a...6045</div>
+              <div className="mr-1 font-inter font-semibold text-[#F5F5F5] text-[14px] leading-[14.52px]">0xd8a...6045</div>
               <FaCopy className="text-[#F5F5F5] w-[7.5px] h-[8.5px] border border-[#F5F5F5] rounded-[2px] p-[1px] ml-[5px]" />
             </div>
           </div>
           <div className='mt-2'>
             <span className="text-sm text-[#F5F5F5] opacity-50 font-inter text-[12px] leading-[14.52px]">First seen</span>
-            <div className="text-lg font-inter text-[#F5F5F5] text-[14px] leading-[16.94px]">4 months ago</div>
+            <div className="font-inter text-[#F5F5F5] text-[14px] leading-[16.94px]">4 months ago</div>
           </div>
         </div>
         <div className="flex flex-col">
@@ -31,7 +31,7 @@ const ActivityCard = () => {
             ))}
           </div>
           <div className="mt-6 text-sm text-[#F5F5F5] opacity-50 font-inter text-[12px] leading-[14.52px]">First seen</div>
-          <div className="text-lg font-inter text-[#F5F5F5] text-[14px] leading-[16.94px]">8 months ago</div>
+          <div className="font-inter text-[#F5F5F5] text-[14px] leading-[16.94px]">8 months ago</div>
         </div>
         <div className="flex flex-col items-end">
           <span className="text-sm text-[#F5F5F5] opacity-50 font-inter text-[12px] leading-[14.52px]">Cross-chain Networth</span>

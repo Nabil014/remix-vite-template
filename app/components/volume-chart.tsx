@@ -65,7 +65,7 @@ const VolumeChart = () => {
       },
       y: {
         ticks: {
-          color: '#FFFFFF',
+          color: 'rgba(245, 245, 245, 0.5)',
           font: {
             family: 'Arial',
             size: 12
@@ -80,9 +80,9 @@ const VolumeChart = () => {
   };
 
   return (
-    <div className="relative h-96 w-[800px] bg-transparent p-6 rounded-lg">
-      <div className="text-white text-xl font-semibold mb-2">Wallet Activity</div>
-      <div className="text-gray-400 mb-4">Weekly transactions over the last 90 days</div>
+    <div className="relative bg-transparent p-8 rounded-lg text-white" style={{ width: '661px', height: '328px' }}>
+      <div className="text-lg font-semibold mb-2" style={{ fontSize: '14px', fontWeight: 600 }}>Wallet Activity</div>
+      <div className="text-gray-400 mb-4" style={{ fontSize: '12px', fontWeight: 700, color: 'rgba(245, 245, 245, 0.5)' }}>Weekly transactions over the last 90 days</div>
       <Bar data={data} options={options} />
     </div>
   );
