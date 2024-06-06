@@ -287,7 +287,7 @@ const OnchainDataPlatform = () => {
             </button>
           </div>
         </div>
-        <div className="w-full text-center text-white">
+        <div className="w-full text-center text-white mt-20">
           <div className="mb-4 flex flex-wrap items-center justify-around bg-gradient-to-r from-[#022527] to-[#08858D]">
             {logosTop.map(logo => (
               <div className="rounded p-2" key={logo.alt}>
