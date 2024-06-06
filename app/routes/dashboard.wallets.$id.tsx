@@ -11,7 +11,7 @@ import { CopyToClipboard } from 'react-copy-to-clipboard'; // Importa el compone
 const startMoralis = async () => {
   if (!Moralis.Core.isStarted) {
     await Moralis.start({
-      apiKey: "YOUR_MORALIS_API_KEY",
+      apiKey: process.env.MORALIS,
     });
   }
 };

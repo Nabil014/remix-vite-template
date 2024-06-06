@@ -15,6 +15,7 @@ import LayoutMain from './components/Layout/LayoutMain';
 import { useRouteProgressBar } from './utils/useRouteProgressBar';
 import nprogressCss from "./nprogress.css";
 import "./nprogress.css";
+import NavbarMain from './components/Layout/navbarMain';
 
 export const links: LinksFunction = () => [
   { rel: 'stylesheet', href: stylesheet },
@@ -43,9 +44,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body className='bg-gradient-radial relative min-h-auto font-sans font-custom text-custom h-auto'>
-        <LayoutMain userId={userId}>
+         <NavbarMain toggleSidebar={isMobile} showSidebar={isMobile} userId/>
+         
           {children}
-        </LayoutMain>
         <ScrollRestoration />
         <Scripts />
         <script src='https://cdn.jsdelivr.net/npm/preline@2.0.3/dist/preline.min.js'></script>
