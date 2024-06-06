@@ -217,7 +217,7 @@ const BlockchainDataBanner = () => {
   return (
     <div className="mt-20 md:mt-40 p-10 text-white">
       <div className="flex flex-col md:flex-row max-w-7xl mx-auto text-left">
-        <h2 className="w-full md:w-1/2 text-3xl font-extrabold text-white sm:text-4xl mb-4 md:mb-0">
+        <h2 className="w-full text-center md:w-1/2 text-3xl font-extrabold text-white sm:text-4xl mb-4 md:mb-0">
           The backbone for blockchain data
         </h2>
         <div className="flex flex-col md:flex-row items-center justify-around w-full md:w-1/2">
@@ -253,7 +253,7 @@ const BlockchainDataBanner = () => {
 const OnchainDataPlatform = () => {
   return (
     <div className="flex min-h-screen flex-col justify-center bg-gradient-radial px-4">
-      <div className="mt-10 flex w-full max-w-6xl flex-col items-center justify-center px-4">
+      <div className="mt-10 flex w-full max-w-full flex-col items-center justify-center px-4">
         <div className="mb-16 w-full max-w-xl space-y-8 rounded-lg p-4 text-center">
           <div className="inline-flex items-center rounded-full border border-teal-400 bg-transparent px-3 py-1 text-white transition duration-300 hover:border-teal-500 hover:bg-teal-500 hover:text-black">
             <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
