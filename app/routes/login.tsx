@@ -1,170 +1,218 @@
-// login.tsx
 import { useState, useEffect, useRef } from 'react'
-import { FormField } from '~/components/form-field'
-import { validateEmail, validateName, validatePassword } from '~/utils/validators.server'
-import { ActionFunction, json, LoaderFunction, redirect } from '@remix-run/node'
+import { validateEmail, validatePassword } from '~/utils/validators.server'
+import { ActionFunction, json, redirect } from '@remix-run/node'
 import { useActionData } from '@remix-run/react'
-
-import {
-    IconBrandGithub,
-    IconBrandGoogle,
-    IconBrandOnlyfans,
-  } from "@tabler/icons-react";
 import { Input } from '~/components/Input'
-import { Label } from '~/components/Label'
+import { Label } from '~/components/Label' // Make sure this import is correct
 import { cn } from '~/utils/cn'
 import { login } from '~/utils/queries'
 import { setAuthOnResponse } from '~/utils/auth'
 
-
-
 export const action: ActionFunction = async ({ request }) => {
-    const form = await request.formData();
-    const email = form.get("email");
-    const password = form.get("password");
-    console.log("asdasdasd"+email)
+  const form = await request.formData()
+  const email = form.get('email')
+  const password = form.get('password')
 
-    // If not all data was passed, error
-    if ( 
-        typeof email !== "string" ||
-        typeof password !== "string"
-    ) {
-        return json({ error: `Invalid Form Data`, form: "login" }, { status: 400 });
-    }
+  if (typeof email !== 'string' || typeof password !== 'string') {
+    return json({ error: `Invalid Form Data`, form: 'login' }, { status: 400 })
+  }
 
+  const errors = {
+    email: validateEmail(email),
+    password: validatePassword(password),
+  }
 
-    // Validate email & password
-    const errors = {
-        email: validateEmail(email),
-        password: validatePassword(password),
-     
-    };
+  if (Object.values(errors).some(Boolean)) {
+    return json(
+      { errors, fields: { email, password }, form: 'login' },
+      { status: 400 },
+    )
+  }
 
-    //  If there were any errors, return them
-    if (Object.values(errors).some(Boolean))
-        return json({ errors, fields: { email, password }, form: "login" }, { status: 400 });
+  let userId = await login(email, password)
 
-    
-   
-            let userId = await login(email, password)
+  if (userId === false) {
+    return json({ ok: false, errors: { password: 'Invalid credentials' } }, 400)
+  }
 
-
-
-            if (userId === false) {
-              return json(
-                { ok: false, errors: { password: "Invalid credentials" } },
-                400,
-              );
-            }
-          
-            let response = redirect("/dashboard/bubbles");
-            return setAuthOnResponse(response, userId.toString());
-              
-            
-    
-  
+  let response = redirect('/dashboard/bubbles')
+  return setAuthOnResponse(response, userId.toString())
 }
 
 export default function Login() {
-    const actionData = useActionData()
-    const firstLoad = useRef(true)
-    let actionResult = useActionData<typeof action>();
+  const actionData = useActionData()
+  const firstLoad = useRef(true)
+  let actionResult = useActionData<typeof action>()
 
-    const [errors, setErrors] = useState(actionData?.errors || {})
-    const [formData, setFormData] = useState({
-      email: actionData?.fields?.email || '',
-      password: actionData?.fields?.password || '',
+  const [errors, setErrors] = useState(actionData?.errors || {})
+  const [formData, setFormData] = useState({
+    email: actionData?.fields?.email || '',
+    password: actionData?.fields?.password || '',
   })
-console.log(actionData)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
-    // Updates the form data when an input changes
-    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>, field: string) => {
-      console.log("event.target.value "+event.target.value )
-        setFormData(form => ({ ...form, [field]: event.target.value }))
-    }
+  const handleInputChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    field: string,
+  ) => {
+    setFormData(form => ({ ...form, [field]: event.target.value }))
+  }
 
-    useEffect(() => {
-        // We don't want to reset errors on page load because we want to see them
-        firstLoad.current = false
-    }, [])
-    return (
-        
-            <div className="h-[100vh]  justify-center items-center flex flex-col gap-y-4">
-                <div className="max-w-md mt-10 w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black">
-      <h2 className="font-bold text-xl text-neutral-800 dark:text-neutral-200">
-        Login to CryptoGhost
-      </h2>
-      <p className="text-neutral-600 text-sm max-w-sm mt-2 dark:text-neutral-300">
-        Complete all fills to login.
-      </p>
- 
-      <form method="POST"  className="my-8" >
+  useEffect(() => {
+    firstLoad.current = false
+  }, [])
 
-        <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-4">
-        
+  const toggleModal = () => {
+    setIsModalOpen(!isModalOpen)
+  }
+
+  return (
+    <div className="flex h-screen flex-col items-center justify-center ">
+      <div className="mx-auto w-full max-w-md rounded-lg p-6">
+        <div className="mb-6 flex flex-col items-center">
+          <img
+            src="https://res.cloudinary.com/dug5cohaj/image/upload/v1714945513/qg0xzn0ocr0vz9nafhim.png"
+            alt="Crypto Ghost Logo"
+            className="w-[293px]"
+          />
         </div>
-        <LabelInputContainer className="mb-4">
-          <Label htmlFor="email">Email Address</Label>
-          
-          <Input id="email" 
-          name="email" 
-          aria-describedby={
-            actionResult?.errors?.email ? "email-error" : "login-header"
-          }
-                        value={formData.email}
-                        onChange={e => handleInputChange(e, 'email')} placeholder="projectmayhem@fc.com" type="email" />
-        </LabelInputContainer>
-        <LabelInputContainer className="mb-4">
-          <Label htmlFor="password">Password</Label>
-         
-          <Input id="password"       required          aria-describedby="password-error"
- name="password"  value={formData.password}
-                        onChange={e => handleInputChange(e, 'password')} placeholder="••••••••" type="password" />
-        </LabelInputContainer>
-        {actionResult?.errors?.email && (
-                  <span id="email-error" className="text-brand-red">
-                    {actionResult.errors.email}
-                  </span>
-                )}
-                    {actionResult?.errors?.password && (
-                  <span id="password-error" className="text-brand-red">
-                    {actionResult.errors.password}
-                  </span>
-                )}
+        <h2 className="mb-4 text-center text-xl text-white">Sign in</h2>
+        <p className="mb-6 text-center text-gray-400">
+          Enter your email and password to continue
+        </p>
+        <form method="POST" className="space-y-4">
+          <LabelInputContainer>
+            <Label htmlFor="email" className="text-white">
+              Email Address
+            </Label>
+            <Input
+              id="email"
+              name="email"
+              aria-describedby={
+                actionResult?.errors?.email ? 'email-error' : 'login-header'
+              }
+              value={formData.email}
+              onChange={e => handleInputChange(e, 'email')}
+              placeholder="Enter your email"
+              type="email"
+              className={cn(
+                "w-full rounded border bg-gradient-radial p-2 text-white",
+                actionResult?.errors?.email ? 'border-red-500' : 'border-[#04E6E6] border-opacity-50'
+              )}
+              style={{ borderWidth: '0.5px' }}
+            />
+            {actionResult?.errors?.email && (
+              <span id="email-error" className="text-red-500 mt-1 text-sm">
+                {actionResult.errors.email}
+              </span>
+            )}
+          </LabelInputContainer>
+          <LabelInputContainer>
+            <Label htmlFor="password" className="text-white">
+              Password
+            </Label>
+            <Input
+              id="password"
+              name="password"
+              aria-describedby={
+                actionResult?.errors?.password ? 'password-error' : ''
+              }
+              value={formData.password}
+              onChange={e => handleInputChange(e, 'password')}
+              placeholder="Enter your password"
+              type="password"
+              className={cn(
+                "w-full rounded border bg-gradient-radial p-2 text-white",
+                actionResult?.errors?.password ? 'border-red-500' : 'border-[#04E6E6] border-opacity-50'
+              )}
+              style={{ borderWidth: '0.5px' }}
+            />
+            {actionResult?.errors?.password && (
+              <span id="password-error" className="text-red-500 mt-1 text-sm">
+                {actionResult.errors.password}
+              </span>
+            )}
+          </LabelInputContainer>
+          {actionResult?.errors?.email && (
+            <span id="email-error" className="text-red-500 mt-1 text-sm">
+              {actionResult.errors.email}
+            </span>
+          )}
+          {actionResult?.errors?.password && (
+            <span id="password-error" className="text-red-500 mt-1 text-sm">
+              {actionResult.errors.password}
+            </span>
+          )}
+          <button
+            className="w-full rounded-md bg-teal-500 px-4 py-2 font-bold text-white transition duration-200 hover:bg-teal-600"
+            type="submit"
+          >
+            Continue
+          </button>
+          <div className='text-center'>
+            <a href="#" className="text-[#04E6E6] font-[16px] hover:underline">
+              Forgot password?
+            </a>
+          </div>
+          <div className="mt-4 text-center text-sm text-white">
+            <a href="#" className="hover:underline">
+            Don’t have an account? <span className="text-[#04E6E6]"> Sign up</span>
+            </a>
+          </div>
+        </form>
+        <div className="mt-6 flex items-center justify-center text-white">
+          <div className="border-[#F5F5F533] opacity-20 w-full border-t"></div>
+          <span className="mx-4">or</span>
+          <div className="border-[#F5F5F533] opacity-20 w-full border-t"></div>
+        </div>
         <button
-          className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
-          type="submit"
+          className="mt-4 w-full rounded-md border border-teal-500 bg-transparent px-4 py-2 font-bold text-teal-500 transition duration-200 hover:bg-teal-500 hover:text-white"
+          onClick={toggleModal}
         >
-          Log In&rarr;
-          <BottomGradient />
+          Sign in with Wallet
         </button>
- 
-        
-      </form>
+      </div>
+      {isModalOpen && <WalletModal onClose={toggleModal} />}
     </div>
-            </div>
-    )
+  )
 }
 
-const BottomGradient = () => {
-    return (
-      <>
-        <span className="group-hover/btn:opacity-100 block transition duration-500 opacity-0 absolute h-px w-full -bottom-px inset-x-0 bg-gradient-to-r from-transparent via-cyan-500 to-transparent" />
-        <span className="group-hover/btn:opacity-100 blur-sm block transition duration-500 opacity-0 absolute h-px w-1/2 mx-auto -bottom-px inset-x-10 bg-gradient-to-r from-transparent via-indigo-500 to-transparent" />
-      </>
-    );
-  };
-   
-  const LabelInputContainer = ({
-    children,
-    className,
-  }: {
-    children: React.ReactNode;
-    className?: string;
-  }) => {
-    return (
-      <div className={cn("flex flex-col space-y-2 w-full", className)}>
-        {children}
+const LabelInputContainer = ({ children, className }: any) => {
+  return (
+    <div className={cn('flex flex-col space-y-2', className)}>{children}</div>
+  )
+}
+
+
+
+const WalletModal = ({ onClose }: { onClose: () => void }) => {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90">
+      <div
+        className="bg-[#022527] p-8 rounded-[30px] w-[371.27px] h-[358px] border border-[#04E6E6] border-opacity-50"
+        style={{ padding: '32px', gap: '32px', borderWidth: '0.5px' }}
+      >
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl text-white">Connect Wallet</h2>
+          <button onClick={onClose} className="text-white text-xl">&times;</button>
+        </div>
+        <div className="space-y-4">
+          <button className="flex items-center justify-between w-full p-3 rounded-lg hover:bg-[#334155] border border-[#04E6E6] border-opacity-50">
+            <span>Metamask</span>
+            <img src="/images/metamask-logo.svg" alt="Metamask" className="w-6 h-6" />
+          </button>
+          <button className="flex items-center justify-between w-full p-3 rounded-lg hover:bg-[#334155] border border-[#04E6E6] border-opacity-50">
+            <span>Coinbase Wallet</span>
+            <img src="/images/coinbase-logo.jpg" alt="Coinbase" className="w-6 h-6" />
+          </button>
+          <button className="flex items-center justify-between w-full p-3 rounded-lg hover:bg-[#334155] border border-[#04E6E6] border-opacity-50">
+            <span>Other Wallets</span>
+            <img src="https://avatars.githubusercontent.com/u/37784886?s=200&v=4" alt="Other Wallets" className="w-6 h-6" />
+          </button>
+        </div>
       </div>
-    );
-  };
+    </div>
+  )
+}
+
+
