@@ -1,7 +1,7 @@
 import { json, type LoaderFunction } from "@remix-run/node";
 
 const API_KEY = process.env.MORALIS ?? '';
-const betaURL = process.env.PNL_BETA_URL ?? '';
+const betaURL = process.env.PNL_BETA_URL ?? 'https://deep-index.moralis.io/api/v2';
 
 export const loader: LoaderFunction = async ({ request }) => {
   try {
@@ -14,8 +14,17 @@ export const loader: LoaderFunction = async ({ request }) => {
     }
 
     console.log(`Fetching PnL for wallet: ${address} on chain: ${chain}`);
+    console.log(`Using betaURL: ${betaURL}`);
+    console.log(`Using API_KEY: ${API_KEY}`);
 
-    const response = await fetch(`${betaURL}/wallets/${address}/profitability?chain=${chain}&days=all`, {
+    if (!betaURL) {
+      throw new Error('PNL_BETA_URL is not defined');
+    }
+
+    const fetchUrl = `${betaURL}/wallets/${address}/profitability?chain=${chain}&days=all`;
+    console.log(`Fetching URL: ${fetchUrl}`);
+
+    const response = await fetch(fetchUrl, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
