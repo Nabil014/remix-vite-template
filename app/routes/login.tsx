@@ -189,7 +189,7 @@ const WalletModal = ({ onClose }: { onClose: () => void }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90">
       <div
-        className="bg-[#022527] p-8 rounded-[30px] w-[371.27px] h-[358px] border border-[#04E6E6] border-opacity-50"
+        className="bg-[#022527] p-8 rounded-[30px] w-[370px] h-[320px] border border-[#04E6E6] border-opacity-50"
         style={{ padding: '32px', gap: '32px', borderWidth: '0.5px' }}
       >
         <div className="flex justify-between items-center mb-4">
