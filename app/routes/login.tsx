@@ -150,7 +150,7 @@ export default function Login() {
             Continue
           </button>
           <div className='text-center'>
-            <a href="#" className="text-[#04E6E6] font-[16px] hover:underline">
+            <a href="/forgot/password" className="text-[#04E6E6] font-[16px] hover:underline">
               Forgot password?
             </a>
           </div>

@@ -181,7 +181,7 @@ export default function Register() {
           <div className="w-full border-t border-[#F5F5F533] opacity-20"></div>
         </div>
         <button
-          className="mt-6 w-full rounded-md border border-teal-500 bg-transparent px-4 py-2 font-bold text-teal-500 transition duration-200 hover:bg-teal-500 hover:text-white"
+          className="mt-10 w-full rounded-md border border-teal-500 bg-transparent px-4 py-2 font-bold text-teal-500 transition duration-200 hover:bg-teal-500 hover:text-white"
           onClick={handleClick}
         >
           Sign in with Wallet
