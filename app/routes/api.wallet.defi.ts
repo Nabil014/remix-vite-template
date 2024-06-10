@@ -1,6 +1,6 @@
 import { json, type LoaderFunction } from "@remix-run/node";
 
-const API_KEY = process.env.MORALIS ?? ''; // Asegúrate de definir tu API_KEY en el entorno
+const API_KEY = process.env.MORALIS ?? '';
 const baseURL = "https://deep-index.moralis.io/api/v2.2";
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -52,14 +52,14 @@ export const loader: LoaderFunction = async ({ request }) => {
 
     let uniswapRewards = 0;
     let uniswapValue = 0;
-    let totalUsdValue = 0; // Asegurarse de que esto esté definido si lo estás utilizando
+    // let totalUsdValue = 0;
 
     if (protocolSummary && protocolSummary.protocols && protocolSummary.protocols.length > 0) {
       for (const protocol of protocolSummary.protocols) {
         if (protocol.protocol_name === "uniswap-v3") {
           uniswapRewards = protocol.unclaimed_total_value_usd;
           uniswapValue = protocol.total_value_usd;
-          totalUsdValue += protocol.total_value_usd;
+          // totalUsdValue += protocol.total_value_usd;
         }
       }
     }
