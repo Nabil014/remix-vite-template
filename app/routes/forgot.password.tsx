@@ -56,7 +56,7 @@ export default function ForgotPassword() {
           />
         </div>
         <h2 className="mb-4 text-center text-xl text-white">
-          Thank you for joining CryptoGhost
+        Forgot your password?
         </h2>
         <p className="mb-6 text-center text-gray-400">
           Enter your email address below and we’ll send you
