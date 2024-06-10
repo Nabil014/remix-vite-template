@@ -57,7 +57,7 @@ export default function Register() {
   }
 
   const handleClick = () => {
-    navigate('/forgot/password')
+    navigate('/join/account')
   }
 
   useEffect(() => {
