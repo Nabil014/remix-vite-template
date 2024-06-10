@@ -155,7 +155,7 @@ export default function Login() {
             </a>
           </div>
           <div className="mt-4 text-center text-sm text-white">
-            <a href="#" className="hover:underline">
+            <a href="/register" className="hover:underline">
             Don’t have an account? <span className="text-[#04E6E6]"> Sign up</span>
             </a>
           </div>
