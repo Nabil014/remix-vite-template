@@ -1,3 +1,4 @@
+import { Navigate, useNavigate } from '@remix-run/react';
 import React from 'react';
 import Footer from '~/components/footer';
 
@@ -158,7 +159,7 @@ const AnalyticsSection = () => {
           Looking for new possibilities? Discover them now
         </p>
         <div className="flex justify-center space-x-4">
-          <a href="#" className="inline-block bg-[#04E6E6] text-[#043234] font-inter font-semibold text-[16px] leading-[24.2px] px-[24px] py-[12px] rounded-[15px] transition duration-300 hover:bg-[#03cfcf]">
+          <a href="/register" className="inline-block bg-[#04E6E6] text-[#043234] font-inter font-semibold text-[16px] leading-[24.2px] px-[24px] py-[12px] rounded-[15px] transition duration-300 hover:bg-[#03cfcf]">
             Start for free →
           </a>
           <a href="#" className="inline-block border border-[#04E6E6] text-[#04E6E6] font-inter font-semibold text-[16px] leading-[24.2px] px-[24px] py-[12px] rounded-[15px] transition duration-300 hover:bg-[#04E6E6] hover:text-[#043234]">
@@ -254,8 +255,14 @@ const BlockchainDataBanner = () => {
 };
 
 const OnchainDataPlatform = () => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate('/register');
+  };
+
   return (
-    <div className="flex min-h-screen flex-col justify-center bg-gradient-radial px-4 mt-10">
+    <div className="flex min-h-screen flex-col justify-center bg-gradient-radial px-4">
       <div className="mt-10 flex w-full max-w-full flex-col items-center justify-center px-4">
         <div className="mb-16 w-full max-w-xl space-y-8 rounded-lg p-4 text-center">
           <div className="inline-flex items-center rounded-full border border-teal-400 bg-transparent px-3 py-1 text-white transition duration-300 hover:border-teal-500 hover:bg-teal-500 hover:text-black animate-fade-in">
@@ -276,7 +283,10 @@ const OnchainDataPlatform = () => {
             Empowering crypto investors with deep insights to make informed decisions.
           </p>
           <div className="mt-8 flex flex-wrap justify-center space-x-4">
-            <button className="mb-2 flex items-center rounded-full bg-teal-400 px-4 py-2 text-black transition duration-300 hover:bg-teal-500 md:mb-0 animate-fade-in-up">
+            <button
+              className="mb-2 flex items-center rounded-full bg-teal-400 px-4 py-2 text-black transition duration-300 hover:bg-teal-500 md:mb-0 animate-fade-in-up"
+              onClick={handleClick}
+            >
               Start for free
               <svg className="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h14m-7-7l7 7-7 7"></path>
@@ -292,7 +302,7 @@ const OnchainDataPlatform = () => {
         </div>
         <div className="w-full text-center text-white mt-20">
           <div className="mb-4 flex flex-wrap items-center justify-around bg-gradient-to-r from-[#022527] to-[#08858D] animate-fade-in">
-            {logosTop.map(logo => (
+            {logosTop.map((logo) => (
               <div className="rounded p-2" key={logo.alt}>
                 <img src={logo.src} alt={logo.alt} className="mx-2 my-4 h-6" />
               </div>
@@ -306,7 +316,7 @@ const OnchainDataPlatform = () => {
             <div className="h-[1px] flex-grow bg-gradient-to-r from-[#028080] to-[#04E6E6]"></div>
           </div>
           <div className="flex flex-wrap items-center justify-around bg-gradient-to-r from-[#022527] to-[#08858D] animate-fade-in">
-            {logosBottom.map(logo => (
+            {logosBottom.map((logo) => (
               <div className="rounded p-2" key={logo.alt}>
                 <img src={logo.src} alt={logo.alt} className="mx-2 my-4 h-6" />
               </div>

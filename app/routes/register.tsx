@@ -57,7 +57,7 @@ export default function Register() {
   }
 
   const handleClick = () => {
-    navigate('/join/account')
+    setIsModalOpen(true)
   }
 
   useEffect(() => {

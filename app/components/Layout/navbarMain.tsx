@@ -27,6 +27,10 @@ export default function NavbarMain({
     return null;
   }
 
+  if (location.pathname === '/') {
+    return null;
+  }
+
   return (
     <nav className='fixed bg-gradient-radial from-[#043033] via-[#000D0E] to-[#000D0E] top-0 z-50 w-full  dark:bg-gray-800 dark:border-gray-700'>
       <div className='px-3 py-3 lg:px-5 lg:pl-3'>
