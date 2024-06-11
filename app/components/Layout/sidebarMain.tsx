@@ -60,9 +60,9 @@ export default function SidebarMain({ showSidebar }: Props) {
             {showTopTokens && (
               <ul className='pl-8 mt-2 space-y-1'>
                 <li>
-                  <Link to='/dashboard/details' className='flex items-center text-[#6EEAEA] p-2 gap-x-4 rounded-lg hover:bg-gray-100 hover:text-gray-900 group'>
+                  <Link to='/dashboard/trending-coins' className='flex items-center text-[#6EEAEA] p-2 gap-x-4 rounded-lg hover:bg-gray-100 hover:text-gray-900 group'>
                     <AiOutlineThunderbolt className='w-4 h-4' />
-                    Top Hot Coins
+                    Trending Coins
                   </Link>
                 </li>
                 <li>

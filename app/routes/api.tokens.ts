@@ -35,7 +35,7 @@ export const loader: LoaderFunction = async ({ request }) => {
             result_size: limit,
             result_offset: offset,
             sort_by: "tx_4h",
-            sort_order: false,
+            sort_order: true,
             fee_tiers: [0],
           },
         ],
