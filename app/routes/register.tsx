@@ -1,175 +1,243 @@
-// login.tsx
 import { useState, useEffect, useRef } from 'react'
-import { FormField } from '~/components/form-field'
-import { validateEmail, validateName, validatePassword } from '~/utils/validators.server'
-import { ActionFunction, json, LoaderFunction, redirect } from '@remix-run/node'
+import { validateEmail, validatePassword } from '~/utils/validators.server'
+import { ActionFunction, json, redirect } from '@remix-run/node'
 import { useActionData } from '@remix-run/react'
-
-import {
-    IconBrandGithub,
-    IconBrandGoogle,
-    IconBrandOnlyfans,
-  } from "@tabler/icons-react";
 import { Input } from '~/components/Input'
 import { Label } from '~/components/Label'
 import { cn } from '~/utils/cn'
-import {  setAuthOnResponse } from '~/utils/auth'
 import { createAccount } from '~/utils/queries'
+import { setAuthOnResponse } from '~/utils/auth'
+import { useNavigate } from 'react-router-dom'
 
 export const action: ActionFunction = async ({ request }) => {
-    const form = await request.formData();
-    const email = form.get("email");
-    const password = form.get("password");
-    let firstName = form.get("firstName");
-    let lastName = form.get("lastName");
-    console.log("asdasdasd"+firstName)
-    console.log("asdasdasd"+lastName)
-    console.log("email"+email)
+  const form = await request.formData()
+  const email = form.get('email')
+  const password = form.get('password')
 
-    // If not all data was passed, error
-    if ( typeof firstName !== "string" ||
-    typeof lastName !== "string"||
-        typeof email !== "string" ||
-        typeof password !== "string"
-    ) {
-        return json({ error: `Invalid Form Data`, form: "register" }, { status: 400 });
-    }
+  if (typeof email !== 'string' || typeof password !== 'string') {
+    return json(
+      { error: `Invalid Form Data`, form: 'register' },
+      { status: 400 },
+    )
+  }
 
+  const errors = {
+    email: validateEmail(email),
+    password: validatePassword(password),
+  }
 
-    // Validate email & password
-    const errors = {
-        email: validateEmail(email),
-        password: validatePassword(password),
-        ...{
-            firstName: validateName(firstName as string || ''),
-            lastName: validateName(lastName as string || ''),
-        } 
-    };
+  if (Object.values(errors).some(Boolean)) {
+    return json(
+      { errors, fields: { email, password }, form: 'register' },
+      { status: 400 },
+    )
+  }
 
-    //  If there were any errors, return them
-    if (Object.values(errors).some(Boolean))
-        return json({ errors, fields: { email, password, firstName, lastName }, form: "register" }, { status: 400 });
-
-    
-            firstName = firstName as string
-            lastName = lastName as string
-            console.log("exitoo registro")
-            
-  let user = await createAccount(email, password,firstName,lastName);
-  return setAuthOnResponse(redirect("/dashboard/bubbles"), user.id.toString());
-    
-  
+  let user = await createAccount(email, password)
+  return setAuthOnResponse(redirect('/dashboard/bubbles'), user.id.toString())
 }
 
 export default function Register() {
-    const actionData = useActionData()
-    const firstLoad = useRef(true)
-    
-    const [errors, setErrors] = useState(actionData?.errors || {})
-    const [formError, setFormError] = useState(actionData?.error || '')
-    const [formData, setFormData] = useState({
-      email: actionData?.fields?.email || '',
-      password: actionData?.fields?.password || '',
-      firstName: actionData?.fields?.lastName || '',
-      lastName: actionData?.fields?.firstName || '',
+  const actionData = useActionData()
+  const firstLoad = useRef(true)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  const [errors, setErrors] = useState(actionData?.errors || {})
+  const [formError, setFormError] = useState(actionData?.error || '')
+  const [formData, setFormData] = useState({
+    email: actionData?.fields?.email || '',
+    password: actionData?.fields?.password || '',
   })
-console.log(actionData)
 
-    // Updates the form data when an input changes
-    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>, field: string) => {
-      console.log("event.target.value "+event.target.value )
-        setFormData(form => ({ ...form, [field]: event.target.value }))
-    }
+  const handleInputChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    field: string,
+  ) => {
+    setFormData(form => ({ ...form, [field]: event.target.value }))
+  }
 
-    useEffect(() => {
-        if (!firstLoad.current) {
-            setFormError('')
-        }
-    }, [formData])
+  const handleClick = () => {
+    setIsModalOpen(true)
+  }
 
-    useEffect(() => {
-        // We don't want to reset errors on page load because we want to see them
-        firstLoad.current = false
-    }, [])
-    return (
-        
-            <div className="h-[100vh]  justify-center items-center flex flex-col gap-y-4">
-                <div className="max-w-md mt-10 w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black">
-      <h2 className="font-bold text-xl text-neutral-800 dark:text-neutral-200">
-        Register to CryptoGhost
-      </h2>
-      <p className="text-neutral-600 text-sm max-w-sm mt-2 dark:text-neutral-300">
-        Complete all fills to register.
-      </p>
- 
-      <form method="POST"  className="my-8" >
+  useEffect(() => {
+    firstLoad.current = false
+  }, [])
 
-        <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-4">
-          <LabelInputContainer>
-            <Label htmlFor="firstName">First name</Label>
-            <Input id="firstName" 
-               name="firstName"  
-                        value={formData.firstName}
-                        onChange={e => handleInputChange(e, 'firstName')}
-                         placeholder="Tyler" type="text" />
-          </LabelInputContainer>
-          <LabelInputContainer>
-            <Label htmlFor="lastName">Last name</Label>
-            <Input id="lastName" 
-          name="lastName"    value={formData.lastName}
-                        onChange={e => handleInputChange(e, 'lastName')} placeholder="Durden" type="text" />
-          </LabelInputContainer>
+  const toggleModal = () => {
+    setIsModalOpen(!isModalOpen)
+  }
+
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-gradient-radial">
+      <div className="mx-auto w-full max-w-md rounded-lg p-6">
+        <div className="mb-6 flex flex-col items-center">
+          <img
+            src="https://res.cloudinary.com/dug5cohaj/image/upload/v1714945513/qg0xzn0ocr0vz9nafhim.png"
+            alt="Crypto Ghost Logo"
+            className="w-[293px]"
+          />
         </div>
-        <LabelInputContainer className="mb-4">
-          <Label htmlFor="email">Email Address</Label>
-          <Input id="email" 
-          name="email" 
-                        value={formData.email}
-                        onChange={e => handleInputChange(e, 'email')} placeholder="projectmayhem@fc.com" type="email" />
-        </LabelInputContainer>
-        <LabelInputContainer className="mb-4">
-          <Label htmlFor="password">Password</Label>
-          <Input id="password"  name="password"  value={formData.password}
-                        onChange={e => handleInputChange(e, 'password')} placeholder="••••••••" type="password" />
-        </LabelInputContainer>
-       
-  <div className="text-xs font-semibold text-center tracking-wide text-red-500 w-full">
-                        {formError}
-                    </div>
+        <h2 className="mb-4 text-center text-xl text-white">Get started</h2>
+        <p className="mb-6 text-center text-gray-400">
+          Choose your email and password
+        </p>
+        <form method="POST" className="space-y-4">
+          <LabelInputContainer>
+            <Label htmlFor="email" className="text-white">
+              Email Address
+            </Label>
+            <Input
+              id="email"
+              name="email"
+              aria-describedby={
+                errors?.email ? 'email-error' : 'register-header'
+              }
+              value={formData.email}
+              onChange={e => handleInputChange(e, 'email')}
+              placeholder="Enter your email"
+              type="email"
+              className={cn(
+                'w-full rounded border bg-gradient-radial p-2 text-white',
+                errors?.email
+                  ? 'border-red-500'
+                  : 'border-[#04E6E6] border-opacity-50',
+              )}
+              style={{ borderWidth: '0.5px' }}
+            />
+            {errors?.email && (
+              <span id="email-error" className="mt-1 text-sm text-red-500">
+                {errors.email}
+              </span>
+            )}
+          </LabelInputContainer>
+          <LabelInputContainer>
+            <Label htmlFor="password" className="text-white">
+              Password
+            </Label>
+            <Input
+              id="password"
+              name="password"
+              aria-describedby={errors?.password ? 'password-error' : ''}
+              value={formData.password}
+              onChange={e => handleInputChange(e, 'password')}
+              placeholder="Enter your password"
+              type="password"
+              className={cn(
+                'w-full rounded border bg-gradient-radial p-2 text-white',
+                errors?.password
+                  ? 'border-red-500'
+                  : 'border-[#04E6E6] border-opacity-50',
+              )}
+              style={{ borderWidth: '0.5px' }}
+            />
+            {errors?.password && (
+              <span id="password-error" className="mt-1 text-sm text-red-500">
+                {errors.password}
+              </span>
+            )}
+          </LabelInputContainer>
+          <div className="mb-4 flex items-center">
+            <input
+              type="checkbox"
+              className="form-checkbox rounded border-[#3d434d] bg-[#2b2f36] text-[#04E6E6]"
+            />
+            <label className="ml-2 text-gray-400" htmlFor="terms">
+              I agree to{' '}
+              <a href="#" className="text-[#04E6E6]">
+                Terms of Services & Privacy Policy
+              </a>
+            </label>
+          </div>
+          <div className="mb-6 flex items-center">
+            <input
+              type="checkbox"
+              className="form-checkbox rounded border-[#3d434d] bg-[#2b2f36] text-[#04E6E6]"
+            />
+            <label className="ml-2 text-gray-400" htmlFor="newsletter">
+              Subscribe to receive company news and product updates from
+              CryptoGhost. You may unsubscribe at any time.
+            </label>
+          </div>
+          <button
+            type="submit"
+            className="w-full rounded-md bg-teal-500 px-4 py-2 font-bold text-white transition duration-200 hover:bg-teal-600"
+          >
+            Sign Up
+          </button>
+        </form>
+        <div className="mt-4 text-center text-sm text-white">
+          <p>
+            Already have an account?{' '}
+            <a href="/login" className="text-[#04E6E6]">
+              {' '}
+              Sign in
+            </a>
+          </p>
+        </div>
+        <div className="mt-4 flex items-center justify-center text-white">
+          <div className="w-full border-t border-[#F5F5F533] opacity-20"></div>
+          <span className="mx-4">or</span>
+          <div className="w-full border-t border-[#F5F5F533] opacity-20"></div>
+        </div>
         <button
-          className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
-          type="submit"
+          className="mt-10 w-full rounded-md border border-teal-500 bg-transparent px-4 py-2 font-bold text-teal-500 transition duration-200 hover:bg-teal-500 hover:text-white"
+          onClick={handleClick}
         >
-          Sign up &rarr;
-          <BottomGradient />
+          Sign in with Wallet
         </button>
- 
-        
-      </form>
+      </div>
+      {isModalOpen && <WalletModal onClose={toggleModal} />}
     </div>
-            </div>
-    )
+  )
 }
 
-const BottomGradient = () => {
-    return (
-      <>
-        <span className="group-hover/btn:opacity-100 block transition duration-500 opacity-0 absolute h-px w-full -bottom-px inset-x-0 bg-gradient-to-r from-transparent via-cyan-500 to-transparent" />
-        <span className="group-hover/btn:opacity-100 blur-sm block transition duration-500 opacity-0 absolute h-px w-1/2 mx-auto -bottom-px inset-x-10 bg-gradient-to-r from-transparent via-indigo-500 to-transparent" />
-      </>
-    );
-  };
-   
-  const LabelInputContainer = ({
-    children,
-    className,
-  }: {
-    children: React.ReactNode;
-    className?: string;
-  }) => {
-    return (
-      <div className={cn("flex flex-col space-y-2 w-full", className)}>
-        {children}
+const LabelInputContainer = ({ children, className }: any) => {
+  return (
+    <div className={cn('flex flex-col space-y-2', className)}>{children}</div>
+  )
+}
+
+const WalletModal = ({ onClose }: { onClose: () => void }) => {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90">
+      <div
+        className="h-[310px] w-[370px] rounded-[30px] border border-[#04E6E6] border-opacity-50 bg-[#022527] p-8"
+        style={{ padding: '32px', gap: '32px', borderWidth: '0.5px' }}
+      >
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-xl text-white">Connect Wallet</h2>
+          <button onClick={onClose} className="text-xl text-white">
+            &times;
+          </button>
+        </div>
+        <div className="space-y-4">
+          <button className="flex w-full items-center justify-between rounded-lg border border-[#04E6E6] border-opacity-50 p-3 hover:bg-[#334155]">
+            <span>Metamask</span>
+            <img
+              src="/images/metamask-logo.svg"
+              alt="Metamask"
+              className="h-6 w-6"
+            />
+          </button>
+          <button className="flex w-full items-center justify-between rounded-lg border border-[#04E6E6] border-opacity-50 p-3 hover:bg-[#334155]">
+            <span>Coinbase Wallet</span>
+            <img
+              src="/images/coinbase-logo.jpg"
+              alt="Coinbase"
+              className="h-6 w-6"
+            />
+          </button>
+          <button className="flex w-full items-center justify-between rounded-lg border border-[#04E6E6] border-opacity-50 p-3 hover:bg-[#334155]">
+            <span>Other Wallets</span>
+            <img
+              src="https://avatars.githubusercontent.com/u/37784886?s=200&v=4"
+              alt="Other Wallets"
+              className="h-6 w-6"
+            />
+          </button>
+        </div>
       </div>
-    );
-  };
+    </div>
+  )
+}

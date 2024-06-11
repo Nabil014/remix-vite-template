@@ -1,9 +1,10 @@
-import { Link } from '@remix-run/react'
-import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/solid'
+import { Link, useLocation } from '@remix-run/react';
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/solid';
+
 interface Props {
-  toggleSidebar: () => void
-  showSidebar: boolean
-  userId: any
+  toggleSidebar: () => void;
+  showSidebar: boolean;
+  userId: any;
 }
 
 export default function NavbarMain({
@@ -11,7 +12,25 @@ export default function NavbarMain({
   showSidebar,
   userId,
 }: Props) {
-  
+  const location = useLocation();
+
+  // Check if the current path is "/login"
+  if (location.pathname === '/login') {
+    return null;
+  }
+
+  if (location.pathname === '/register') {
+    return null;
+  }
+
+  if (location.pathname === '/forgot/password') {
+    return null;
+  }
+
+  if (location.pathname === '/') {
+    return null;
+  }
+
   return (
     <nav className='fixed bg-gradient-radial from-[#043033] via-[#000D0E] to-[#000D0E] top-0 z-50 w-full  dark:bg-gray-800 dark:border-gray-700'>
       <div className='px-3 py-3 lg:px-5 lg:pl-3'>
@@ -23,10 +42,10 @@ export default function NavbarMain({
               className='inline-flex items-center p-2 text-sm text-gray-400 rounded-lg md:hidden  focus:outline-none  dark:text-gray-400 '
             >
               {showSidebar ? (
-              <XMarkIcon className='size-6' />
-            ) : (
-              <Bars3Icon className='size-6' />
-            )}
+                <XMarkIcon className='size-6' />
+              ) : (
+                <Bars3Icon className='size-6' />
+              )}
             </button>
             <Link
               to='/'
@@ -151,5 +170,5 @@ export default function NavbarMain({
         </div>
       </div>
     </nav>
-  )
+  );
 }
