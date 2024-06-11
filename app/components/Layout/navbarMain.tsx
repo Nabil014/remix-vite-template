@@ -1,5 +1,5 @@
-import { Link, useLocation } from '@remix-run/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/solid';
+import { Link, useLocation } from '@remix-run/react';
 
 interface Props {
   toggleSidebar: () => void;
@@ -27,12 +27,8 @@ export default function NavbarMain({
     return null;
   }
 
-  // if (location.pathname === '/') {
-  //   return null;
-  // }
-
   return (
-    <nav className='fixed bg-gradient-radial from-[#043033] via-[#000D0E] to-[#000D0E] top-0 z-50 w-full  dark:bg-gray-800 dark:border-gray-700'>
+    <nav className='fixed bg-gradient-to-r from-[#000b0c] via-[#031a1b] to-[#000b0c] top-0 z-50 w-full  dark:bg-gray-800 dark:border-gray-700'>
       <div className='px-3 py-3 lg:px-5 lg:pl-3'>
         <div className='flex items-center justify-between'>
           <div className='flex items-center justify-start rtl:justify-end'>
@@ -59,7 +55,7 @@ export default function NavbarMain({
             </Link>
           </div>
           <div className='max-w-screen-xl px-4 py-3 mx-auto'>
-            <div className='flex items-center'>
+            <div className='hidden items-center md:flex'>
               <ul className='flex flex-row font-medium mt-0 space-x-8 rtl:space-x-reverse text-sm'>
                 <li>
                   <a

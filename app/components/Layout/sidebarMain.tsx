@@ -1,14 +1,12 @@
-import { Link } from '@remix-run/react';
 import { useState } from 'react';
-import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
-import { FaFire } from 'react-icons/fa';
-import { AiOutlineThunderbolt } from 'react-icons/ai';
-import { RiWallet3Fill } from 'react-icons/ri';
-import { BsGraphUp, BsFillGridFill } from 'react-icons/bs';
-import { MdOutlineBubbleChart, MdOutlineDashboard } from 'react-icons/md';
-import { GiWhaleTail } from 'react-icons/gi';
+import { AiOutlineFieldTime, AiOutlineThunderbolt } from 'react-icons/ai';
 import { BiCoinStack } from 'react-icons/bi';
-import { AiOutlineFieldTime } from 'react-icons/ai';
+import { BsFillGridFill, BsGraphUp } from 'react-icons/bs';
+import { FaFire } from 'react-icons/fa';
+import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import { GiWhaleTail } from 'react-icons/gi';
+import { MdOutlineBubbleChart, MdOutlineDashboard } from 'react-icons/md';
+import { Link } from '@remix-run/react';
 
 interface Props {
   showSidebar: boolean;
@@ -22,7 +20,7 @@ export default function SidebarMain({ showSidebar }: Props) {
     <aside
       className={`fixed ${
         showSidebar ? 'left-0' : '-left-full'
-      } z-50 w-64 md:left-0 h-screen transition-all duration-300 bg-gradient-to-r from-[#043033] via-[#000D0E] to-[#000D0E] border-r border-gray-700`}
+      } z-50 w-64 md:left-0 h-dvh transition-all duration-300 bg-gradient-to-r from-[#000D0E] via-[#021618] to-[#000D0E] rounded-r-xl`}
     >
       <div className='px-3 pb-4 bg-transparent'>
         <ul className='space-y-2 mt-8 font-medium'>
@@ -133,6 +131,43 @@ export default function SidebarMain({ showSidebar }: Props) {
             </Link>
           </li>
         </ul>
+        <div className='flex items-center md:hidden mt-4'>
+              <ul className='flex flex-col gap-y-2 tracking-[1px] font-medium ml-2  text-md'>
+                <li>
+                  <Link
+                    to='/'
+                    className='text-white dark:text-white hover:underline'
+                    aria-current='page'
+                  >
+                    Home
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to='/'
+                    className='text-white dark:text-white hover:underline'
+                  >
+                    Company
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to='/'
+                    className='text-white dark:text-white hover:underline'
+                  >
+                    Team
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to='/'
+                    className='text-white dark:text-white hover:underline'
+                  >
+                    Features
+                  </Link>
+                </li>
+              </ul>
+            </div>
       </div>
     </aside>
   );
