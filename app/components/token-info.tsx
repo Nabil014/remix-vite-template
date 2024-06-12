@@ -1,3 +1,4 @@
+// components/token-info.tsx
 import React from 'react';
 
 const TokenInfo = ({ coin }) => {
@@ -32,7 +33,7 @@ const TokenInfo = ({ coin }) => {
             </span>
           </p>
           <p className="text-[10px] font-medium leading-[12px] text-[#F5F5F5] opacity-50">
-            as of block {coin.block || '00000000'} from Uniswap v3
+            as of block {coin.block_number || '00000000'} from Uniswap v3
           </p>
         </div>
       </div>

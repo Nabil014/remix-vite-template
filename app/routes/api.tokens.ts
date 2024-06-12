@@ -1,57 +1,79 @@
-import { json, LoaderFunction } from "@remix-run/node";
-import Moralis from 'moralis';
+import { type ActionFunction, json } from "@remix-run/node";
 
-async function getTokenLogo(address: string) {
+const API_KEY = process.env.MORALIS ?? '';
+const baseURL = "https://deep-index.moralis.io/api/v2.2";
+
+export const action: ActionFunction = async ({ request }) => {
   try {
-    if (!Moralis.Core.isStarted) {
-      await Moralis.start({
-        apiKey: process.env.MORALIS,
-      });
+    const url = new URL(request.url);
+    const tokenAddress = url.searchParams.get("address");
+    console.log(tokenAddress);
+
+    const headers = new Headers({
+      'Accept': 'application/json',
+      'X-API-Key': API_KEY
+    });
+
+    const get_metadata = await fetch(`${baseURL}/erc20/metadata?addresses=${tokenAddress}`, {
+      method: 'GET',
+      headers: headers
+    });
+
+    if (!get_metadata.ok) {
+      const message = await get_metadata.json();
+      throw new Error(message);
     }
 
-    const response = await Moralis.EvmApi.token.getTokenMetadata({
-      chain: "0x1",
-      addresses: [address],
+    let tokenMetadata = await get_metadata.json();
+
+    const pricePromise = fetch(`https://deep-index.moralis.io/api/v2.2/erc20/${tokenAddress}/price?include=percent_change`, {
+      method: 'GET',
+      headers: headers
     });
-    return response.raw[0]?.logo || null;
+
+    const blockPromise = fetch(`https://deep-index.moralis.io/api/v2.2/block/${tokenMetadata[0].block_number}`, {
+      method: 'GET',
+      headers: headers
+    });
+
+    const [priceResponse, blockResponse] = await Promise.all([pricePromise, blockPromise]);
+
+    if (!blockResponse.ok) {
+      const message = await blockResponse.json();
+      return json(message, { status: 500 });
+    }
+
+    const tokenPrice = await priceResponse.json();
+    const blockCreated = await blockResponse.json();
+
+    if (tokenMetadata[0].total_supply_formatted) {
+      if (tokenPrice.usdPrice) {
+        tokenMetadata[0].fdv = Number(tokenMetadata[0].total_supply_formatted) * Number(tokenPrice.usdPrice);
+        tokenMetadata[0].fdv = Number(tokenMetadata[0].fdv).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+      }
+
+      tokenMetadata[0].total_supply_formatted = Number(tokenMetadata[0].total_supply_formatted).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
+
+    if (!tokenPrice.usdPrice) {
+      tokenPrice.usdPrice = 0;
+      tokenPrice.usdPriceFormatted = "0";
+      tokenPrice["24hrPercentChange"] = "0";
+    }
+
+    return json({
+      tokenAddress,
+      tokenMetadata: tokenMetadata[0],
+      tokenPrice,
+      blockCreated
+    });
+
   } catch (e) {
     console.error(e);
-    return null;
-  }
-}
-
-export const loader: LoaderFunction = async ({ request }) => {
-  const url = new URL(request.url);
-  const limit = parseInt(url.searchParams.get("limit") || "20", 10);
-  const offset = parseInt(url.searchParams.get("offset") || "0", 10);
-
-  try {
-    const res = await fetch('https://omni.icarus.tools/ethereum/cush/searchTopTokens', {
-      method: 'POST',
-      headers: { accept: 'application/json', 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        params: [
-          {
-            result_size: limit,
-            result_offset: offset,
-            sort_by: "tx_4h",
-            sort_order: true,
-            fee_tiers: [0],
-          },
-        ],
-      }),
-    });
-
-    const data = await res.json();
-
-    const tokensWithLogos = await Promise.all(data.result.results.map(async (token: any) => {
-      const logo = await getTokenLogo(token.contract);
-      return { ...token, logo };
-    }));
-
-    return json({ tokens: tokensWithLogos });
-  } catch (error) {
-    console.log(error);
-    return json({ tokens: [] });
+    if (e instanceof Error) {
+      return json({ error: e.message }, { status: 500 });
+    } else {
+      return json({ error: 'An unknown error occurred' }, { status: 500 });
+    }
   }
 };

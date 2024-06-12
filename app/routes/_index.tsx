@@ -262,7 +262,7 @@ const OnchainDataPlatform = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col justify-center bg-gradient-radial px-4">
+    <div className="flex min-h-screen flex-col justify-center bg-gradient-radial px-4 mt-16">
       <div className="mt-10 flex w-full max-w-full flex-col items-center justify-center px-4">
         <div className="mb-16 w-full max-w-xl space-y-8 rounded-lg p-4 text-center">
           <div className="inline-flex items-center rounded-full border border-teal-400 bg-transparent px-3 py-1 text-white transition duration-300 hover:border-teal-500 hover:bg-teal-500 hover:text-black animate-fade-in">
