@@ -35,7 +35,7 @@ export const action: ActionFunction = async ({ request }) => {
     return json({ ok: false, errors: { password: 'Invalid credentials' } }, 400)
   }
 
-  let response = redirect('/dashboard/bubbles')
+  let response = redirect('/dashboard/home')
   return setAuthOnResponse(response, userId.toString())
 }
 
