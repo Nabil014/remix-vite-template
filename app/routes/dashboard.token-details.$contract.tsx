@@ -1,9 +1,9 @@
-// routes/dashboard.token-details.$contract.tsx
 import { useFetcher, useLoaderData } from '@remix-run/react';
 import { json, LoaderFunction } from '@remix-run/node';
 import TokenInfo from '~/components/token-info';
 import Footer from '~/components/footer';
 import { useEffect, useState } from 'react';
+import TokenDetails from '~/components/token-detail';
 
 export const loader: LoaderFunction = async ({ params }) => {
   const { contract } = params;
@@ -42,7 +42,7 @@ export default function CryptoDetails() {
             <h3 className="mb-4 text-[16px] font-semibold leading-[19.36px] text-[#F5F5F5]">
               Token Details
             </h3>
-             {/* <TokenDetails /> */}
+             <TokenDetails /> 
           </div>
           <div className="mt-8 w-full lg:mt-0 lg:w-2/3 lg:pl-8">
             <h3 className="mb-4 text-[16px] font-semibold leading-[19.36px] text-[#F5F5F5]">
