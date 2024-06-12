@@ -1,7 +1,7 @@
-import { Outlet, useLocation } from '@remix-run/react';
 import { useState } from 'react';
-import SidebarMain from './sidebarMain';
+import { Outlet, useLocation } from '@remix-run/react';
 import NavbarMain from './navbarMain';
+import SidebarMain from './sidebarMain';
 
 
 export default function LayoutMain({ userId }: any) {
@@ -18,7 +18,7 @@ export default function LayoutMain({ userId }: any) {
   return (
     <>
       <NavbarMain toggleSidebar={toggleSidebar} showSidebar={showSidebar} userId={userId} />
-      <div className={`h-[90vh] mt-[66px] pt-2 ${!isLandingPage && 'sm:ml-0 md:ml-[260px]'}`}>
+      <div className={`h-dvh mt-[72px] ${!isLandingPage && 'sm:ml-0 md:ml-[250px]'}`}>
         {!isLandingPage && <SidebarMain showSidebar={showSidebar} />}
         <Outlet />
       </div>

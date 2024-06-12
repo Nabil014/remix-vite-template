@@ -13,8 +13,10 @@ export const action: ActionFunction = async ({ request }) => {
   const form = await request.formData()
   const email = form.get('email')
   const password = form.get('password')
+  const firstName = form.get('firstName')
+  const lastName = form.get('lastName')
 
-  if (typeof email !== 'string' || typeof password !== 'string') {
+  if (typeof email !== 'string' || typeof password !== 'string'|| typeof lastName !== 'string'|| typeof firstName !== 'string') {
     return json(
       { error: `Invalid Form Data`, form: 'register' },
       { status: 400 },
@@ -33,8 +35,8 @@ export const action: ActionFunction = async ({ request }) => {
     )
   }
 
-  let user = await createAccount(email, password)
-  return setAuthOnResponse(redirect('/dashboard/bubbles'), user.id.toString())
+  let user = await createAccount(email, password,firstName,lastName)
+  return setAuthOnResponse(redirect('/dashboard/home'), user.id.toString())
 }
 
 export default function Register() {
@@ -47,6 +49,9 @@ export default function Register() {
   const [formData, setFormData] = useState({
     email: actionData?.fields?.email || '',
     password: actionData?.fields?.password || '',
+    firstName: actionData?.fields?.firstName || '',
+    lastName: actionData?.fields?.lastName || '',
+
   })
 
   const handleInputChange = (
@@ -83,6 +88,62 @@ export default function Register() {
           Choose your email and password
         </p>
         <form method="POST" className="space-y-4">
+        <LabelInputContainer>
+            <Label htmlFor="email" className="text-white">
+              First Name
+            </Label>
+            <Input
+              id="firstName"
+              name="firstName"
+              aria-describedby={
+          'register-header'
+              }
+              value={formData.firstName}
+              onChange={e => handleInputChange(e, 'firstName')}
+              placeholder="Enter your Firstname"
+              type="text"
+              className={cn(
+                'w-full rounded border bg-gradient-radial p-2 text-white',
+                errors?.firstName
+                  ? 'border-red-500'
+                  : 'border-[#04E6E6] border-opacity-50',
+              )}
+              style={{ borderWidth: '0.5px' }}
+            />
+            {errors?.firstName && (
+              <span id="email-error" className="mt-1 text-sm text-red-500">
+                {errors.firstName}
+              </span>
+            )}
+          </LabelInputContainer>
+          <LabelInputContainer>
+            <Label htmlFor="email" className="text-white">
+              Lastname
+            </Label>
+            <Input
+              id="lastName"
+              name="lastName"
+              aria-describedby={
+                errors?.email ? 'email-error' : 'register-header'
+              }
+              value={formData.lastName}
+              onChange={e => handleInputChange(e, 'lastName')}
+              placeholder="Enter your Lastname"
+              type="text"
+              className={cn(
+                'w-full rounded border bg-gradient-radial p-2 text-white',
+                errors?.lastName
+                  ? 'border-red-500'
+                  : 'border-[#04E6E6] border-opacity-50',
+              )}
+              style={{ borderWidth: '0.5px' }}
+            />
+            {errors?.lastName && (
+              <span id="email-error" className="mt-1 text-sm text-red-500">
+                {errors.lastName}
+              </span>
+            )}
+          </LabelInputContainer>
           <LabelInputContainer>
             <Label htmlFor="email" className="text-white">
               Email Address

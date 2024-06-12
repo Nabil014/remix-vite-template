@@ -22,17 +22,16 @@ export const links: LinksFunction = () => [
 ];
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const userId = await requireAuthCookie2(request);
   const userAgent = request.headers.get("User-Agent");
   const isMobile = userAgent?.match(
     /Android|BlackBerry|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i
   );
 
-  return { userId, isMobile };
+  return {  isMobile };
 };
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const { isMobile, userId } = useLoaderData<typeof loader>();
+  const { isMobile,  } = useLoaderData<typeof loader>();
   useRouteProgressBar(!isMobile);
 
   return (
