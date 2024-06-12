@@ -83,10 +83,7 @@ export default function Index() {
 
   return (
     <div className="relative flex min-h-screen flex-col gap-8 overflow-hidden bg-gradient-radial from-[#043033] via-[#000D0E] to-[#000D0E] p-8">
-      <div className="mt-10">
-        <h2 className="mb-10 text-base font-semibold leading-[19.36px] text-[#04E6E6]">
-          Top 10 Coins by Volume
-        </h2>
+      <div>
         <Table
           data={data}
           title="Top 10 Coins by Volume"

@@ -101,15 +101,15 @@ const LineChart = () => {
   }
 
   return (
-    <div className='h-full bg-transparent rounded-[30px] p-4'>
+    <div className='bg-transparent'>
       <div className="flex justify-center sm:justify-end items-center gap-x-4 mb-4">
         <div className="flex items-center">
-          <span className="w-2.5 h-2.5 inline-block bg-green-600 rounded-full mr-2"></span>
+          <span className="w-5 h-2.5 inline-block bg-green-600 rounded-full mr-2"></span>
           <span className="text-sm text-gray-300 font-semibold">Price</span>
         </div>
       </div>
       <div id="chart">
-        <Chart options={options} series={series} type="area" height={270} />
+        <Chart options={options} series={series} type="area" height={420} />
       </div>
     </div>
   );
