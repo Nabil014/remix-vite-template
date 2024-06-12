@@ -2,13 +2,15 @@
 import React from 'react';
 
 const TokenInfo = ({ coin }) => {
+
+
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col items-start justify-between space-y-4 rounded-lg bg-transparent p-4 text-[#F5F5F5] lg:flex-row lg:space-x-8 lg:space-y-0 lg:p-6">
       <div className="flex w-full flex-col space-y-4 lg:w-auto">
         <div className="flex w-full items-center space-x-4">
           <div className="flex h-[48px] w-[48px] items-center justify-center rounded-full bg-[#D9D9D9]">
             <img
-              src={coin.logo || 'https://via.placeholder.com/48'}
+              src={coin.tokenMetadata.logo || 'https://via.placeholder.com/48'}
               alt={`${coin.name} Logo`}
               className="h-[39px] w-[39px] rounded-full"
             />
@@ -16,26 +18,26 @@ const TokenInfo = ({ coin }) => {
           <div>
             <div className="flex items-center">
               <h2 className="text-[20px] font-semibold leading-[24.2px]">
-                {coin.name}
+                {coin.tokenMetadata.name}
               </h2>
               <span className="ml-1 text-[12px] text-[#04E6E6]">✔</span>
             </div>
             <span className="block text-[10px] font-light leading-[12.1px] text-[#04E6E6]">
-              {coin.symbol}
+              {coin.tokenMetadata.symbol}
             </span>
           </div>
         </div>
-        <div className="w-full">
+    {/*     <div className="w-full">
           <p className="text-[25px] font-semibold leading-[10px] text-[#F5F5F5]">
-            ${coin.price || '0.00'}
+            ${coin.tokenPrice.usdPriceFormatted || '0.00'}
             <span className="ml-2 text-[16px] font-semibold leading-[20px] text-[#05FF00]">
-              {coin.change_4h || '+0.00%'}
+              {coin.tokenChange.toString() }
             </span>
           </p>
           <p className="text-[10px] font-medium leading-[12px] text-[#F5F5F5] opacity-50">
-            as of block {coin.block_number || '00000000'} from Uniswap v3
+            as of block {coin.blockCreated || '00000000'} from Uniswap v3
           </p>
-        </div>
+        </div> */}
       </div>
 
       <div className="flex w-full flex-col items-center text-center lg:w-auto lg:items-start lg:text-left">

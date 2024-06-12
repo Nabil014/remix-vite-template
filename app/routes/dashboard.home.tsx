@@ -35,7 +35,7 @@ export default function Index() {
     },
   ]
 
-  const data = [
+  const data :any= [
     {
       name: 'Token Name',
       pnl: 'PNL',
@@ -117,14 +117,20 @@ export default function Index() {
         <h2 className="mb-10 text-base font-semibold leading-[19.36px] text-[#04E6E6]">
           Top 10 PNL Coin
         </h2>
-        <Table data={data} />
-      </div>
+        <Table
+          data={data}
+          title="Top 10 PNL Coin"
+          description="This table shows the top 10 coins with the highest PNL."
+        />      </div>
       <div className="mt-10">
         <h2 className="mb-10 text-base font-semibold leading-[19.36px] text-[#04E6E6]">
           Top 10 Early Bird Coins
         </h2>
-        <Table data={data} />
-      </div>
+        <Table
+          data={data}
+          title="Top 10 Early Bird Coins"
+          description="This table shows the top 10 early bird coins."
+        />      </div>
       <Footer/>
     </div>
   )

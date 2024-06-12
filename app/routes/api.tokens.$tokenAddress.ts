@@ -1,70 +1,71 @@
-import { json, type LoaderFunction } from "@remix-run/node";
+import { type ActionFunction, json } from "@remix-run/node";
 
 const API_KEY = process.env.MORALIS ?? '';
 const baseURL = "https://deep-index.moralis.io/api/v2.2";
 
-export const loader: LoaderFunction = async ({ params }) => {
+export const action: ActionFunction = async ({ request }) => {
   try {
-    const tokenAddress = params.tokenAddress;
-    console.log(`Fetching token owners for address: ${params.tokenAddress}`);
+    const url = new URL(request.url);
+    const tokenAddress = url.searchParams.get("address");
+    console.log(tokenAddress);
+
     const headers = new Headers({
       'Accept': 'application/json',
       'X-API-Key': API_KEY
     });
 
-    const ownersPromise = fetch(`${baseURL}/erc20/${tokenAddress}/owners?limit=50`, {
+    const get_metadata = await fetch(`${baseURL}/erc20/metadata?addresses=${tokenAddress}`, {
       method: 'GET',
       headers: headers
     });
 
-    const [ownersResponse] = await Promise.all([ownersPromise]);
-
-    if (!ownersResponse.ok) {
-      const message = await ownersResponse.json();
+    if (!get_metadata.ok) {
+      const message = await get_metadata.json();
       throw new Error(message);
     }
 
-    const tokenOwners = await ownersResponse.json();
+    let tokenMetadata = await get_metadata.json();
 
-    let topTenHolders = [];
-    if (tokenOwners && tokenOwners.result && tokenOwners.result.length > 0) {
-      topTenHolders = tokenOwners.result.slice(0, 10);
+    const pricePromise = fetch(`https://deep-index.moralis.io/api/v2.2/erc20/${tokenAddress}/price?include=percent_change`, {
+      method: 'GET',
+      headers: headers
+    });
+
+    const blockPromise = fetch(`https://deep-index.moralis.io/api/v2.2/block/${tokenMetadata[0].block_number}`, {
+      method: 'GET',
+      headers: headers
+    });
+
+    const [priceResponse, blockResponse] = await Promise.all([pricePromise, blockPromise]);
+
+    if (!blockResponse.ok) {
+      const message = await blockResponse.json();
+      return json(message, { status: 500 });
     }
 
-    let totalBalance = topTenHolders.reduce((acc: number, holder: any) => acc + Number(holder.balance_formatted), 0);
-    let totalUsd = topTenHolders.reduce((acc: number, holder: any) => acc + Number(holder.usd_value), 0);
-    let totalPercentage = topTenHolders.reduce((acc: number, holder: any) => acc + holder.percentage_relative_to_total_supply, 0);
+    const tokenPrice = await priceResponse.json();
+    const blockCreated = await blockResponse.json();
 
-    const fetchDataForOwner = async (owner: any) => {
-      return {
-        balanceData: [], // Dummy data, replace with actual data fetching logic
-      };
-    };
+    if (tokenMetadata[0].total_supply_formatted) {
+      if (tokenPrice.usdPrice) {
+        tokenMetadata[0].fdv = Number(tokenMetadata[0].total_supply_formatted) * Number(tokenPrice.usdPrice);
+        tokenMetadata[0].fdv = Number(tokenMetadata[0].fdv).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+      }
 
-    const results = await Promise.all(topTenHolders.map((owner: any) => fetchDataForOwner(owner)));
+      tokenMetadata[0].total_supply_formatted = Number(tokenMetadata[0].total_supply_formatted).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
 
-    let tokenOccurrences = results.reduce((acc: any, holder: any) => {
-      holder.balanceData.forEach((token: any) => {
-        const address = token.token_address;
-        if (!acc[address]) {
-          acc[address] = { count: 0, tokenDetails: token };
-        }
-        acc[address].count += 1;
-      });
-      return acc;
-    }, {});
-
-    let commonTokens = Object.values(tokenOccurrences)
-      .filter((item: any) => item.count >= 3)
-      .map((item: any) => item);
+    if (!tokenPrice.usdPrice) {
+      tokenPrice.usdPrice = 0;
+      tokenPrice.usdPriceFormatted = "0";
+      tokenPrice["24hrPercentChange"] = "0";
+    }
 
     return json({
-      tokenOwners: tokenOwners.result,
-      topTokenOwners: results,
-      totalBalance,
-      totalUsd,
-      totalPercentage,
-      commonTokens
+      tokenAddress,
+      tokenMetadata: tokenMetadata[0],
+      tokenPrice,
+      blockCreated
     });
 
   } catch (e) {
@@ -76,5 +77,3 @@ export const loader: LoaderFunction = async ({ params }) => {
     }
   }
 };
-
-

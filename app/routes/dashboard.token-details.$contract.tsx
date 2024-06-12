@@ -16,21 +16,32 @@ export default function CryptoDetails() {
   const { contract } = useLoaderData();
 
   useEffect(() => {
+    try{
     if (fetcher.data) {
-      console.log('DATA FETCHER', fetcher.data);
+      console.log('DATA FETCHER', JSON.stringify(fetcher.data));
       setTokenData(fetcher.data);
     }
+  }catch(e){
+    console.log(e.message)
+  }
   }, [fetcher.data]);
 
   useEffect(() => {
-    console.log("contract", contract)
-    fetcher.load(`/api/tokens?address=${contract}`);
-  }, [contract]);
+    async function init(){
+      console.log("contract", contract)
+
+      let res  =await fetcher.load(`/api/tokens?address=${contract}`);
+      console.log("contrac2t"+res)
+
+    }
+    init()
+
+  }, [contract]); 
 
   return (
     <div className="h-auto bg-gradient-radial p-8">
       <div className="flex flex-col items-center p-4 lg:items-start">
-        {tokenData && <TokenInfo coin={tokenData.tokenMetadata} />}
+        {tokenData && <TokenInfo coin={tokenData} />}
         <div className="mt-8 flex w-full flex-col lg:flex-row lg:items-start">
           <div className="w-full lg:w-1/3">
             <h3 className="mb-4 text-[16px] font-semibold leading-[19.36px] text-[#F5F5F5]">

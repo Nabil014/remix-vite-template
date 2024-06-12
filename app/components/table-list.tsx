@@ -2,10 +2,15 @@ import { Link } from '@remix-run/react';
 
 const Table = ({ data, title, description }) => {
   const formatValue = (value) => {
+    if (typeof value !== 'string' && typeof value !== 'number') return '0.000000000000';
     const [integer, decimal = ''] = value.toString().split('.');
     const formattedDecimal = decimal.padEnd(12 - integer.length, '0').slice(0, 12 - integer.length);
     return `${integer}.${formattedDecimal}`;
   };
+
+  if (!data || !Array.isArray(data)) {
+    return <p>No data available</p>;
+  }
 
   return (
     <div className="max-w-[1328px]">
@@ -53,7 +58,7 @@ const Table = ({ data, title, description }) => {
                           </div>
                         </td>
                         <td className="px-4 py-3">
-                          <span className="text-sm text-[#E2E8F0]">{coin.symbol}</span>
+                          <span className="text-sm text-[#E2E8F0]">{coin.symbol??"USDT"}</span>
                         </td>
                         <td className="px-4 py-3">
                           <span className="text-sm text-[#E2E8F0]">${formatValue(coin.price)}</span>
