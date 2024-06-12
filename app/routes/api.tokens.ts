@@ -1,28 +1,25 @@
 import { json, type LoaderFunction } from "@remix-run/node";
 
-const API_KEY = process.env.MORALIS ?? '';
+const API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6Ijg5ZTJhNmI0LThlNjktNDY0Yi04MzYwLWNkZGI3OTEwNTRkNyIsIm9yZ0lkIjoiMTcyNTc5IiwidXNlcklkIjoiMTcyMjUwIiwidHlwZUlkIjoiYWE5Njk3MTMtMDhmNC00YThhLTgwZWYtNTNmNmUzNmY2NzQ5IiwidHlwZSI6IlBST0pFQ1QiLCJpYXQiOjE2OTczMzE1MTEsImV4cCI6NDg1MzA5MTUxMX0.xlAawKhVtgE1sMhUGs-afbJh4vEd-Erz8AEjoXoxzrU";
 const baseURL = "https://deep-index.moralis.io/api/v2.2";
 
-export const loader: LoaderFunction = async ({ request,params }) => {
+export const loader: LoaderFunction = async ({ request, params }) => {
   try {
     const url = new URL(request.url);
     const tokenAddress = url.searchParams.get("address");
-    console.log(`Fetching token owners for address: ${params.tokenAddress}`);
     const headers = new Headers({
       'Accept': 'application/json',
       'X-API-Key': API_KEY
     });
 
-    const ownersPromise = fetch(`${baseURL}/erc20/${tokenAddress}/owners?limit=50`, {
+    const ownersResponse = await fetch(`${baseURL}/erc20/${tokenAddress}/owners?limit=50`, {
       method: 'GET',
       headers: headers
     });
 
-    const [ownersResponse] = await Promise.all([ownersPromise]);
-
     if (!ownersResponse.ok) {
       const message = await ownersResponse.json();
-      throw new Error(message);
+      throw new Error(`Error fetching token owners: ${ownersResponse.statusText} - ${JSON.stringify(message)}`);
     }
 
     const tokenOwners = await ownersResponse.json();
@@ -59,56 +56,60 @@ export const loader: LoaderFunction = async ({ request,params }) => {
       .filter((item: any) => item.count >= 3)
       .map((item: any) => item);
 
-      const get_metadata = await fetch(`${baseURL}/erc20/metadata?addresses=${tokenAddress}`, {
-        method: 'GET',
-        headers: headers
-      });
-  
-      if (!get_metadata.ok) {
-        const message = await get_metadata.json();
-        throw new Error(message);
-      }
-      let tokenMetadata = await get_metadata.json();
+    const get_metadata = await fetch(`${baseURL}/erc20/metadata?addresses=${tokenAddress}`, {
+      method: 'GET',
+      headers: headers
+    });
 
-   
-      const pricePromise = fetch(`https://deep-index.moralis.io/api/v2.2/erc20/${tokenAddress}/price?include=percent_change`, {
-        method: 'GET',
-        headers: headers
-      });
-  
-      const blockPromise = fetch(`https://deep-index.moralis.io/api/v2.2/block/${tokenMetadata[0].block_number}`, {
-        method: 'GET',
-        headers: headers
-      });
-  
-      const [priceResponse, blockResponse] = await Promise.all([pricePromise, blockPromise]);
-  
-      if (!blockResponse.ok) {
-        const message = await blockResponse.json();
-        return json(message, { status: 500 });
+    if (!get_metadata.ok) {
+      const message = await get_metadata.json();
+      throw new Error(`Error fetching token metadata: ${get_metadata.statusText} - ${JSON.stringify(message)}`);
+    }
+
+    let tokenMetadata = await get_metadata.json();
+
+    const pricePromise = fetch(`https://deep-index.moralis.io/api/v2.2/erc20/${tokenAddress}/price?include=percent_change`, {
+      method: 'GET',
+      headers: headers
+    });
+
+    const blockPromise = fetch(`https://deep-index.moralis.io/api/v2.2/block/${tokenMetadata[0].block_number}`, {
+      method: 'GET',
+      headers: headers
+    });
+
+    const [priceResponse, blockResponse] = await Promise.all([pricePromise, blockPromise]);
+
+    if (!priceResponse.ok) {
+      const message = await priceResponse.json();
+      throw new Error(`Error fetching token price: ${priceResponse.statusText} - ${JSON.stringify(message)}`);
+    }
+
+    if (!blockResponse.ok) {
+      const message = await blockResponse.json();
+      throw new Error(`Error fetching block data: ${blockResponse.statusText} - ${JSON.stringify(message)}`);
+    }
+
+    const tokenPrice = await priceResponse.json();
+    const blockCreated = await blockResponse.json();
+
+    if (tokenMetadata[0].total_supply_formatted) {
+      if (tokenPrice.usdPrice) {
+        tokenMetadata[0].fdv = Number(tokenMetadata[0].total_supply_formatted) * Number(tokenPrice.usdPrice);
+        tokenMetadata[0].fdv = Number(tokenMetadata[0].fdv).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
       }
-  
-      const tokenPrice = await priceResponse.json();
-      const blockCreated = await blockResponse.json();
-  console.log("blockCreated "+JSON.stringify(blockCreated))
-      if (tokenMetadata[0].total_supply_formatted) {
-        if (tokenPrice.usdPrice) {
-          tokenMetadata[0].fdv = Number(tokenMetadata[0].total_supply_formatted) * Number(tokenPrice.usdPrice);
-          tokenMetadata[0].fdv = Number(tokenMetadata[0].fdv).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-        }
-  
-        tokenMetadata[0].total_supply_formatted = Number(tokenMetadata[0].total_supply_formatted).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-      }
-  
-      if (!tokenPrice.usdPrice) {
-        tokenPrice.usdPrice = 0;
-        tokenPrice.usdPriceFormatted = "0";
-        tokenPrice["24hrPercentChange"] = "0";
-      }
-      console.log(" 24hrPercentChange",tokenPrice["24hrPercentChange"])
+
+      tokenMetadata[0].total_supply_formatted = Number(tokenMetadata[0].total_supply_formatted).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
+
+    if (!tokenPrice.usdPrice) {
+      tokenPrice.usdPrice = 0;
+      tokenPrice.usdPriceFormatted = "0";
+      tokenPrice["24hrPercentChange"] = "0";
+    }
+
     return json({
       tokenMetadata: tokenMetadata[0],
-
       tokenOwners: tokenOwners.result,
       topTokenOwners: results,
       totalBalance,
@@ -121,13 +122,13 @@ export const loader: LoaderFunction = async ({ request,params }) => {
 
   } catch (e) {
     if (e instanceof Error) {
-      
-    console.log(JSON.stringify(e.message));
+      // Añadir manejo específico para el error de límite de plan
+      if (e.message.includes("Validation service blocked")) {
+        return json({ error: "Has alcanzado el límite diario de tu plan gratuito en Moralis. Por favor, actualiza tu plan." }, { status: 403 });
+      }
       return json({ error: e.message }, { status: 500 });
     } else {
       return json({ error: 'An unknown error occurred' }, { status: 500 });
     }
   }
 };
-
-

@@ -18,7 +18,6 @@ export default function CryptoDetails() {
   useEffect(() => {
     try{
     if (fetcher.data) {
-      console.log('DATA FETCHER', JSON.stringify(fetcher.data));
       setTokenData(fetcher.data);
     }
   }catch(e){
@@ -28,11 +27,7 @@ export default function CryptoDetails() {
 
   useEffect(() => {
     async function init(){
-      console.log("contract", contract)
-
-      let res  =await fetcher.load(`/api/tokens?address=${contract}`);
-      console.log("contrac2t"+res)
-
+      let res= await fetcher.load(`/api/tokens?address=${contract}`);
     }
     init()
 
@@ -47,17 +42,17 @@ export default function CryptoDetails() {
             <h3 className="mb-4 text-[16px] font-semibold leading-[19.36px] text-[#F5F5F5]">
               Token Details
             </h3>
-            {/* <TokenDetails coin={coin} /> */}
+             {/* <TokenDetails /> */}
           </div>
           <div className="mt-8 w-full lg:mt-0 lg:w-2/3 lg:pl-8">
             <h3 className="mb-4 text-[16px] font-semibold leading-[19.36px] text-[#F5F5F5]">
               Token Price Movement
             </h3>
-            {/* <LineChart address={coin.contract} /> */}
+             {/* <LineChart />  */}
           </div>
         </div>
         <div className="mt-8 w-full">
-          {/* <TokenAnalysis address={coin.contract} /> */}
+           {/* <TokenAnalysis /> */}
         </div>
       </div>
       <Footer />

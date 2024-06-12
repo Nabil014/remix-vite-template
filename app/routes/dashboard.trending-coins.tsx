@@ -2,21 +2,29 @@ import { json, LoaderFunction } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 import Table from '~/components/table-list';
 import Footer from '~/components/footer';
-import Moralis from 'moralis';
+
+const API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6Ijg5ZTJhNmI0LThlNjktNDY0Yi04MzYwLWNkZGI3OTEwNTRkNyIsIm9yZ0lkIjoiMTcyNTc5IiwidXNlcklkIjoiMTcyMjUwIiwidHlwZUlkIjoiYWE5Njk3MTMtMDhmNC00YThhLTgwZWYtNTNmNmUzNmY2NzQ5IiwidHlwZSI6IlBST0pFQ1QiLCJpYXQiOjE2OTczMzE1MTEsImV4cCI6NDg1MzA5MTUxMX0.xlAawKhVtgE1sMhUGs-afbJh4vEd-Erz8AEjoXoxzrU";
+const baseURL = "https://deep-index.moralis.io/api/v2.2";
 
 async function getTokenLogo(address: string) {
   try {
-    if (!Moralis.Core.isStarted) {
-      await Moralis.start({
-        apiKey: process.env.MORALIS,
-      });
+    const headers = new Headers({
+      'Accept': 'application/json',
+      'X-API-Key': API_KEY,
+    });
+
+    const response = await fetch(`${baseURL}/erc20/metadata?addresses=${address}`, {
+      method: 'GET',
+      headers: headers,
+    });
+
+    if (!response.ok) {
+      const message = await response.json();
+      throw new Error(`Error fetching token metadata: ${response.statusText} - ${JSON.stringify(message)}`);
     }
 
-    const response = await Moralis.EvmApi.token.getTokenMetadata({
-      chain: '0x1',
-      addresses: [address],
-    });
-    return response.raw[0]?.logo || null;
+    const tokenMetadata = await response.json();
+    return tokenMetadata[0]?.logo || null;
   } catch (e) {
     console.error(e);
     return null;
@@ -65,12 +73,12 @@ export default function Index() {
   const { tokens } = useLoaderData();
 
   const data = tokens.map((token: any) => ({
-    contract: token.contract, 
+    contract: token.contract,
     name: token.name || 'Token Name',
     symbol: token.symbol || 'Symbol',
     price: token.price || '0.00',
     volume: token.volume_4h || '0',
-    image: token.logo || 'https://via.placeholder.com/20', 
+    image: token.logo || 'https://via.placeholder.com/20',
   }));
 
   return (
@@ -79,9 +87,9 @@ export default function Index() {
         <h2 className="mb-10 text-base font-semibold leading-[19.36px] text-[#04E6E6]">
           Top 10 Coins by Volume
         </h2>
-        <Table 
-          data={data} 
-          title="Top 10 Coins by Volume" 
+        <Table
+          data={data}
+          title="Top 10 Coins by Volume"
           description="Top 10 cryptocurrencies by trading volume in the past 4 hours."
         />
       </div>
