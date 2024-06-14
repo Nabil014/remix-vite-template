@@ -51,12 +51,19 @@ export default function SidebarMain({ showSidebar }: Props) {
             >
               <BiCoinStack className='w-5 h-5' />
               <div className='flex items-center justify-between w-full'>
-                Top Tokens
+                Tokens
                 {showTopTokens ? <FiChevronUp /> : <FiChevronDown />}
               </div>
             </div>
             {showTopTokens && (
               <ul className='pl-8 mt-2 space-y-1'>
+                
+                <li>
+                  <Link to='/dashboard/trending-coins' className='flex items-center text-[#6EEAEA] p-2 gap-x-4 rounded-lg hover:bg-gray-100 hover:text-gray-900 group'>
+                    <AiOutlineThunderbolt className='w-4 h-4' />
+                    Top Coins by Volume
+                  </Link>
+                </li>
                 <li>
                   <Link to='/dashboard/trending-coins' className='flex items-center text-[#6EEAEA] p-2 gap-x-4 rounded-lg hover:bg-gray-100 hover:text-gray-900 group'>
                     <AiOutlineThunderbolt className='w-4 h-4' />
@@ -80,7 +87,7 @@ export default function SidebarMain({ showSidebar }: Props) {
             >
               <FaFire className='w-5 h-5' />
               <div className='flex items-center justify-between w-full'>
-                Top Traders
+                 Traders
                 {showTopTraders ? <FiChevronUp /> : <FiChevronDown />}
               </div>
             </div>
@@ -89,13 +96,33 @@ export default function SidebarMain({ showSidebar }: Props) {
                 <li>
                   <Link to='/dashboard/holders' className='flex items-center text-[#6EEAEA] p-2 gap-x-4 rounded-lg hover:bg-gray-100 hover:text-gray-900 group'>
                     <BiCoinStack className='w-4 h-4' />
-                    Top Traders by Volume
+                    Top Profitable Traders
+                  </Link>
+                </li>
+                <li>
+                  <Link to='/dashboard/holders' className='flex items-center text-[#6EEAEA] p-2 gap-x-4 rounded-lg hover:bg-gray-100 hover:text-gray-900 group'>
+                    <BiCoinStack className='w-4 h-4' />
+                    Top Traders by Swaps
                   </Link>
                 </li>
                 <li>
                   <Link to='/dashboard/holders' className='flex items-center text-[#6EEAEA] p-2 gap-x-4 rounded-lg hover:bg-gray-100 hover:text-gray-900 group'>
                     <AiOutlineFieldTime className='w-4 h-4' />
                     Top Traders by Earlybird Tokens
+                  </Link>
+                </li>
+                
+                <li>
+                  <Link to='/dashboard/holders' className='flex items-center text-[#6EEAEA] p-2 gap-x-4 rounded-lg hover:bg-gray-100 hover:text-gray-900 group'>
+                    <AiOutlineFieldTime className='w-4 h-4' />
+                    Top Whales
+                  </Link>
+                </li>
+                
+                <li>
+                  <Link to='/dashboard/holders' className='flex items-center text-[#6EEAEA] p-2 gap-x-4 rounded-lg hover:bg-gray-100 hover:text-gray-900 group'>
+                    <AiOutlineFieldTime className='w-4 h-4' />
+                    Top Holders
                   </Link>
                 </li>
                 <li>
@@ -113,7 +140,7 @@ export default function SidebarMain({ showSidebar }: Props) {
               className='flex items-center text-[#6EEAEA] p-2 gap-x-4 rounded-lg hover:bg-gray-100 hover:text-gray-900 group'
             >
               <BsGraphUp className='w-5 h-5' />
-              Top NFTs
+               NFTs
             </Link>
           </li>
           <li>
