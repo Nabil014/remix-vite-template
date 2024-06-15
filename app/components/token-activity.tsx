@@ -1,7 +1,9 @@
-import React from 'react';
-import { FaCopy } from 'react-icons/fa';
+import React, { useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCopy, faCheck } from '@fortawesome/free-solid-svg-icons';
 
-const ActivityCard = (walletData:any,address:any) => {
+const ActivityCard = (walletData:any) => {
+  const [copied,setCopied]=useState(false)
   console.log("fetcher1 "+JSON.stringify(walletData))
   console.log("fetcher2 "+JSON.stringify(walletData.walletData))
   console.log("fetcher3 "+JSON.stringify(walletData.walletData?.overview.total_networth_usd))
@@ -14,8 +16,15 @@ const ActivityCard = (walletData:any,address:any) => {
   console.log("fetcher4"+JSON.stringify(lastTransaction)) 
   console.log("fetche5"+JSON.stringify(firstSeen))
   console.log("fetcher5"+JSON.stringify(lastSeen)) 
-
-
+  const formatAddress = (address: string) => {
+    return `${address?.toString().slice(0, 6)}...${address?.toString().slice(-4)}`;
+  };
+  const copyToClipboard = (address: string) => {
+    navigator.clipboard.writeText(address).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
   return (
     <div
       className=" mt-8 relative mx-auto rounded-[30px] border border-[#04E6E6] bg-[#022527] text-white shadow-inner w-[1000px] h-[203px] p-[24px_48px_48px_32px] shadow-[inset_0_15px_10px_0_rgba(0,0,0,0.25)]"
@@ -28,8 +37,11 @@ const ActivityCard = (walletData:any,address:any) => {
           <div className="mb-4">
             <span className="text-sm text-[#F5F5F5] opacity-50 font-inter text-[12px] leading-[14.52px]">Address</span>
             <div className="flex items-center">
-          <div className="mr-1 font-inter font-semibold text-[#F5F5F5] text-[14px] leading-[14.52px]">{walletData.walletData?.overview.address}</div>
-            <FaCopy className="text-[#F5F5F5] w-[7.5px] h-[8.5px] border border-[#F5F5F5] rounded-[2px] p-[1px] ml-[5px]" />
+          <div className="mr-1 font-inter font-semibold text-[#F5F5F5] text-[14px] leading-[14.52px]">{formatAddress(walletData?.walletData?.overview.address)}</div><button
+              onClick={() => copyToClipboard(walletData.walletData?.overview.address)}
+              className="text-[14px] font-bold text-[#04E6E6] hover:text-[#03C5C5]">
+              <FontAwesomeIcon icon={copied ? faCheck : faCopy} />
+            </button>
             </div>
           </div>
           <div className='mt-2'>

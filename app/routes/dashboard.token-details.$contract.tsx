@@ -18,7 +18,6 @@ export default function CryptoDetails() {
   useEffect(() => {
     try{
     if (fetcher.data) {
-
       setTokenData(fetcher.data);
     }
   }catch(e){
@@ -43,7 +42,7 @@ export default function CryptoDetails() {
             <h3 className="mb-4 text-[16px] font-semibold leading-[19.36px] text-[#F5F5F5]">
               Token Details
             </h3>
-             <TokenDetails tokenData={tokenData} /> 
+             <TokenDetails /> 
           </div>
           <div className="mt-8 w-full lg:mt-0 lg:w-2/3 lg:pl-8">
             <h3 className="mb-4 text-[16px] font-semibold leading-[19.36px] text-[#F5F5F5]">
