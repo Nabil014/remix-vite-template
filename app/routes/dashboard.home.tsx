@@ -3,7 +3,6 @@ import { InfiniteMovingCards } from '~/components/infinite-moving-cards'
 import { PlaceholdersAndVanishInput } from '~/components/placeholders-and-vanish-input'
 import Table from '~/components/table-list'
 import Footer from '~/components/footer'
-import LineChart from '~/components/line-chart'
 
 export default function Index() {
   // carrousel
