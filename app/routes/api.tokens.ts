@@ -67,6 +67,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     }
 
     let tokenMetadata = await get_metadata.json();
+    console.log("get_metadata "+JSON.stringify(tokenMetadata))
 
     const pricePromise = fetch(`https://deep-index.moralis.io/api/v2.2/erc20/${tokenAddress}/price?include=percent_change`, {
       method: 'GET',

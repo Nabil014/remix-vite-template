@@ -1,100 +1,57 @@
-import React, { useState } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCopy, faCheck } from '@fortawesome/free-solid-svg-icons';
+const TokenDetails = (tokenData:any) => {
 
-interface TokenDetailsProps {
-  totalSupply: string;
-  fullyDilutedValuation: string;
-  tokenAge: number;
-  dateCreated: string;
-  currentPrice: number;
-  tokenAddress: string;
-  name: string;
-  symbol: string;
-  contractType: string;
-  decimals: number;
-}
-
-const TokenDetails: React.FC<TokenDetailsProps> = ({
-  totalSupply,
-  fullyDilutedValuation,
-  tokenAge,
-  dateCreated,
-  currentPrice,
-  tokenAddress,
-  name,
-  symbol,
-  contractType,
-  decimals
-}) => {
-  const [copied, setCopied] = useState(false);
-
-  const formatAddress = (address: string) => {
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
-  };
-
-  const copyToClipboard = (address: string) => {
-    navigator.clipboard.writeText(address).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
-  };
-
-  return (
-    <div className="w-full max-w-md p-6 rounded-lg bg-transparent text-white space-y-6">
-      <div className="space-y-2">
-        <div className="flex justify-between py-2 border-b border-[#04E6E6]">
-          <span className="text-[14px] font-normal w-[160px] text-[#F5F5F580]">Total Supply</span>
-          <span className="text-[14px] font-bold text-right">{totalSupply}</span>
-        </div>
-        <div className="flex justify-between py-2 border-b border-[#04E6E6]">
-          <span className="text-[14px] font-normal w-[160px] text-[#F5F5F580]">Fully Diluted Valuation</span>
-          <span className="text-[14px] font-bold text-right">{fullyDilutedValuation}</span>
-        </div>
-        <div className="flex justify-between py-2 border-b border-[#04E6E6]">
-          <span className="text-[14px] font-normal w-[160px] text-[#F5F5F580]">Token Age</span>
-          <span className="text-[14px] font-bold text-right">{tokenAge} days</span>
-        </div>
-        <div className="flex justify-between py-2 border-b border-[#04E6E6]">
-          <span className="text-[14px] font-normal w-[160px] text-[#F5F5F580]">Date Created</span>
-          <span className="text-[14px] font-bold text-right">{dateCreated}</span>
-        </div>
-        <div className="flex justify-between py-2 border-b border-[#04E6E6]">
-          <span className="text-[14px] font-normal w-[160px] text-[#F5F5F580]">Current Price</span>
-          <span className="text-[14px] font-bold text-right">${currentPrice.toFixed(8)}</span>
-        </div>
-        <div className="flex justify-between items-center py-2 border-b border-[#04E6E6]">
-          <span className="text-[14px] font-normal w-[160px] text-[#F5F5F580]">Token Address</span>
-          <div className="flex items-center">
-            <span className="text-[14px] font-bold text-right mr-2">
-              {formatAddress(tokenAddress)}
-            </span>
-            <button
-              onClick={() => copyToClipboard(tokenAddress)}
-              className="text-[14px] font-bold text-[#04E6E6] hover:text-[#03C5C5]">
-              <FontAwesomeIcon icon={copied ? faCheck : faCopy} />
-            </button>
+  console.log(tokenData)
+  function calculateYearsFromCreatedAt(createdAt: string): any {
+    const createdDate = new Date(createdAt);
+    const currentDate = new Date();
+  
+    const yearsDifference = currentDate.getFullYear() - createdDate.getFullYear();
+  
+    // Restar un año si el aniversario aún no ha pasado este año
+    const hasBirthdayPassed =
+      currentDate.getMonth() > createdDate.getMonth() ||
+      (currentDate.getMonth() === createdDate.getMonth() && currentDate.getDate() >= createdDate.getDate());
+  
+    return hasBirthdayPassed}
+    return (
+      <div className="w-[340px] h-full p-4 rounded-[30px] bg-transparent text-[#F5F5F5] space-y-4">
+        <div>
+          <div className="flex justify-between py-2 border-b border-[#04E6E6]">
+            <span className="text-[10px] font-normal leading-[12.1px] w-[160px] text-[#F5F5F580]">Total Supply</span>
+            <span className="text-[10px] font-bold leading-[12.1px] w-[68px] text-right">{tokenData?.tokenData?.tokenMetadata.total_supply_formatted}</span>
+          </div>
+          <div className="flex justify-between py-2 border-b border-[#04E6E6]">
+            <span className="text-[10px] font-normal leading-[12.1px] w-[160px] text-[#F5F5F580]">Fully Diluted Valuation</span>
+            <span className="text-[10px] font-bold leading-[12.1px] text-right">{"$"+tokenData?.tokenData?.tokenMetadata?.fully_diluted_valuation}</span>
+          </div>
+          <div className="flex justify-between py-2 border-b border-[#04E6E6]">
+            <span className="text-[10px] font-normal leading-[12.1px] w-[160px] text-[#F5F5F580]">Date Created</span>
+            <span className="text-[10px] font-bold leading-[12.1px] text-right">{tokenData?.tokenData?.tokenMetadata?.created_at}</span>
+          </div>
+          <div className="flex justify-between py-2 border-b border-[#04E6E6]">
+            <span className="text-[10px] font-normal leading-[12.1px] w-[160px] text-[#F5F5F580]">Token Address</span>
+            <span className="text-[10px] font-bold leading-[12.1px] text-right">0xc02a...6cc2</span>
+          </div>
+          <div className="flex justify-between py-2 border-b border-[#04E6E6]">
+            <span className="text-[10px] font-normal leading-[12.1px] w-[160px] text-[#F5F5F580]">Name</span>
+            <span className="text-[10px] font-bold leading-[12.1px] text-right">Wrapped Ether</span>
+          </div>
+          <div className="flex justify-between py-2 border-b border-[#04E6E6]">
+            <span className="text-[10px] font-normal leading-[12.1px] w-[160px] text-[#F5F5F580]">Symbol</span>
+            <span className="text-[10px] font-bold leading-[12.1px] text-right">WETH</span>
+          </div>
+          <div className="flex justify-between py-2 border-b border-[#04E6E6]">
+            <span className="text-[10px] font-normal leading-[12.1px] w-[160px] text-[#F5F5F580]">Contract Type</span>
+            <span className="text-[10px] font-bold leading-[12.1px] text-right">ERC20</span>
+          </div>
+          <div className="flex justify-between py-2">
+            <span className="text-[10px] font-normal leading-[12.1px] w-[160px] text-[#F5F5F580]">Decimals</span>
+            <span className="text-[10px] font-bold leading-[12.1px] text-right">18</span>
           </div>
         </div>
-        <div className="flex justify-between py-2 border-b border-[#04E6E6]">
-          <span className="text-[14px] font-normal w-[160px] text-[#F5F5F580]">Name</span>
-          <span className="text-[14px] font-bold text-right">{name}</span>
-        </div>
-        <div className="flex justify-between py-2 border-b border-[#04E6E6]">
-          <span className="text-[14px] font-normal w-[160px] text-[#F5F5F580]">Symbol</span>
-          <span className="text-[14px] font-bold text-right">{symbol}</span>
-        </div>
-        <div className="flex justify-between py-2 border-b border-[#04E6E6]">
-          <span className="text-[14px] font-normal w-[160px] text-[#F5F5F580]">Contract Type</span>
-          <span className="text-[14px] font-bold text-right">{contractType}</span>
-        </div>
-        <div className="flex justify-between py-2">
-          <span className="text-[14px] font-normal w-[160px] text-[#F5F5F580]">Decimals</span>
-          <span className="text-[14px] font-bold text-right">{decimals}</span>
-        </div>
       </div>
-    </div>
-  );
-};
-
-export default TokenDetails;
+    );
+  };
+  
+  export default TokenDetails;
+  
