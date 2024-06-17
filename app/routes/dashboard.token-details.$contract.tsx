@@ -7,6 +7,7 @@ import TokenDetails from '~/components/token-detail';
 import LineChart from '~/components/line-chart';
 import TokenAnalysis from '~/components/token-analysis';
 
+
 export const loader: LoaderFunction = async ({ params }) => {
   const { contract } = params;
   return json({ contract });
@@ -29,6 +30,10 @@ export default function CryptoDetails() {
     }
     init();
   }, [contract]);
+
+  console.log(tokenData)
+
+  console.log(dataToken)
   
 
   const chartOptions = {
@@ -65,14 +70,14 @@ export default function CryptoDetails() {
       axisBorder: { show: false },
       axisTicks: { show: false },
       labels: {
-        show: false,  // Ocultar las etiquetas del eje X
+        show: false, 
       },
     },
     yaxis: {
       min: 2900,
       max: 3800,
       labels: {
-        show: false,  // Ocultar las etiquetas del eje Y
+        show: false, 
         formatter: (value) => value,
       },
     },
@@ -130,7 +135,7 @@ export default function CryptoDetails() {
                 tokenAddress={tokenData.tokenMetadata.address}
                 name={tokenData.tokenMetadata.name}
                 symbol={tokenData.tokenMetadata.symbol}
-                contractType="ERC20"  // Assuming contract type is ERC20 based on the given data
+                contractType="ERC20"  
                 decimals={parseInt(tokenData.tokenMetadata.decimals)}
               />
             )}

@@ -1,6 +1,6 @@
 import { json, type LoaderFunction } from "@remix-run/node";
 
-const API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6Ijg5ZTJhNmI0LThlNjktNDY0Yi04MzYwLWNkZGI3OTEwNTRkNyIsIm9yZ0lkIjoiMTcyNTc5IiwidXNlcklkIjoiMTcyMjUwIiwidHlwZUlkIjoiYWE5Njk3MTMtMDhmNC00YThhLTgwZWYtNTNmNmUzNmY2NzQ5IiwidHlwZSI6IlBST0pFQ1QiLCJpYXQiOjE2OTczMzE1MTEsImV4cCI6NDg1MzA5MTUxMX0.xlAawKhVtgE1sMhUGs-afbJh4vEd-Erz8AEjoXoxzrU";
+const API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6IjEyOTcwOGRmLTAwMmYtNDNhMi04NzVmLTY3Zjk0OGU4OTk4OCIsIm9yZ0lkIjoiMzkwMDMzIiwidXNlcklkIjoiNDAwNzgzIiwidHlwZUlkIjoiODQ3ZTY2MzQtNzJkMC00OWFmLTlmZGItMzBkODk1NDExZGNmIiwidHlwZSI6IlBST0pFQ1QiLCJpYXQiOjE3MTg0MDAxMTQsImV4cCI6NDg3NDE2MDExNH0.omPk1UXIt9_rEp4Pn3pBkqdSKNznn8PnsC6awTnqBcI";
 const baseURL = "https://deep-index.moralis.io/api/v2.2";
 
 export const loader: LoaderFunction = async ({ request, params }) => {

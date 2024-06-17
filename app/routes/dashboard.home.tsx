@@ -128,9 +128,10 @@ export default function Index() {
         </h2>
         <Table
           data={data}
-          title="Top 10 Early Bird Coins"
-          description="This table shows the top 10 early bird coins."
-        />      </div>
+          title="Top 10 PNL Coin"
+          description="This table shows the top 10 coins with the highest PNL."
+        />    
+         </div>
       <Footer/>
     </div>
   )
