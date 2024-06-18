@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 
-const LineChart = ({ prices }) => {
+const LineChart = ({ tokenPrices }: { tokenPrices: { x: string; y: number; block: number }[] }) => {
   const [isClient, setIsClient] = useState(false);
-  const [Chart, setChart] = useState(null);
+  const [Chart, setChart] = useState<any>(null);
 
   useEffect(() => {
     setIsClient(true);
@@ -14,16 +14,17 @@ const LineChart = ({ prices }) => {
     }
   }, []);
 
-  const options = {
+  const options = useMemo(() => ({
     chart: {
-      height: 300,
+      height: 400,
       type: 'area',
       toolbar: { show: false },
       zoom: { enabled: false },
       background: 'transparent',
+      width: '100%',
     },
     series: [
-      { name: 'Price', data: prices },
+      { name: 'Price', data: tokenPrices },
     ],
     legend: { show: true, labels: { colors: '#ffffff' } },
     dataLabels: { enabled: false },
@@ -43,22 +44,31 @@ const LineChart = ({ prices }) => {
     xaxis: {
       type: 'datetime',
       labels: {
+        show: false,
         style: { colors: '#9ca3af', fontSize: '12px', fontFamily: 'Inter, sans-serif', fontWeight: 400 },
       },
+      axisBorder: { show: false },
+      axisTicks: { show: false },
     },
     yaxis: {
       labels: {
+        show: false,
         style: { colors: '#9ca3af', fontSize: '12px', fontFamily: 'Inter, sans-serif', fontWeight: 400 },
-        formatter: (value) => value,
+        formatter: (value: number) => value.toFixed(2),
       },
+      axisBorder: { show: false },
+      axisTicks: { show: false },
     },
     tooltip: {
       theme: 'dark',
-      x: { format: 'dd MMM yyyy' },
+      x: { format: 'yyyy-MM-ddTHH:mm:ss.000Z' },
       y: {
-        formatter: (value) => `$${value}`,
+        formatter: (value: number, { dataPointIndex }: { dataPointIndex: number }) => {
+          const block = tokenPrices[dataPointIndex].block;
+          return `USD Price: ${value.toFixed(10)} | Block: ${block}`;
+        },
         title: {
-          formatter: () => 'Price: ',
+          formatter: () => '',
         }
       },
       marker: {
@@ -68,35 +78,34 @@ const LineChart = ({ prices }) => {
     responsive: [{
       breakpoint: 768,
       options: {
-        chart: { height: 300 },
+        chart: { height: 250 },
         xaxis: {
-          labels: {
-            style: { fontSize: '11px', fontWeight: 400 },
-          },
+          labels: { show: false },
         },
         yaxis: {
-          labels: {
-            style: { fontSize: '11px', fontWeight: 400 },
-          },
+          labels: { show: false },
         },
+        grid: {
+          show: false,
+        }
       },
     }],
-  };
+  }), [tokenPrices]);
 
   if (!isClient || !Chart) {
     return null;
   }
 
   return (
-    <div className='h-full bg-transparent rounded-[30px] p-4'>
+    <div className='h-full bg-transparent rounded-[30px] p-4 w-full'>
       <div className="flex justify-center sm:justify-end items-center gap-x-4 mb-4">
         <div className="flex items-center">
           <span className="w-2.5 h-2.5 inline-block bg-green-600 rounded-full mr-2"></span>
           <span className="text-sm text-gray-300 font-semibold">Price</span>
         </div>
       </div>
-      <div id="chart">
-        <Chart options={options} series={[{ name: 'Price', data: prices }]} type="area" height={270} />
+      <div id="chart" className="w-full">
+        <Chart options={options} series={[{ name: 'Price', data: tokenPrices }]} type="area" height={350} />
       </div>
     </div>
   );
