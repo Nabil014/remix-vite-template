@@ -3,7 +3,6 @@ import { InfiniteMovingCards } from '~/components/infinite-moving-cards'
 import { PlaceholdersAndVanishInput } from '~/components/placeholders-and-vanish-input'
 import Table from '~/components/table-list'
 import Footer from '~/components/footer'
-import LineChart from '~/components/line-chart'
 
 export default function Index() {
   // carrousel
@@ -128,9 +127,10 @@ export default function Index() {
         </h2>
         <Table
           data={data}
-          title="Top 10 Early Bird Coins"
-          description="This table shows the top 10 early bird coins."
-        />      </div>
+          title="Top 10 PNL Coin"
+          description="This table shows the top 10 coins with the highest PNL."
+        />    
+         </div>
       <Footer/>
     </div>
   )
