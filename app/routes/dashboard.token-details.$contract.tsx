@@ -6,43 +6,66 @@ import { useEffect, useState } from 'react';
 import TokenDetails from '~/components/token-detail';
 import LineChart from '~/components/LineChart';
 import TokenAnalysis from '~/components/token-analysis';
+import axios from "axios"
+
+const cache = {};
+
+async function fetchWithCache(url, options) {
+  if (cache[url]) {
+    return cache[url];
+  }
+  const response = await fetch(url, options);
+  if (!response.ok) {
+    throw new Error(`Error fetching data: ${response.statusText}`);
+  }
+  const data = await response.json();
+  cache[url] = data;
+  return data;
+}
 
 export const loader: LoaderFunction = async ({ params }) => {
   const { contract } = params;
-  return json({ contract });
+  const url = `https://api.coingecko.com/api/v3/coins/ethereum/contract/${contract}/market_chart/?vs_currency=usd&days=1`;
+
+  try {
+    const data = await fetchWithCache(url, { timeout: 10000 });
+
+    // Filtrar los datos para obtener solo las últimas 4 horas
+    const currentTime = Date.now();
+    const fourHoursAgo = currentTime - 4 * 60 * 60 * 1000;
+    const tokenPrices = data.prices
+      .filter(([time]) => time >= fourHoursAgo)
+      .map(([time, price]) => ({
+        x: new Date(time).toISOString(),
+        y: price,
+        block: time
+      }));
+
+    return json({ contract, tokenPrices });
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    return json({ contract, tokenPrices: [], error: error.message }, { status: 500 });
+  }
 };
 
 export default function CryptoDetails() {
   const fetcher = useFetcher();
-  const priceFetcher = useFetcher();
+  const { contract, tokenPrices, error } = useLoaderData();
   const [tokenData, setTokenData] = useState(null);
-  const [tokenPrice, setTokenPrice] = useState(null);
-  const { contract } = useLoaderData();
 
   useEffect(() => {
-    if (fetcher.data && priceFetcher.data) {
+    if (fetcher.data) {
       setTokenData(fetcher.data);
-      setTokenPrice(priceFetcher.data);
     }
-  }, [fetcher.data, priceFetcher.data]);
+  }, [fetcher.data]);
 
   useEffect(() => {
-    async function init(){
+    async function init() {
       await fetcher.load(`/api/tokens?address=${contract}`);
-      await priceFetcher.load(`/api/tokens/${contract}/prices?chain=eth`);
     }
     init();
   }, [contract]);
 
-  console.log("PRECIO", tokenPrice)
-
-  // Transformar los datos para el gráfico
-  const prices = tokenPrice?.tokenPrices
-    ?.filter(price => price.y !== null)
-    ?.map(price => ({
-      x: new Date(price.x).getTime(), // Convertir fecha a timestamp
-      y: price.y
-    })) || [];
 
   return (
     <div className="h-auto bg-gradient-radial p-8">
@@ -59,7 +82,11 @@ export default function CryptoDetails() {
             <h3 className="mb-4 text-[16px] font-semibold leading-[19.36px] text-[#F5F5F5]">
               Token Price Movement
             </h3>
-            <LineChart prices={prices} />
+            {error ? (
+              <p className="text-red-500">Error fetching data: {error}</p>
+            ) : (
+              <LineChart tokenPrices={tokenPrices} />
+            )}
           </div>
         </div>
         <div className="mt-8 w-full">

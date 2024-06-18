@@ -63,8 +63,8 @@ const TokenDetails = ({ tokenData }: any) => {
           { label: "Decimals", value: formattedTokenData.decimals },
         ].map((item, index) => (
           <div key={index} className="flex justify-between py-2 border-b border-[#04E6E6]">
-            <span className="text-[10px] font-normal leading-[12.1px] w-[160px] text-[#F5F5F580]">{item.label}</span>
-            <span className="text-[10px] font-bold leading-[12.1px] text-right">{item.value}</span>
+            <span className="text-[13px] font-normal leading-[20px] w-[160px] text-[#F5F5F580]">{item.label}</span>
+            <span className="text-[13px] font-bold leading-[15px] text-right">{item.value}</span>
           </div>
         ))}
       </div>

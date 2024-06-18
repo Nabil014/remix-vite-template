@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useMemo } from 'react';
 
-const LineChart = ({ tokenPrices }: { tokenPrices: { x: string; y: number; block: number }[] }) => {
+const LineChart = ({ tokenPrices }) => {
   const [isClient, setIsClient] = useState(false);
-  const [Chart, setChart] = useState<any>(null);
+  const [Chart, setChart] = useState(null);
 
   useEffect(() => {
     setIsClient(true);
@@ -13,6 +13,11 @@ const LineChart = ({ tokenPrices }: { tokenPrices: { x: string; y: number; block
       });
     }
   }, []);
+
+  // Verifica los datos recibidos
+  useEffect(() => {
+   
+  }, [tokenPrices]);
 
   const options = useMemo(() => ({
     chart: {
@@ -52,9 +57,9 @@ const LineChart = ({ tokenPrices }: { tokenPrices: { x: string; y: number; block
     },
     yaxis: {
       labels: {
-        show: false,
+        show: true, // Mostrar etiquetas del eje Y
         style: { colors: '#9ca3af', fontSize: '12px', fontFamily: 'Inter, sans-serif', fontWeight: 400 },
-        formatter: (value: number) => value.toFixed(2),
+        formatter: (value) => value.toFixed(2),
       },
       axisBorder: { show: false },
       axisTicks: { show: false },
@@ -63,7 +68,7 @@ const LineChart = ({ tokenPrices }: { tokenPrices: { x: string; y: number; block
       theme: 'dark',
       x: { format: 'yyyy-MM-ddTHH:mm:ss.000Z' },
       y: {
-        formatter: (value: number, { dataPointIndex }: { dataPointIndex: number }) => {
+        formatter: (value, { dataPointIndex }) => {
           const block = tokenPrices[dataPointIndex].block;
           return `USD Price: ${value.toFixed(10)} | Block: ${block}`;
         },
@@ -80,10 +85,10 @@ const LineChart = ({ tokenPrices }: { tokenPrices: { x: string; y: number; block
       options: {
         chart: { height: 250 },
         xaxis: {
-          labels: { show: false },
+          labels: { show: true },
         },
         yaxis: {
-          labels: { show: false },
+          labels: { show: true },
         },
         grid: {
           show: false,
@@ -100,8 +105,6 @@ const LineChart = ({ tokenPrices }: { tokenPrices: { x: string; y: number; block
     <div className='h-full bg-transparent rounded-[30px] p-4 w-full'>
       <div className="flex justify-center sm:justify-end items-center gap-x-4 mb-4">
         <div className="flex items-center">
-          <span className="w-2.5 h-2.5 inline-block bg-green-600 rounded-full mr-2"></span>
-          <span className="text-sm text-gray-300 font-semibold">Price</span>
         </div>
       </div>
       <div id="chart" className="w-full">
