@@ -1,4 +1,4 @@
-import { FaArrowUp } from 'react-icons/fa'; // Asegúrate de tener react-icons instalado
+import { FaArrowUp } from 'react-icons/fa';
 
 const data = [
   { address: '0x7d0f84fb0047fe897919b1cd4264dad3e4c9d5a3', interactions: 9 },
@@ -15,12 +15,14 @@ const data = [
 
 export default function WalletInteractions() {
   return (
-    <div className="wallet-interactions mt-6 w-full max-w-[590px] h-auto min-h-[500px] rounded-[30px] bg-transparent p-6 sm:p-[32px] text-white">
+    <div className=" flex flex-col gap-y-4 min-h-[500px] text-white">
+      <div>
       <h2 className="text-[14px] font-semibold text-[#F5F5F5] leading-[16.94px]">Wallet Interactions</h2>
       <p className="text-[10px] font-semibold text-[#F5F5F5] leading-[12.1px] opacity-50 mt-2">
         Wallet interactions based on the last 90 days
       </p>
-      <div className="mt-4 flex flex-col sm:flex-row justify-between text-lg">
+      </div>
+      <div className="flex flex-col sm:flex-row justify-between text-lg gap-x-5">
         <div className="flex items-center mb-2 sm:mb-0">
           <div className="flex items-center justify-center w-[25.5px] h-[24.75px] border-[1.5px] border-[#F5F5F5] rounded-full">
             <FaArrowUp className="text-white-500" />
@@ -36,7 +38,7 @@ export default function WalletInteractions() {
           <span className="ml-2 text-[10px] font-semibold text-[#F5F5F5] leading-[12.1px] opacity-50">unique addresses sent to</span>
         </div>
       </div>
-      <div className="mt-4 overflow-x-auto">
+      <div className=" overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
             <tr>
