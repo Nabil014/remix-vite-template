@@ -260,6 +260,12 @@ const OnchainDataPlatform = () => {
     navigate('/register');
   };
 
+
+  const handlePricing = () => {
+    navigate('/pricing-plans');
+  }
+
+
   return (
     <div className="flex min-h-screen flex-col justify-center bg-gradient-radial px-4 mt-16">
       <div className="mt-10 flex w-full max-w-full flex-col items-center justify-center px-4">
@@ -291,7 +297,9 @@ const OnchainDataPlatform = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h14m-7-7l7 7-7 7"></path>
               </svg>
             </button>
-            <button className="flex items-center rounded-full border border-teal-400 bg-transparent px-4 py-2 text-teal-400 transition duration-300 hover:border-teal-500 hover:bg-teal-500 hover:text-black animate-fade-in-up">
+            <button
+            onClick={handlePricing}
+             className="flex items-center rounded-full border border-teal-400 bg-transparent px-4 py-2 text-teal-400 transition duration-300 hover:border-teal-500 hover:bg-teal-500 hover:text-black animate-fade-in-up">
               Explore Pricing
               <svg className="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h14m-7-7l7 7-7 7"></path>
