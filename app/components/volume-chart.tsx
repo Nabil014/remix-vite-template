@@ -1,13 +1,12 @@
-import React from 'react';
 import { Bar } from 'react-chartjs-2';
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
   BarElement,
+  CategoryScale,
+  Chart as ChartJS,
+  Legend,
+  LinearScale,
   Title,
   Tooltip,
-  Legend,
 } from 'chart.js';
 
 ChartJS.register(
@@ -19,14 +18,19 @@ ChartJS.register(
   Legend
 );
 
-const VolumeChart = () => {
+interface VolumeChartProps {
+  weeklyActivity: { [key: string]: number };
+}
+
+const VolumeChart: React.FC<VolumeChartProps> = ({ weeklyActivity }) => {
   const data = {
-    labels: Array(12).fill(''),
+    labels: Object.keys(weeklyActivity).map(week => `${week}`),
     datasets: [
       {
         label: 'Activity',
-        data: [40, 80, 60, 20, 100, 120, 70, 60, 50, 110, 30, 10],
+        data: Object.values(weeklyActivity),
         backgroundColor: '#00FFD1',
+        borderColor: '#00FFD1',
       }
     ],
   };
@@ -57,7 +61,7 @@ const VolumeChart = () => {
     scales: {
       x: {
         ticks: {
-          display: false,
+          display: true,
         },
         grid: {
           display: false
@@ -80,9 +84,9 @@ const VolumeChart = () => {
   };
 
   return (
-    <div className="relative bg-transparent p-8 rounded-lg text-white" style={{ width: '661px', height: '328px' }}>
-      <div className="text-lg font-semibold mb-2" style={{ fontSize: '14px', fontWeight: 600 }}>Wallet Activity</div>
-      <div className="text-gray-400 mb-4" style={{ fontSize: '12px', fontWeight: 700, color: 'rgba(245, 245, 245, 0.5)' }}>Weekly transactions over the last 90 days</div>
+    <div className="flex flex-col gap-y-3 rounded-lg text-white w-1/2">
+      <h3 className="font-semibold text-sm">Wallet Activity</h3>
+      <span className="text-gray-400 text-xs font-bold ">Weekly transactions over the last 90 days</span>
       <Bar data={data} options={options} />
     </div>
   );

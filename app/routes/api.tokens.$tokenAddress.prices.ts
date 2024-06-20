@@ -1,66 +1,65 @@
 import { json, type LoaderFunction } from "@remix-run/node";
 
-const API_KEY = process.env.MORALIS ?? '';
-const baseURL = "https://deep-index.moralis.io/api/v2.2";
+const COINGECKO_API = "https://api.coingecko.com/api/v3";
+
+interface Token {
+  id: string;
+  symbol: string;
+  name: string;
+}
+
+interface PriceData {
+  prices: [number, number][];
+}
+
+interface PricePoint {
+  x: string;
+  y: number;
+}
+
+interface PriceStats {
+  percentageChange: number;
+  usdChange: number;
+  direction: string;
+}
 
 export const loader: LoaderFunction = async ({ params, request }) => {
+  const tokenAddress = params.tokenAddress; // Dirección del token
+  if (!tokenAddress) {
+    return json({ error: 'Token address is missing' }, { status: 400 });
+  }
+
   try {
-    const tokenAddress = params.tokenAddress;
     const url = new URL(request.url);
-    const chain = url.searchParams.get('chain') || 'eth';
+    const vs_currency = url.searchParams.get('vs_currency') || 'usd';
 
-    // Obtener el último bloque
-    const latestBlockResponse = await fetch(`${baseURL}/latestBlockNumber/0x1`, {
-      method: 'GET',
-      headers: { 'Accept': 'application/json', 'X-API-Key': API_KEY }
-    });
+    // Verificar si el token existe en CoinGecko
+    const tokenListResponse = await fetch(`${COINGECKO_API}/coins/list`);
+    const tokenList: Token[] = await tokenListResponse.json();
+    const token = tokenList.find(t => t.id === tokenAddress.toLowerCase() || t.symbol === tokenAddress.toLowerCase() || t.name.toLowerCase() === tokenAddress.toLowerCase());
 
-    console.log("Latest Block Response Status:", latestBlockResponse.status);
-
-    if (!latestBlockResponse.ok) {
-      const errorText = await latestBlockResponse.text();
-      console.error('Error fetching latest block:', errorText);
-      return json({ error: 'Unable to fetch latest block', details: errorText }, { status: latestBlockResponse.status });
+    if (!token) {
+      return json({ error: 'Token not found' }, { status: 404 });
     }
 
-    const latest_block = await latestBlockResponse.json();
-    console.log("Latest Block Data:", latest_block);
+    // Obtener precios históricos de los últimos 30 días
+    const response = await fetch(`${COINGECKO_API}/coins/${token.id}/market_chart?vs_currency=${vs_currency}&days=30`);
 
-    // Preparar fechas para los últimos 30 días, incluyendo hoy
-    const dates = Array.from({ length: 60 }).map((_, i) => {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      date.setHours(0, 0, 0, 0);
-      return date.toISOString();
-    });
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Error fetching historical prices:', errorText);
+      return json({ error: 'Unable to fetch historical prices', details: errorText }, { status: response.status });
+    }
 
-    // Obtener bloques para cada fecha en paralelo
-    const blockPromises = dates.map(dateString => 
-      fetch(`${baseURL}/dateToBlock?chain=${chain}&date=${dateString}`, {
-        method: 'GET',
-        headers: { 'Accept': 'application/json', 'X-API-Key': API_KEY }
-      }).then(res => res.json())
-    );
-    const blocks = await Promise.all(blockPromises);
-
-    // Obtener precios para cada bloque en paralelo
-    const pricePromises = blocks.map(block => 
-      fetch(`${baseURL}/erc20/${tokenAddress}/price?chain=${chain}&to_block=${block.block}`, {
-        method: 'GET',
-        headers: { 'Accept': 'application/json', 'X-API-Key': API_KEY }
-      }).then(res => res.json())
-    );
-    const prices = await Promise.all(pricePromises);
-
-    // Combinar bloques y precios en un array
-    const price_blocks = blocks.map((block, i) => ({
-      x: dates[i],
-      y: Number(prices[i]?.usdPriceFormatted), // Convertir a número
-      block: block.block
+    const data: PriceData = await response.json();
+    const prices: PricePoint[] = data.prices.map(([timestamp, price]) => ({
+      x: new Date(timestamp).toISOString(),
+      y: price
     }));
 
-    const lastPrice = price_blocks.length ? Number(price_blocks[0].y) : 0;
-    const firstPrice = price_blocks.length ? Number(price_blocks[price_blocks.length - 1].y) : 0;
+    // Calcular cambios de precio
+    const lastPrice = prices.length ? prices[prices.length - 1].y : 0;
+    const firstPrice = prices.length ? prices[0].y : 0;
     const threshold = 0.0001;
 
     let direction = firstPrice <= lastPrice ? "up" : "down";
@@ -73,15 +72,15 @@ export const loader: LoaderFunction = async ({ params, request }) => {
 
     let usdChange = lastPrice - firstPrice;
 
-    price_blocks.reverse();
+    const priceStats: PriceStats = {
+      percentageChange,
+      usdChange,
+      direction
+    };
 
-    return json({ 
-      tokenPrices: price_blocks,
-      tokenPriceStats: {
-        percentageChange, 
-        usdChange, 
-        direction
-      }
+    return json({
+      tokenPrices: prices,
+      tokenPriceStats: priceStats
     });
   } catch (e) {
     console.error(e);
@@ -92,5 +91,3 @@ export const loader: LoaderFunction = async ({ params, request }) => {
     }
   }
 };
-
-

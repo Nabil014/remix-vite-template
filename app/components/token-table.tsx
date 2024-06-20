@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const tokens = [
   { token: 'Ether', symbol: 'ETH', price: 3768.38, balance: 525.377, value: 1979820.85, change: -0.47, changeValue: -17.73, portfolioPercentage: 67.91 },
@@ -18,7 +18,7 @@ const TokensTable = () => {
     }
   }, [isModalOpen]);
 
-  const openModal = (e) => {
+  const openModal = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault(); 
     setIsModalOpen(true);
   };
@@ -29,17 +29,15 @@ const TokensTable = () => {
 
   return (
     <div>
-      <div className="bg-transparent mt-6 rounded-badge text-white flex flex-col" style={{ width: '439px', height: '261px', padding: '32px', gap: '16px' }}>
-        <div className="mb-4">
+      <div className="text-white flex flex-col gap-y-4">
           <h2 className="font-inter font-semibold text-[14px] leading-[16.94px] text-[#F5F5F5]">Tokens (100)</h2>
-        </div>
         <div className="flex-1">
-          <table className="w-full table-auto">
+          <table className="min-w-72 table-auto">
             <thead>
               <tr className="text-left text-[#F5F5F5] font-inter font-bold text-[12px] leading-[14.52px] opacity-50">
-                <th className="py-2">Token</th>
-                <th className="py-2 text-center">Balance</th>
-                <th className="py-2 text-center pr-2">Value</th>
+                <th className="py-2 w-1/3">Token</th>
+                <th className="py-2 text-center w-1/3">Balance</th>
+                <th className="py-2 text-center w-1/3 pr-2">Value</th>
               </tr>
             </thead>
             <tbody>
@@ -60,8 +58,8 @@ const TokensTable = () => {
             </tbody>
           </table>
         </div>
-        <div className="mt-4 text-center">
-          <a href="#" className="text-teal-400 hover:text-teal-300" onClick={openModal}>View all &rarr;</a>
+        <div className="text-center">
+          <button className="text-teal-400 hover:text-teal-300" onClick={openModal}>View all &rarr;</button>
         </div>
       </div>
 
@@ -75,12 +73,12 @@ const TokensTable = () => {
             <table className="w-full table-auto">
               <thead>
                 <tr className="text-left text-[#F5F5F5] font-inter font-bold text-[14px] leading-[16px] opacity-70">
-                  <th className="py-2">Token</th>
-                  <th className="py-2 text-left">Price</th>
-                  <th className="py-2 text-left">Balance</th>
-                  <th className="py-2 text-left">Value</th>
-                  <th className="py-2 text-left">24h Change</th>
-                  <th className="py-2 text-left pr-2">Portfolio Percentage</th>
+                  <th className="py-2 w-1/6">Token</th>
+                  <th className="py-2 w-1/6">Price</th>
+                  <th className="py-2 w-1/6">Balance</th>
+                  <th className="py-2 w-1/6">Value</th>
+                  <th className="py-2 w-1/6">24h Change</th>
+                  <th className="py-2 w-1/6 pr-2">Portfolio Percentage</th>
                 </tr>
               </thead>
               <tbody>

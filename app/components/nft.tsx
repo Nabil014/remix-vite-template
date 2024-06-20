@@ -2,7 +2,7 @@
 
 export const NFTs = () => {
   return (
-    <div className="bg-[#022527] p-6 rounded-2xl text-white border border-[#04E6E6] shadow-[inset_0px_4px_10px_0px_rgba(0,0,0,0.25)] w-[375px]">
+    <div className="bg-[#022527] p-6 rounded-2xl text-white border border-[#04E6E6] shadow-[inset_0px_4px_10px_0px_rgba(0,0,0,0.25)] max-w-[375px]">
       <div className="mb-4">
         <p className="text-[14px] font-semibold leading-[16.94px] text-[#F5F5F5]">NFTs</p>
       </div>
