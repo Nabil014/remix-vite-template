@@ -27,6 +27,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     }
 
     const data = await response.json();
+    console.log(data);
 
     if (!data.result) {
       return json({ transactions: [], message: "No transactions found" }, { status: 200 });

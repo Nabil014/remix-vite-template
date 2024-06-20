@@ -22,6 +22,7 @@ type AddressProps = {
 export default function Index() {
   const [walletData, setWalletData] = useState<any>(null)
   const [weeklyActivity, setWeeklyActivity] = useState<{ [key: string]: number }>({})
+  const [walletInteractionsData, setWalletInteractionsData] = useState<{ [key: string]: number }>({})
   const { address } = useLoaderData<AddressProps>()
 
   useEffect(() => {
@@ -33,6 +34,7 @@ export default function Index() {
       const activityResponse = await fetch(`/api/wallet/activity/${address}`)
       const activityData = await activityResponse.json()
       setWeeklyActivity(activityData.weeklyActivity)
+      setWalletInteractionsData(activityData.interactionCounts)
     }
     fetchData()
   }, [address])
@@ -46,7 +48,7 @@ export default function Index() {
           <TokensTable />
         </div>
         <div className=" flex flex-wrap gap-x-3 items-center xl:items-start w-full justify-around">
-          <WalletInteractions />
+          <WalletInteractions walletInteractionsData={walletInteractionsData} />
           <div className="flex flex-col mb-12 gap-y-6 ">
             <NFTs />
             <WalletTotals />
