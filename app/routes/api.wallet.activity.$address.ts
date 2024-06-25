@@ -27,17 +27,20 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     }
 
     const data = await response.json();
-    console.log(data);
 
     if (!data.result) {
       return json({ transactions: [], message: "No transactions found" }, { status: 200 });
     }
 
     const transactions = data.result;
+    console.log(transactions);
 
-    const { weeklyActivity, walletsInteracted, interactionCounts } = groupTransactionsByWeek(transactions);
+    const { uniqueAddressesSentTo, uniqueAddressesReceivedFrom, weeklyActivity, walletsInteracted, interactionCounts } = analyzeTransactions(transactions);
 
     return json({
+      transactions,
+      uniqueAddressesSentTo,
+      uniqueAddressesReceivedFrom,
       weeklyActivity,
       walletsInteracted,
       interactionCounts,
@@ -49,7 +52,9 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   }
 };
 
-const groupTransactionsByWeek = (transactions: any[]): { weeklyActivity: { [key: string]: number }, walletsInteracted: { [key: string]: string[] }, interactionCounts: { [key: string]: number } } => {
+const analyzeTransactions = (transactions: any[]): { transactions: any[], uniqueAddressesSentTo: string[], uniqueAddressesReceivedFrom: string[], weeklyActivity: { [key: string]: number }, walletsInteracted: { [key: string]: string[] }, interactionCounts: { [key: string]: number } } => {
+  const uniqueAddressesSentToSet = new Set<string>();
+  const uniqueAddressesReceivedFromSet = new Set<string>();
   const weeklyActivity: { [key: string]: number } = {};
   const walletsInteracted: { [key: string]: Set<string> } = {};
   const interactionCounts: { [key: string]: number } = {};
@@ -69,6 +74,9 @@ const groupTransactionsByWeek = (transactions: any[]): { weeklyActivity: { [key:
 
     interactionCounts[tx.to_address] = (interactionCounts[tx.to_address] || 0) + 1;
     interactionCounts[tx.from_address] = (interactionCounts[tx.from_address] || 0) + 1;
+
+    uniqueAddressesSentToSet.add(tx.to_address);
+    uniqueAddressesReceivedFromSet.add(tx.from_address);
   });
 
   // Convert sets to arrays for serialization
@@ -76,7 +84,14 @@ const groupTransactionsByWeek = (transactions: any[]): { weeklyActivity: { [key:
     Object.entries(walletsInteracted).map(([week, wallets]) => [week, Array.from(wallets)])
   );
 
-  return { weeklyActivity, walletsInteracted: walletsInteractedArray, interactionCounts };
+  return {
+    transactions,
+    uniqueAddressesSentTo: Array.from(uniqueAddressesSentToSet),
+    uniqueAddressesReceivedFrom: Array.from(uniqueAddressesReceivedFromSet),
+    weeklyActivity,
+    walletsInteracted: walletsInteractedArray,
+    interactionCounts,
+  };
 };
 
 const getWeekNumber = (date: Date): number => {
