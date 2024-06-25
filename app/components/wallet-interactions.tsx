@@ -3,9 +3,11 @@ import { FaArrowUp } from 'react-icons/fa';
 
 interface WalletInteractionsProps {
   walletInteractionsData: { [key: string]: number };
+  walletUniqueSent:[]
+  walletUniqueReceived:[]
 }
 
-export default function WalletInteractions({ walletInteractionsData }: WalletInteractionsProps) {
+export default function WalletInteractions({ walletInteractionsData, walletUniqueSent, walletUniqueReceived }: WalletInteractionsProps) {
   const [showAll, setShowAll] = useState(false);
 
   
@@ -29,15 +31,15 @@ export default function WalletInteractions({ walletInteractionsData }: WalletInt
           <div className="flex items-center justify-center w-[25.5px] h-[24.75px] border-[1.5px] border-[#F5F5F5] rounded-full">
             <FaArrowUp className="text-white-500" />
           </div>
-          <span className="ml-2 text-[14px] font-semibold text-[#F5F5F5] leading-[16.94px] mr-2">13</span>
+          <span className="ml-2 text-[14px] font-semibold text-[#F5F5F5] leading-[16.94px] mr-2">{walletUniqueSent?.length}</span>
           <span className="text-[10px] font-semibold text-[#F5F5F5] leading-[12.1px] opacity-50">unique addresses sent to</span>
         </div>
         <div className="flex items-center">
           <div className="flex items-center justify-center w-[25.5px] h-[24.75px] border-[1.5px] border-[#F5F5F5] rounded-full">
             <FaArrowUp className="text-white-500" />
           </div>
-          <span className="ml-2 text-[14px] font-semibold text-[#F5F5F5] leading-[16.94px] mr-2">13</span>
-          <span className="ml-2 text-[10px] font-semibold text-[#F5F5F5] leading-[12.1px] opacity-50">unique addresses sent to</span>
+          <span className="ml-2 text-[14px] font-semibold text-[#F5F5F5] leading-[16.94px] mr-2">{walletUniqueReceived?.length}</span>
+          <span className="ml-2 text-[10px] font-semibold text-[#F5F5F5] leading-[12.1px] opacity-50">unique addresses received from</span>
         </div>
       </div>
       <div className="overflow-x-auto">
@@ -49,7 +51,7 @@ export default function WalletInteractions({ walletInteractionsData }: WalletInt
             </tr>
           </thead>
           <tbody>
-            {dataToShow.map((interaction, index) => (
+            {dataToShow?.map((interaction, index) => (
               <tr key={index} className="space-y-2">
                 <td className="border-b border-[#04E6E6] py-3 text-left text-[10px] font-semibold text-[#dfdbdb] leading-[12.1px]">{interaction.address}</td>
                 <td className="border-b border-[#04E6E6] py-3 text-right text-[10px] font-semibold text-[#dfdbdb] leading-[12.1px]">{interaction.interactions}</td>
@@ -58,7 +60,7 @@ export default function WalletInteractions({ walletInteractionsData }: WalletInt
           </tbody>
         </table>
       </div>
-      {transformedData.length > 7 && (
+      {transformedData?.length > 7 && (
         <div className="flex justify-center ">
           <button 
             className="text-teal-400 hover:text-teal-300" 

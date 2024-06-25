@@ -45,19 +45,19 @@ const ActivityCard = (walletData:any) => {
         <div className="flex flex-col">
           <span className="text-sm text-[#F5F5F5] opacity-50 font-inter text-[12px] leading-[14.52px]">Active Chains</span>
           <div className="mb-2 mt-1 flex space-x-1">
-          {walletData.walletData?.overview.chains.map((chain, index:number) => (
+          {walletData.walletData?.overview.chains.map((chain:string, index:number) => (
               <div key={index} className="h-6 w-6 rounded-full bg-blue-500 flex items-center justify-center">
-                <img src={`/path-to-icons/${chain.chain}.svg`} alt={chain.chain} className="h-4 w-4" />
+                <img src={`/path-to-icons/${chain}.svg`} alt={chain} className="h-4 w-4" />
               </div>
             ))}
           </div>
           <div className="mt-6 text-sm text-[#F5F5F5] opacity-50 font-inter text-[12px] leading-[14.52px]">Last seen</div>
           <div className="font-inter text-[#F5F5F5] text-[14px] leading-[16.94px]">{lastSeen}</div>
         </div>
-        <div className="flex flex-col items-end">
+        <div className="flex flex-col items-center gap-y-1">
           <span className="text-sm text-[#F5F5F5] opacity-50 font-inter text-[12px] leading-[14.52px]">Cross-chain Networth</span>
           <div className="text-2xl font-inter font-semibold text-[#F5F5F5] text-[14px] leading-[16.94px]">          
-           {walletData.walletData?.overview.total_networth_usd+"$"}
+           $ {walletData.walletData?.overview.total_networth_usd}
              </div>
         </div>
         <div className="flex h-24 w-24 items-center justify-center rounded-full border-8 border-[#00FFCB]">
