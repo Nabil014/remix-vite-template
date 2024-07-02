@@ -20,7 +20,7 @@ export default function SidebarMain({ showSidebar }: Props) {
     <aside
       className={`fixed ${
         showSidebar ? 'left-0' : '-left-full'
-      } z-50 w-64 md:left-0 h-dvh transition-all duration-300 bg-gradient-to-r from-[#000D0E] via-[#021618] to-[#000D0E] rounded-r-xl`}
+      } z-50 w-64 md:left-0 h-[88dvh] transition-all duration-300 overflow-y-auto bg-gradient-to-r from-[#000D0E] via-[#021618] to-[#000D0E] rounded-r-xl`}
     >
       <div className='px-3 pb-4 bg-transparent'>
         <ul className='space-y-2 mt-8 font-medium'>
