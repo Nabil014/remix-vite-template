@@ -1,6 +1,6 @@
 import { Link } from '@remix-run/react';
 
-const Table = ({ data, title, description }) => {
+const Table = ({ data, title, description, columns }) => {
   const formatValue = (value) => {
     if (typeof value !== 'string' && typeof value !== 'number') return '0.000000000000';
     const [integer, decimal = ''] = value.toString().split('.');
@@ -13,68 +13,49 @@ const Table = ({ data, title, description }) => {
   }
 
   return (
-    <div className="max-w-[1328px]">
-      <div className="flex flex-col">
-        <div className="-m-1.5 overflow-x-auto">
-          <div className="p-1.5 min-w-full inline-block align-middle">
-            <div className="bg-[#022527] border border-[#04E6E6] rounded-[30px] shadow-sm overflow-hidden">
+    <div className="max-w-[1328px] flex flex-col h-full">
+      <div className="flex flex-col flex-grow">
+        <div className="overflow-x-auto flex-grow">
+          <div className="p-1.5 min-w-full inline-block align-middle h-full">
+            <div className="bg-[#022527] border border-[#04E6E6] rounded-[30px] shadow-sm overflow-hidden flex flex-col h-full">
               <div className="px-6 py-4 border-b border-[#04E6E6]">
                 <h2 className="text-xl font-semibold text-[#E2E8F0]">{title}</h2>
-                <p className="text-sm text-[#A0AEC0]">
-                  {description}
-                </p>
+                <p className="text-sm text-[#A0AEC0]">{description}</p>
               </div>
-              <table className="min-w-full divide-y divide-[#04E6E6]">
-                <thead className="bg-[#022527]">
-                  <tr>
-                    <th className="px-4 py-3 text-start whitespace-nowrap">
-                      <span className="text-xs font-semibold uppercase tracking-wide text-[#E2E8F0]">Token Name</span>
-                    </th>
-                    <th className="px-4 py-3 text-start whitespace-nowrap">
-                      <span className="text-xs font-semibold uppercase tracking-wide text-[#E2E8F0]">Symbol</span>
-                    </th>
-                    <th className="px-4 py-3 text-start whitespace-nowrap">
-                      <span className="text-xs font-semibold uppercase tracking-wide text-[#E2E8F0]">Price</span>
-                    </th>
-                    <th className="px-4 py-3 text-start whitespace-nowrap">
-                      <span className="text-xs font-semibold uppercase tracking-wide text-[#E2E8F0]">Volume</span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#04E6E6]">
-                  {data.map((coin, index) => (
-                    <tr key={index} className="hover:bg-[#014147]">
-                      <td className="px-4 py-3">
-                        <Link to={`/dashboard/token-details/${coin.contract}`} className="flex items-center gap-x-3">
-                          {coin.image && (
-                            <img
-                              src={coin.image}
-                              alt={`${coin.name} Logo`}
-                              className="flex-shrink-0 w-6 h-6 rounded-full"
-                            />
-                          )}
-                          <span className="font-semibold text-sm text-[#E2E8F0]">{coin.name}</span>
-                        </Link>
-                      </td>
-                      <td className="px-4 py-3">
-                        <Link to={`/dashboard/token-details/${coin.contract}`}>
-                          <span className="text-sm text-[#E2E8F0]">{coin.symbol ?? "USDT"}</span>
-                        </Link>
-                      </td>
-                      <td className="px-4 py-3">
-                        <Link to={`/dashboard/token-details/${coin.contract}`}>
-                          <span className="text-sm text-[#E2E8F0]">${formatValue(coin.price)}</span>
-                        </Link>
-                      </td>
-                      <td className="px-4 py-3">
-                        <Link to={`/dashboard/token-details/${coin.contract}`}>
-                          <span className="text-sm text-[#E2E8F0]">${formatValue(coin.volume)}</span>
-                        </Link>
-                      </td>
+              <div className="flex-grow overflow-y-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+                <table className="min-w-full divide-y divide-[#04E6E6]">
+                  <thead className="bg-[#022527]">
+                    <tr>
+                      {columns.map((col) => (
+                        <th key={col.key} className="px-4 py-3 text-start whitespace-nowrap">
+                          <span className="text-xs font-semibold uppercase tracking-wide text-[#E2E8F0]">{col.label}</span>
+                        </th>
+                      ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-[#04E6E6]">
+                    {data.map((item, index) => (
+                      <tr key={index} className="hover:bg-[#014147]">
+                        {columns.map((col) => (
+                          <td key={col.key} className="px-4 py-3">
+                            {col.link ? (
+                              <Link to={col.link(item)}>
+                                <span className="text-sm text-[#E2E8F0]">
+                                  {col.format ? col.format(item[col.key]) : item[col.key]}
+                                </span>
+                              </Link>
+                            ) : (
+                              <span className="text-sm text-[#E2E8F0]">
+                                {col.format ? col.format(item[col.key]) : item[col.key]}
+                              </span>
+                            )}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
