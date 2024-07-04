@@ -1,4 +1,5 @@
-import React from 'react';
+import { GiWhaleTail } from 'react-icons/gi';
+
 
 // Icons can be imported or definidos as SVG elements
 const WhaleIcon = () => (
@@ -38,8 +39,8 @@ export const Badges = () => {
         <p className="text-[14px] font-semibold leading-[16.94px] text-[#F5F5F5]">Badges</p>
       </div>
       <div className="grid grid-cols-3 gap-4">
-        <div className="flex flex-col items-center bg-transparent p-4 rounded-2xl text-[#F5F5F5] border border-[#04E6E6]">
-          <WhaleIcon />
+        <div className="flex flex-col items-center justify-center bg-transparent p-4 rounded-2xl text-[#F5F5F5] border border-[#04E6E6]">
+          <GiWhaleTail className='text-[#04E6E6]' />
           <p className="text-[12px] font-bold leading-[14.52px] mt-2 text-center">Whale</p>
         </div>
         <div className="flex flex-col items-center bg-transparent p-4 rounded-2xl text-[#F5F5F5] border border-[#04E6E6]">

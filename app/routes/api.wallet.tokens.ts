@@ -9,7 +9,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     const address = url.searchParams.get('wallet');
     const chain = url.searchParams.get('chain') && url.searchParams.get('chain') !== "undefined" ? url.searchParams.get('chain') : 'eth';
 
-    const response = await fetch(`${baseURL}/wallets/${address}/tokens?chain=${chain}&exclude_spam=true&exclude_unverified_contracts=true`, {
+    const response = await fetch(`${baseURL}/wallets/${address}/tokens?chain=${chain}&exclude_unverified_contracts=true`, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
