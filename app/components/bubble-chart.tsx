@@ -6,6 +6,7 @@ interface CryptoData {
   symbol: string;
   logo: string;
   price: number;
+  contract?: string;
   x?: number;
   y?: number;
   fx?: number | null;
@@ -14,6 +15,7 @@ interface CryptoData {
 
 interface BubbleChartProps {
   cryptoData: CryptoData[];
+  onBubbleClick: (token: CryptoData) => void;
 }
 
 export default function BubbleChart(props: BubbleChartProps) {
@@ -132,9 +134,8 @@ export default function BubbleChart(props: BubbleChartProps) {
         .style("filter", "url(#drop-shadow)")
         .attr("data-name", (d: any) => d.name)
         .attr("data-value", (d: any) => d.price)
-        .on("click", function () {
-          const name = d3.select(this).attr("data-name");
-          window.location.href = `https://www.coingecko.com/en/coins/${name.toLowerCase().replace(/\s/g, "-")}`;
+        .on("click", function (event, d) {
+          props.onBubbleClick(d);
         })
         .on("mouseover", function (event, d) {
           const isPositive = d.price >= 0;

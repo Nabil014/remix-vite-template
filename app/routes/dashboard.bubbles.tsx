@@ -3,6 +3,7 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import { getInfoData, getLatestData, getMapData } from "~/api/data";
 import BubbleChart from "~/components/bubble-chart";
 import Pagination from "~/components/paginated";
+import { useNavigate } from "react-router-dom";
 
 interface CryptoData {
   name: string;
@@ -11,6 +12,8 @@ interface CryptoData {
   latestH1: number | string;
   latestH7: number | string;
   latestD7: number | string;
+  contract?: string;
+  id: string;
 }
 
 interface LoaderData {
@@ -49,6 +52,8 @@ export const loader = async ({ request }: { request: Request }): Promise<Respons
       latestH1: latestData[crypto.id]?.quote?.USD?.percent_change_1h,
       latestH7: latestData[crypto.id]?.quote?.USD?.percent_change_7d,
       latestD7: latestData[crypto.id]?.quote?.USD?.percent_change_24h,
+      contract: infoData[crypto.id]?.platform?.token_address,
+      id: crypto.id,
     }));
     performance.mark('process-data-end');
     performance.measure('process-data', 'process-data-start', 'process-data-end');
@@ -69,6 +74,7 @@ export default function Bubbles() {
   const [filter, setFilter] = useState("1 Hour");
   const [error, setError] = useState(initialError);
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const totalPages = useMemo(() => Math.ceil(data.length / 50), [data.length]);
 
@@ -112,28 +118,39 @@ export default function Bubbles() {
     setFilter(selectedFilter);
   }, []);
 
+  const handleBubbleClick = useCallback((token: CryptoData) => {
+    const redirectUrl = token.contract ? `/dashboard/token-details/${token.contract}` : `/dashboard/token-details/${token.id}`;
+    navigate(redirectUrl);
+  }, [navigate]);
+
   const filteredData = useMemo(() => {
     switch (filter) {
       case "1 Hour":
-        return data.map(({ name, symbol, logo, latestH1 }) => ({
+        return data.map(({ name, symbol, logo, latestH1, contract, id }) => ({
           name,
           symbol,
           logo,
           price: latestH1,
+          contract,
+          id
         }));
       case "7 Hours":
-        return data.map(({ name, symbol, logo, latestH7 }) => ({
+        return data.map(({ name, symbol, logo, latestH7, contract, id }) => ({
           name,
           symbol,
           logo,
           price: latestH7,
+          contract,
+          id
         }));
       case "7 Days":
-        return data.map(({ name, symbol, logo, latestD7 }) => ({
+        return data.map(({ name, symbol, logo, latestD7, contract, id }) => ({
           name,
           symbol,
           logo,
           price: latestD7,
+          contract,
+          id
         }));
       default:
         return [];
@@ -172,7 +189,7 @@ export default function Bubbles() {
             </div>
           </div>
         ) : (
-          <BubbleChart cryptoData={displayedData} />
+          <BubbleChart cryptoData={displayedData} onBubbleClick={handleBubbleClick} />
         )}
         <div className="flex items-center justify-center bg-transparent">
           <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={handlePageChange} />

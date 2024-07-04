@@ -2,6 +2,7 @@ import { json, LoaderFunction } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 import Table from '~/components/table-list';
 import Footer from '~/components/footer';
+import { formatVolume } from '~/utils/formatters';
 
 const baseURL = "https://pro-api.coinmarketcap.com/v1";
 
@@ -31,8 +32,6 @@ async function getTrendingCoins(): Promise<any[]> {
     const trendingData = await response.json();
     const trendingTokens = trendingData.data || [];
 
-
-    // Obtener información adicional incluyendo el logo
     const tokenIds = trendingTokens.map((token: any) => token.id).join(',');
     const infoResponse = await fetch(`${baseURL}/cryptocurrency/info?id=${tokenIds}`, {
       method: 'GET',
@@ -47,19 +46,16 @@ async function getTrendingCoins(): Promise<any[]> {
     const infoData = await infoResponse.json();
     const tokenInfo = infoData.data || {};
 
-    // Combinar la información de los tokens en tendencia con la información adicional
     const combinedData = trendingTokens.map((token: any) => ({
       ...token,
       logo: tokenInfo[token.id]?.logo || 'https://via.placeholder.com/20',
       percentChange24h: token.quote?.USD?.percent_change_24h?.toFixed(2) || '0.00',
-      contract: tokenInfo[token.id]?.platform?.token_address || token.id, // Asegurarse de usar el contrato correcto
-      network: tokenInfo[token.id]?.platform?.name || 'Unknown', // Agregar información de la red
+      contract: tokenInfo[token.id]?.platform?.token_address || token.id,
+      network: tokenInfo[token.id]?.platform?.name || 'Unknown',
     }));
 
-    // Filtrar solo las criptomonedas de las redes especificadas
     const specifiedNetworks = ['Ethereum', 'Base', 'BNB', 'Polygon', 'Avalanche'];
     const filteredTokens = combinedData.filter(token => specifiedNetworks.includes(token.network));
-
 
     return filteredTokens;
   } catch (e) {
@@ -82,13 +78,20 @@ export default function TrendingCoins() {
   const { tokens } = useLoaderData<{ tokens: any[] }>();
 
   const data = tokens.map((token: any) => ({
-    contract: token.contract, // Usar el contrato correcto
+    contract: token.contract,
     name: token.name || 'Token Name',
     symbol: token.symbol || 'Symbol',
-    volume: token.quote?.USD?.volume_24h?.toFixed(2) || '0',
+    volume: token.quote?.USD?.volume_24h || 0,
     image: token.logo || 'https://via.placeholder.com/20',
     percentChange24h: token.percentChange24h,
-    network: token.network, // Agregar información de la red
+    network: token.network,
+  }));
+
+  const sortedData = data.sort((a, b) => b.volume - a.volume);
+
+  const formattedData = sortedData.map(item => ({
+    ...item,
+    volume: formatVolume(item.volume)
   }));
 
   const columns = [
@@ -114,7 +117,7 @@ export default function TrendingCoins() {
       key: 'volume',
       label: 'Volume',
       link: (item) => `/dashboard/token-details/${item.contract}`,
-      format: (val) => `$${Number(val).toLocaleString()}`,
+      format: (val) => val,
     },
     {
       key: 'percentChange24h',
@@ -134,7 +137,7 @@ export default function TrendingCoins() {
     <div className="relative flex min-h-screen flex-col gap-8 overflow-hidden bg-gradient-radial from-[#043033] via-[#000D0E] to-[#000D0E] p-8">
       <div>
         <Table
-          data={data}
+          data={formattedData}
           title="Trending Coins"
           description="Top trending cryptocurrencies."
           columns={columns}

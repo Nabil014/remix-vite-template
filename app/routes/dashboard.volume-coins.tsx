@@ -114,15 +114,15 @@ export default function Index() {
   if (contract && token) {
     // Render token details view
     return (
-      <div>
-        <h1>Token Details for {token.name}</h1>
-        <p>Symbol: {token.symbol}</p>
-        <p>Contract Address: {contract}</p>
-        <p>Network: {token.platform.name}</p>
-        <p>Price: ${token.quote.USD.price}</p>
-        <p>Volume 24h: {token.quote.USD.volume_24h}</p>
-        <img src={`https://s2.coinmarketcap.com/static/img/coins/64x64/${token.id}.png`} alt={`${token.name} logo`} />
-        <Link to="/dashboard/volume-coins">Back to list</Link>
+      <div className="flex flex-col items-center p-4">
+        <h1 className="text-2xl font-bold mb-4">Token Details for {token.name}</h1>
+        <p className="mb-2">Symbol: {token.symbol}</p>
+        <p className="mb-2">Contract Address: {contract}</p>
+        <p className="mb-2">Network: {token.platform.name}</p>
+        <p className="mb-2">Price: ${token.quote.USD.price}</p>
+        <p className="mb-2">Volume 24h: {formatVolume(token.quote.USD.volume_24h)}</p>
+        <img src={`https://s2.coinmarketcap.com/static/img/coins/64x64/${token.id}.png`} alt={`${token.name} logo`} className="mb-4" />
+        <Link to="/dashboard/volume-coins" className="text-blue-500 hover:underline">Back to list</Link>
       </div>
     );
   }
@@ -134,7 +134,7 @@ export default function Index() {
     symbol: token.symbol,
     price: formatPrice(token.quote.USD.price),
     volume: formatVolume(token.quote.USD.volume_24h),
-    image: `https://s2.coinmarketcap.com/static/img/coins/64x64/${token.id}.png`,  // URL para los logos de CoinMarketCap
+    image: `https://s2.coinmarketcap.com/static/img/coins/64x64/${token.id}.png`,
     network: token.platform.name
   }));
 
@@ -148,7 +148,7 @@ export default function Index() {
   ];
 
   return (
-    <div className="relative flex min-h-screen flex-col gap-8 overflow-hidden bg-gradient-radial from-[#043033] via-[#000D0E] to-[#000D0E]">
+    <div className="relative flex min-h-screen flex-col gap-8 overflow-hidden bg-gradient-radial from-[#043033] via-[#000D0E] to-[#000D0E] p-8">
       <div className="flex-grow overflow-hidden">
         <Table
           data={data}
