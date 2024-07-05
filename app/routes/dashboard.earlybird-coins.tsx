@@ -6,7 +6,7 @@ import { formatVolume } from '~/utils/formatters';
 
 const baseURL = "https://pro-api.coinmarketcap.com/v1";
 
-async function getTrendingCoins(): Promise<any[]> {
+async function getNewListings(): Promise<any[]> {
   const API_KEY = process.env.CMC_API_KEY;
 
   if (!API_KEY) {
@@ -19,20 +19,20 @@ async function getTrendingCoins(): Promise<any[]> {
       'X-CMC_PRO_API_KEY': API_KEY,
     });
 
-    const response = await fetch(`${baseURL}/cryptocurrency/trending/gainers-losers`, {
+    const response = await fetch(`${baseURL}/cryptocurrency/listings/new`, {
       method: 'GET',
       headers: headers,
     });
 
     if (!response.ok) {
       const message = await response.json();
-      throw new Error(`Error fetching trending coins: ${response.statusText} - ${JSON.stringify(message)}`);
+      throw new Error(`Error fetching new listings: ${response.statusText} - ${JSON.stringify(message)}`);
     }
 
-    const trendingData = await response.json();
-    const trendingTokens = trendingData.data || [];
+    const listingsData = await response.json();
+    const newTokens = listingsData.data || [];
 
-    const tokenIds = trendingTokens.map((token: any) => token.id).join(',');
+    const tokenIds = newTokens.map((token: any) => token.id).join(',');
     const infoResponse = await fetch(`${baseURL}/cryptocurrency/info?id=${tokenIds}`, {
       method: 'GET',
       headers: headers,
@@ -46,18 +46,15 @@ async function getTrendingCoins(): Promise<any[]> {
     const infoData = await infoResponse.json();
     const tokenInfo = infoData.data || {};
 
-    const combinedData = trendingTokens.map((token: any) => ({
+    const combinedData = newTokens.map((token: any) => ({
       ...token,
       logo: tokenInfo[token.id]?.logo || 'https://via.placeholder.com/20',
-      percentChange24h: token.quote?.USD?.percent_change_24h?.toFixed(2) || '0.00',
       contract: tokenInfo[token.id]?.platform?.token_address || token.id,
       network: tokenInfo[token.id]?.platform?.name || 'Unknown',
+      percentChange24h: token.quote?.USD?.percent_change_24h?.toFixed(2) || '0.00',
     }));
 
-    const specifiedNetworks = ['Ethereum', 'Base', 'BNB', 'Polygon', 'Avalanche'];
-    const filteredTokens = combinedData.filter(token => specifiedNetworks.includes(token.network));
-
-    return filteredTokens;
+    return combinedData;
   } catch (e) {
     console.error(e);
     return [];
@@ -66,15 +63,15 @@ async function getTrendingCoins(): Promise<any[]> {
 
 export const loader: LoaderFunction = async ({ request }) => {
   try {
-    const trendingCoins = await getTrendingCoins();
-    return json({ tokens: trendingCoins });
+    const newListings = await getNewListings();
+    return json({ tokens: newListings });
   } catch (error) {
     console.error('Error fetching data:', error);
     return json({ tokens: [] });
   }
 };
 
-export default function TrendingCoins() {
+export default function EarlybirdCoins() {
   const { tokens } = useLoaderData<{ tokens: any[] }>();
 
   const data = tokens.map((token: any) => ({
@@ -138,8 +135,8 @@ export default function TrendingCoins() {
       <div>
         <Table
           data={formattedData}
-          title="Trending Coins"
-          description="Top trending cryptocurrencies."
+          title="New Listings"
+          description="Newly listed cryptocurrencies."
           columns={columns}
         />
       </div>

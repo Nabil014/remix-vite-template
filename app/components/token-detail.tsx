@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCopy, faCheck } from '@fortawesome/free-solid-svg-icons';
 
-const TokenDetails = ({ tokenData }: any) => {
+const TokenDetails = ({ tokenData, currentPrice }) => {
   const [copied, setCopied] = useState(false);
 
   function calculateDaysFromCreatedAt(createdAt: string): number {
@@ -14,16 +14,16 @@ const TokenDetails = ({ tokenData }: any) => {
   }
 
   const formattedTokenData = {
-    totalSupply: tokenData?.tokenMetadata?.total_supply_formatted || "N/A",
-    fullyDilutedValuation: tokenData?.tokenMetadata?.fully_diluted_valuation ? `$${tokenData.tokenMetadata.fully_diluted_valuation}` : "N/A",
-    dateCreated: tokenData?.tokenMetadata?.created_at ? new Date(tokenData.tokenMetadata.created_at).toISOString().split('T')[0] : "N/A",
-    currentPrice: tokenData?.tokenPrice?.usdPriceFormatted ? `$${tokenData.tokenPrice.usdPriceFormatted}` : "N/A",
-    tokenAddress: tokenData?.tokenMetadata?.address || "N/A",
-    name: tokenData?.tokenMetadata?.name || "N/A",
-    symbol: tokenData?.tokenMetadata?.symbol || "N/A",
-    contractType: tokenData?.tokenMetadata?.verified_contract ? "ERC20" : "N/A",
-    decimals: tokenData?.tokenMetadata?.decimals || "N/A",
-    tokenAge: tokenData?.tokenMetadata?.created_at ? calculateDaysFromCreatedAt(tokenData.tokenMetadata.created_at) + " days" : "N/A",
+    totalSupply: tokenData?.self_reported_circulating_supply || "N/A",
+    fullyDilutedValuation: tokenData?.self_reported_market_cap ? `$${tokenData.self_reported_market_cap}` : "N/A",
+    dateCreated: tokenData?.date_added ? new Date(tokenData.date_added).toISOString().split('T')[0] : "N/A",
+    currentPrice: currentPrice ? `$${currentPrice.toFixed(4)}` : "N/A",
+    tokenAddress: tokenData?.contract_address?.[0]?.contract_address || "N/A",
+    name: tokenData?.name || "N/A",
+    symbol: tokenData?.symbol || "N/A",
+    contractType: tokenData?.platform?.name || "N/A",
+    decimals: tokenData?.decimals || "N/A",
+    tokenAge: tokenData?.date_launched ? calculateDaysFromCreatedAt(tokenData.date_launched) + " days" : "N/A",
   };
 
   const formatAddress = (address) => {
