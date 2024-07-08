@@ -1,111 +1,180 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react'
+import { SkeletonTokenTable } from './skeleton/skeletonActivity'
 
-const tokens = [
-  { token: 'Ether', symbol: 'ETH', price: 3768.38, balance: 525.377, value: 1979820.85, change: -0.47, changeValue: -17.73, portfolioPercentage: 67.91 },
-  { token: 'Kyber Network Crystal', symbol: 'KNC', price: 0.60, balance: 700008.508, value: 422126.49, change: -5.67, changeValue: -0.04, portfolioPercentage: 14.48 },
-  { token: 'Wrapped Ether', symbol: 'WETH', price: 3768.38, balance: 80.339, value: 302746.45, change: -0.47, changeValue: -17.73, portfolioPercentage: 10.38 },
-  { token: 'OMGToken', symbol: 'OMG', price: 0.72, balance: 123646.253, value: 89402.29, change: 3.77, changeValue: 0.03, portfolioPercentage: 3.07 },
-];
+interface WalletTokensProps {
+  walletTokens: {
+    token_address: string
+    name: string
+    balance_formatted: string
+    logo: string
+    usd_value: number
+    usd_price_24hr_percent_change: number
+    portfolio_percentage: number
+    usd_price: number
+  }[]
+  loading: boolean
+}
 
-const TokensTable = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
+const TokensTable = ({ walletTokens, loading }: WalletTokensProps) => {
+  const [isModalOpen, setIsModalOpen] = useState(false)
   useEffect(() => {
     if (isModalOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden'
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = 'unset'
     }
-  }, [isModalOpen]);
+  }, [isModalOpen])
 
   const openModal = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault(); 
-    setIsModalOpen(true);
-  };
+    e.preventDefault()
+    setIsModalOpen(true)
+  }
 
   const closeModal = () => {
-    setIsModalOpen(false);
-  };
+    setIsModalOpen(false)
+  }
+
+  const formatBalance = (balance: string) => {
+    const balanceNumber = parseFloat(balance)
+    if (balanceNumber % 1 === 0) {
+      return balance
+    } else {
+      return balanceNumber.toFixed(6)
+    }
+  }
 
   return (
     <div>
-      <div className="text-white flex flex-col gap-y-4">
-          <h2 className="font-inter font-semibold text-[14px] leading-[16.94px] text-[#F5F5F5]">Tokens (100)</h2>
+      <div className="flex flex-col gap-y-4 text-white">
+        <h2 className="font-inter text-[14px] font-semibold leading-[16.94px] text-[#F5F5F5]">
+          Tokens ({walletTokens?.length})
+        </h2>
         <div className="flex-1">
-          <table className="min-w-72 table-auto">
-            <thead>
-              <tr className="text-left text-[#F5F5F5] font-inter font-bold text-[12px] leading-[14.52px] opacity-50">
-                <th className="py-2 w-1/3">Token</th>
-                <th className="py-2 text-center w-1/3">Balance</th>
-                <th className="py-2 text-center w-1/3 pr-2">Value</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tokens.slice(0, 3).map((token, index) => (
-                <tr key={index} className="border-b border-[#04E6E6]">
-                  <td className="py-2 flex items-center">
-                    <span className="mt-3 w-4 h-4 bg-[#D9D9D9] rounded-full mr-2"></span>
-                    <span className="mt-3 text-[10px] font-inter font-bold text-[#F5F5F5] leading-[12.1px]">{token.token}</span>
-                  </td>
-                  <td className="py-2 text-center">
-                    <span className="text-[10px] font-inter font-bold text-[#F5F5F5] leading-[12.1px]">{token.balance}</span>
-                  </td>
-                  <td className="py-2 text-right pr-2">
-                    <span className="text-[10px] font-inter font-bold text-[#F5F5F5] leading-[12.1px]">{token.value.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</span>
-                  </td>
+          {loading ? (
+            <div className='max-w-[350px]'>
+
+              <SkeletonTokenTable />
+            </div>
+          ) : (
+            <table className="min-w-72 table-auto">
+              <thead>
+                <tr className="font-inter text-left text-[12px] font-bold leading-[14.52px] text-[#F5F5F5] opacity-50">
+                  <th className="w-1/3 py-2">Token</th>
+                  <th className="w-1/3 py-2 text-center">Balance</th>
+                  <th className="w-1/3 py-2 pr-2 text-center">Value</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {walletTokens?.slice(0, 3).map((token, index) => (
+                  <tr key={index} className="border-b border-[#04E6E6]">
+                    <td className="flex items-center gap-x-2 py-2">
+                      <img
+                        src={token.logo}
+                        alt="token-logo"
+                        className="h-4 w-4 rounded-full "
+                      />
+                      <span className=" font-inter text-[10px] font-bold leading-[12.1px] text-[#F5F5F5]">
+                        {token.name}
+                      </span>
+                    </td>
+                    <td className="py-2 text-center">
+                      <span className="font-inter text-[10px] font-bold leading-[12.1px] text-[#F5F5F5]">
+                        {formatBalance(token.balance_formatted)}
+                      </span>
+                    </td>
+                    <td className="py-2 pr-2 text-right">
+                      <span className="font-inter text-[10px] font-bold leading-[12.1px] text-[#F5F5F5]">
+                        {token.usd_value.toLocaleString('en-US', {
+                          style: 'currency',
+                          currency: 'USD',
+                        })}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
         <div className="text-center">
-          <button className="text-teal-400 hover:text-teal-300" onClick={openModal}>View all &rarr;</button>
+          <button
+            className="text-teal-400 hover:text-teal-300"
+            onClick={openModal}
+          >
+            View all &rarr;
+          </button>
         </div>
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
-          <div className="bg-gradient-radial rounded-lg p-8 text-white" style={{ width: '70vw', maxHeight: '90vh' }}>
-            <div className="flex justify-between items-center mb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80">
+          <div className="h-[90vh] w-[70vw] overflow-y-auto rounded-lg bg-gradient-radial p-8 text-white">
+            <div className="mb-4 flex items-center justify-between">
               <h2 className="text-2xl font-semibold">All Tokens</h2>
-              <button onClick={closeModal} className="text-teal-400 hover:text-teal-300">Close</button>
+              <button
+                onClick={closeModal}
+                className="text-teal-400 hover:text-teal-300"
+              >
+                Close
+              </button>
             </div>
             <table className="w-full table-auto">
               <thead>
-                <tr className="text-left text-[#F5F5F5] font-inter font-bold text-[14px] leading-[16px] opacity-70">
-                  <th className="py-2 w-1/6">Token</th>
-                  <th className="py-2 w-1/6">Price</th>
-                  <th className="py-2 w-1/6">Balance</th>
-                  <th className="py-2 w-1/6">Value</th>
-                  <th className="py-2 w-1/6">24h Change</th>
-                  <th className="py-2 w-1/6 pr-2">Portfolio Percentage</th>
+                <tr className="font-inter text-left text-[14px] font-bold leading-[16px] text-[#F5F5F5] opacity-70">
+                  <th className="w-1/6 py-2">Token</th>
+                  <th className="w-1/6 py-2">Price</th>
+                  <th className="w-1/6 py-2">Balance</th>
+                  <th className="w-1/6 py-2">Value</th>
+                  <th className="w-1/6 py-2">24h Change</th>
+                  <th className="w-1/6 py-2 pr-2">Portfolio Percentage</th>
                 </tr>
               </thead>
               <tbody>
-                {tokens.map((token, index) => (
+                {walletTokens?.map((token, index) => (
                   <tr key={index} className="border-b border-[#04E6E6]">
-                    <td className="py-3 flex items-center">
-                      <span className="w-4 h-4 bg-[#D9D9D9] rounded-full mr-2"></span>
-                      <span className="text-[12px] font-inter font-bold text-[#F5F5F5] leading-[40px]">{token.token}</span>
-                    </td>
-                    <td className="py-3 text-left">
-                      <span className="text-[12px] font-inter font-bold text-[#F5F5F5] leading-[14px]">${token.price.toFixed(2)}</span>
-                    </td>
-                    <td className="py-5">
-                      <span className="text-[12px] font-inter font-bold text-[#F5F5F5] leading-[14px]">{token.balance}</span>
-                    </td>
-                    <td className="py-3 text-left">
-                      <span className="text-[12px] font-inter font-bold text-[#F5F5F5] leading-[14px]">${token.value.toLocaleString('en-US')}</span>
-                    </td> 
-                    <td className="py-3 text-left">
-                      <span className={`text-[12px] font-inter font-bold ${token.change < 0 ? 'text-[#FF0000]' : 'text-[#05FF00]'} leading-[14px]`}>
-                        {token.change.toFixed(2)}% (${token.changeValue.toFixed(2)})
+                    <td className="flex items-center gap-x-2 py-3">
+                      <img
+                        src={token.logo}
+                        alt="token-logo"
+                        className="h-4 w-4 rounded-full "
+                      />
+                      <span className="font-inter text-[12px] font-bold leading-[40px] text-[#F5F5F5]">
+                        {token.name}
                       </span>
                     </td>
-                    <td className="py-3 text-left pr-2">
-                      <span className="text-[12px] font-inter font-bold text-[#F5F5F5] leading-[14px]">{token.portfolioPercentage}%</span>
+                    <td className="py-3 text-left">
+                      <span className="font-inter text-[12px] font-bold leading-[14px] text-[#F5F5F5]">
+                        ${token.usd_price?.toFixed(6)}
+                      </span>
                     </td>
-                  </tr>         
+                    <td className="py-5">
+                      <span className="font-inter text-[12px] font-bold leading-[14px] text-[#F5F5F5]">
+                        {formatBalance(token.balance_formatted)}
+                      </span>
+                    </td>
+                    <td className="py-3 text-left">
+                      <span className="font-inter text-[12px] font-bold leading-[14px] text-[#F5F5F5]">
+                        $
+                        {token.usd_value?.toLocaleString('en-US', {
+                          style: 'currency',
+                          currency: 'USD',
+                        })}
+                      </span>
+                    </td>
+                    <td className="py-3 text-left">
+                      <span
+                        className={`font-inter text-[12px] font-bold ${token.usd_price_24hr_percent_change < 0 ? 'text-[#FF0000]' : 'text-[#05FF00]'} leading-[14px]`}
+                      >
+                        {token.usd_value?.toFixed(2)}% ($
+                        {token.usd_price_24hr_percent_change?.toFixed(2)})
+                      </span>
+                    </td>
+                    <td className="py-3 pr-2 text-left">
+                      <span className="font-inter text-[12px] font-bold leading-[14px] text-[#F5F5F5]">
+                        {token.portfolio_percentage}%
+                      </span>
+                    </td>
+                  </tr>
                 ))}
               </tbody>
             </table>
@@ -113,7 +182,7 @@ const TokensTable = () => {
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default TokensTable;
+export default TokensTable

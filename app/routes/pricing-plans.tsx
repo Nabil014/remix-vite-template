@@ -1,11 +1,9 @@
 import React, { useEffect } from 'react';
 import { useFetcher } from '@remix-run/react';
-import { loadStripe } from '@stripe/stripe-js';
 import ComparePlans from '~/components/ComparePlans';
 import FAQ from '~/components/Faqs';
 import Footer from '~/components/footer';
 
-const stripePromise = loadStripe('pk_test_51MHXZUEgY6MBu39VTrKUAZ1vx9KBjj3tSyfsF9sdpdYhxuImTyGdCKMp123hCbw8YBPPvjs5Ch7hF9GxfVerDMUQ01cxFQMT2');
 
 export default function PricingPlans() {
   const fetcher = useFetcher();

@@ -13,8 +13,6 @@ const LineChart = ({ tokenPrices }) => {
       });
     }
   }, []);
-
-  // Verifica los datos recibidos
   useEffect(() => {
    
   }, [tokenPrices]);

@@ -44,8 +44,8 @@ export const loader: LoaderFunction = async ({ request }) => {
         },
       ],
       mode: 'payment',
-      success_url: 'http://localhost:3000/success',
-      cancel_url: 'http://localhost:3000/cancel',
+      success_url: 'http://localhost:3000/successPayment',
+      cancel_url: 'http://localhost:3000/cancelPayment',
     });
 
     return json({ id: session.id, url: session.url });
