@@ -2,33 +2,21 @@ import React from 'react';
 
 function formatPrice(price: number | null): string {
   if (price === null || isNaN(price)) {
-    return '$0.00';
+    return 'N/A';
   }
-
-  if (price < 1) {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 4,
-      maximumFractionDigits: 4,
-    }).format(price);
-  }
-
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
+  return `$${new Intl.NumberFormat('en-US', {
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(price);
+    maximumFractionDigits: 6,
+  }).format(price)}`;
 }
 
 function formatPercentage(percentage: number | string | null): string {
   const parsedPercentage =
     typeof percentage === 'number' ? percentage : parseFloat(percentage || '0');
   if (isNaN(parsedPercentage)) {
-    return '0.00';
+    return '0.00%';
   }
-  return parsedPercentage.toFixed(2);
+  return `${parsedPercentage.toFixed(2)}%`;
 }
 
 interface Coin {
@@ -63,9 +51,10 @@ interface TokenInfoProps {
   coin: Coin;
   currentPrice: number | null;
   percentageChange: number | null;
+  block: number | null;
 }
 
-const TokenInfo: React.FC<TokenInfoProps> = ({ coin, currentPrice, percentageChange }) => {
+const TokenInfo: React.FC<TokenInfoProps> = ({ coin, currentPrice, percentageChange, block }) => {
 
   if (!coin) {
     return <div>Loading...</div>;
@@ -102,11 +91,11 @@ const TokenInfo: React.FC<TokenInfoProps> = ({ coin, currentPrice, percentageCha
           <p className="text-[30px] font-bold leading-[10px] text-[#F5F5F5]">
             {formattedPrice}
             <span className={`ml-2 text-[20px] font-bold leading-[20px] ${percentageColor}`}>
-              {formattedPercentage}%
+              {formattedPercentage}
             </span>
           </p>
           <p className="mt-3 text-[12px] font-bold leading-[12px] text-[#F5F5F5] opacity-50">
-            as of block {coin.platform.token_address || '00000000'} from Uniswap v3
+            as of block {block || '00000000'} from Uniswap v3
           </p>
         </div>
       </div>
