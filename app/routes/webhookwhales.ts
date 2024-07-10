@@ -2,7 +2,7 @@ import { json, ActionFunctionArgs } from "@remix-run/node";
 import Moralis from "moralis";
 import { emitter } from "~/services/emittertraders.server";
 import { prisma } from "~/utils/prisma.server";
-import { createMessageTrader } from "~/utils/queries";
+import { createMessageWhale } from "~/utils/queries";
 
 
 const moralisAPIKey =process.env.MORALIS
@@ -69,18 +69,18 @@ async function checkAndSendSwapHook(address, fromData, toData, chainId, transact
 
     await sendHook(address, fromData[0], toData[0], netWorth.total_networth_usd, chainId, transactionHash);
   } else {
-    console.log("Invalid data");
+    console.log("Invalid data or volume less than 50,000 USD, skipping net worth check");
   }
 }
 
 async function sendHook(address, fromTransfer, toTransfer, netWorth, chainId, transactionHash) {
-  
   const chainName = getChainName(chainId);
   const explorerUrl = getExplorerUrl(chainId);
   const currentTime = new Date().toISOString(); // Obtener el tiempo actual en formato ISO
-  
-  const message =  `Trader alert on ${chainName} \n🔥 Swapped:\n   ${fromTransfer.valueWithDecimals} ${fromTransfer.tokenSymbol} \n From: ${fromTransfer.to} \n   ➡️ ${toTransfer.valueWithDecimals} ${toTransfer.tokenSymbol} \n To: ${toTransfer.from} \n\n💰 Net Worth Of Address: ${netWorth} USD `;
-await createMessageTrader(message,currentTime)
+ 
+  const message =  `Whale alert on ${chainName}\n\n🔥 Swapped:\n   ${fromTransfer.valueWithDecimals} ${fromTransfer.tokenSymbol} \n From: ${fromTransfer.to} \n   ➡️ ${toTransfer.valueWithDecimals} ${toTransfer.tokenSymbol} \n To: ${toTransfer.from} \n\n💰 Net Worth Of Address: ${netWorth} USD `;
+  await createMessageWhale(message,currentTime)
+
   emitter.emit("message", JSON.stringify(message));
   console.log("Sent message:", message);
 }

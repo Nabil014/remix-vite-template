@@ -173,12 +173,26 @@ export default function SidebarMain({ showSidebar }: Props) {
           </li>
           <li>
             <Link
-              to="/dashboard/holders"
+              to="/dashboard/whales-signals"
               className="group flex items-center gap-x-4 rounded-lg p-2 text-[#6EEAEA] hover:bg-gray-100 hover:text-gray-900"
             >
               <GiWhaleTail className="h-5 w-5" />
               <div className="flex w-full items-center justify-between">
-                Whale Alerts
+                Whales Alerts
+                <span className="ml-3 inline-flex items-center justify-center rounded-full bg-gray-100 px-2 text-sm font-medium text-gray-800 dark:text-gray-300">
+                  Pro
+                </span>
+              </div>
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/dashboard/traders-signals"
+              className="group flex items-center gap-x-4 rounded-lg p-2 text-[#6EEAEA] hover:bg-gray-100 hover:text-gray-900"
+            >
+              <GiWhaleTail className="h-5 w-5" />
+              <div className="flex w-full items-center justify-between">
+                Traders Alerts
                 <span className="ml-3 inline-flex items-center justify-center rounded-full bg-gray-100 px-2 text-sm font-medium text-gray-800 dark:text-gray-300">
                   Pro
                 </span>

@@ -58,7 +58,7 @@ export default function Index() {
     {
       key: 'account',
       label: 'Account',
-      link: item => `/dashboard/account-details/${item.account}`,
+      link: item => `/dashboard/wallets/${item.account}`,
       format: null,
     },
     { key: 'volume', label: 'Volume', link: null, format: val => `$${val}` },

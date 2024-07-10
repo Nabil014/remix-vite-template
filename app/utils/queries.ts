@@ -31,6 +31,23 @@ export async function createAccount(email: string, password: string,firstName: s
       },    },
   });
 }
+
+export async function createMessageWhale(message: string, currentTime: any) {
+  await prisma.messageWhales.create({
+    data: {
+      description:message,
+    time:currentTime
+    },
+  });
+}
+export async function createMessageTrader(message: string, currentTime: any) {
+  await prisma.messageTraders.create({
+    data: {
+      description:message,
+    time:currentTime
+    },
+  });
+}
 export async function login(email: string, password: string) {
   // Encuentra al usuario junto con su registro de contraseña
   let user = await prisma.user.findUnique({
@@ -57,4 +74,29 @@ export async function login(email: string, password: string) {
 
   // Devuelve el identificador del usuario si las contraseñas coinciden
   return user.id;
+}
+export async function getMessagesWhales() {
+  const messages = await prisma.messageWhales.findMany({
+    select: {
+      description: true
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+  return messages.map(message => message.description);
+}
+
+export async function getMessagesTraders() {
+  const messages = await prisma.messageTraders.findMany({
+    select: {
+      description: true
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+  console.log("getMessagesTraders "+JSON.stringify(messages))
+
+  return messages.map(message => message.description);
 }

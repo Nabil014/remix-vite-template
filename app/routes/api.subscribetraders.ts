@@ -1,10 +1,11 @@
-import { emitter } from "~/services/emitter.server";
+import { emitter } from "~/services/emittertraders.server";
 import { eventStream } from "remix-utils/sse/server";
 
 export async function loader({ request }: any) {
   return eventStream(request.signal, (send) => {
-    function handle(message: { id: string; content: string; role: string }) {
-      send({ event: "new-message", data: JSON.stringify(message) });
+    function handle(message:string) {
+      send({ event: "new-message", data: message });
+     
     }
 
     emitter.on("message", handle);
