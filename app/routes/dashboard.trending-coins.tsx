@@ -93,7 +93,7 @@ export default function TrendingCoins() {
     ? data.filter(token => token.network === selectedNetwork)
     : data;
 
-  const sortedData = filteredTokens.sort((a, b) => b.volume - a.volume);
+  const sortedData = filteredTokens.sort((a, b) => b.percentChange24h - a.percentChange24h);
 
   const formattedData = sortedData.map(item => ({
     ...item,
