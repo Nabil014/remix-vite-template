@@ -57,7 +57,7 @@ export const loader: LoaderFunction = async ({ params }) => {
     const currentPrice = tokenPrices[tokenPrices.length - 1]?.y || 0;
     const timestamp = tokenPrices[tokenPrices.length - 1]?.timestamp || '';
     const percentageChange = tokenPrices[0]?.y ? ((currentPrice - tokenPrices[0]?.y) / tokenPrices[0]?.y) * 100 : 0;
-    const block = Math.floor(new Date(timestamp).getTime() / 1000); // Approximate block number using timestamp
+    const block = Math.floor(new Date(timestamp).getTime() / 1000); 
 
     return json({ contract, tokenData, tokenPrices, currentPrice, percentageChange, block });
   } catch (error) {
@@ -71,11 +71,6 @@ export const loader: LoaderFunction = async ({ params }) => {
 
 export default function CryptoDetails() {
   const { contract, tokenData, tokenPrices, currentPrice, percentageChange, block, error } = useLoaderData();
-
-  console.log("DATA", tokenData);
-  console.log("CURRENT PRICE", currentPrice);
-  console.log("CHANGE PERCENT", percentageChange);
-  console.log("BLOCK", block);
 
   return (
     <div className="h-auto bg-gradient-radial p-8">
@@ -102,7 +97,7 @@ export default function CryptoDetails() {
               </div>
             </div>
             <div className="mt-8 w-full">
-              <TokenAnalysis />
+              {/* <TokenAnalysis /> */}
             </div>
           </>
         ) : (

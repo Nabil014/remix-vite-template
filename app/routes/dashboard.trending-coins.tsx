@@ -3,6 +3,7 @@ import { useLoaderData } from '@remix-run/react';
 import Table from '~/components/table-list';
 import Footer from '~/components/footer';
 import { formatVolume } from '~/utils/formatters';
+import { useState } from 'react';
 
 const baseURL = "https://pro-api.coinmarketcap.com/v1";
 
@@ -76,6 +77,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export default function TrendingCoins() {
   const { tokens } = useLoaderData<{ tokens: any[] }>();
+  const [selectedNetwork, setSelectedNetwork] = useState("");
 
   const data = tokens.map((token: any) => ({
     contract: token.contract,
@@ -87,12 +89,18 @@ export default function TrendingCoins() {
     network: token.network,
   }));
 
-  const sortedData = data.sort((a, b) => b.volume - a.volume);
+  const filteredTokens = selectedNetwork
+    ? data.filter(token => token.network === selectedNetwork)
+    : data;
+
+  const sortedData = filteredTokens.sort((a, b) => b.volume - a.volume);
 
   const formattedData = sortedData.map(item => ({
     ...item,
     volume: formatVolume(item.volume)
   }));
+
+  const availableNetworks = [...new Set(tokens.map(token => token.network))];
 
   const columns = [
     {
@@ -141,6 +149,9 @@ export default function TrendingCoins() {
           title="Trending Coins"
           description="Top trending cryptocurrencies."
           columns={columns}
+          networks={availableNetworks}
+          selectedNetwork={selectedNetwork}
+          onNetworkChange={setSelectedNetwork}
         />
       </div>
       <Footer />
