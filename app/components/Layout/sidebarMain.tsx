@@ -164,7 +164,7 @@ export default function SidebarMain({ showSidebar }: Props) {
           </li>
           <li>
             <Link
-              to="/dashboard/holders"
+              to="/dashboard/nfts"
               className="group flex items-center gap-x-4 rounded-lg p-2 text-[#6EEAEA] hover:bg-gray-100 hover:text-gray-900"
             >
               <BsGraphUp className="h-5 w-5" />
