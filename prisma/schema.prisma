@@ -24,8 +24,20 @@ model User {
   avatar         String? 
   address        String?
 }
-
-
+model MessageWhales {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  description   String
+  time        DateTime
+}
+  
+model MessageTraders {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  time        DateTime
+  description   String
+}
+  
 model Password {
   id       String @id @default(uuid())
   salt     String
