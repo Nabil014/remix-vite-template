@@ -9,12 +9,12 @@ export const loader: LoaderFunction = async () => {
   return json({ messages });
 };
 
-// Función para parsear los mensajes
+// Function to parse the messages
 const parseMessage = (message: string) => {
   const [header, swapDetails, netWorth] = message.split('\n\n');
   const [alert, chain] = header.split(' on ');
-  const [swapped, from, to] = swapDetails.split(' ');
-
+  const [swapped, from, to] = swapDetails.split('\n');
+  
   return {
     alert,
     chain,
@@ -27,8 +27,6 @@ const parseMessage = (message: string) => {
 
 export default function WhaleSignals() {
   const { messages: initialMessages } = useLoaderData<{ messages: any[] }>();
-  console.log("initialMessages  "+JSON.stringify(initialMessages))
-
   const [messages, setMessages] = useState(initialMessages);
   const liveResponse = useEventSource(`https://crypto-ghost.fly.dev/api/subscribewhales`, { event: "new-message" });
 

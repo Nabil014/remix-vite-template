@@ -1,15 +1,10 @@
 import { json, ActionFunctionArgs } from "@remix-run/node";
 import Moralis from "moralis";
 import { emitter } from "~/services/emittertraders.server";
-import { prisma } from "~/utils/prisma.server";
 import { createMessageTrader } from "~/utils/queries";
 
+const moralisAPIKey = process.env.MORALIS_API_KEY;
 
-const moralisAPIKey =process.env.MORALIS
-
-
-
-// Funciones existentes de Moralis
 export const action = async ({ request }: ActionFunctionArgs) => {
   console.log("Received request");
 
@@ -31,9 +26,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       console.log("Processing logs");
 
       const decodedLogs = Moralis.Streams.parsedLogs(webhookBody);
-
       const addresses = getInvolvedAddresses(webhookBody.logs);
-
       const fromData = getFromData(webhookBody.erc20Transfers, addresses);
       const toData = getToData(webhookBody.erc20Transfers, addresses);
 
@@ -74,16 +67,16 @@ async function checkAndSendSwapHook(address, fromData, toData, chainId, transact
 }
 
 async function sendHook(address, fromTransfer, toTransfer, netWorth, chainId, transactionHash) {
-  
   const chainName = getChainName(chainId);
-  const explorerUrl = getExplorerUrl(chainId);
-  const currentTime = new Date().toISOString(); // Obtener el tiempo actual en formato ISO
-  
-  const message =  `Trader alert on ${chainName} \n🔥 Swapped:\n   ${fromTransfer.valueWithDecimals} ${fromTransfer.tokenSymbol} \n From: ${fromTransfer.to} \n   ➡️ ${toTransfer.valueWithDecimals} ${toTransfer.tokenSymbol} \n To: ${toTransfer.from} \n\n💰 Net Worth Of Address: ${netWorth} USD `;
-await createMessageTrader(message,currentTime)
+  const currentTime = new Date().toISOString();
+
+  const message = `Trader alert on ${chainName}\n\nSwapped:\n${fromTransfer.valueWithDecimals} ${fromTransfer.tokenSymbol}\nFrom: ${fromTransfer.to}\nTo: ${toTransfer.from}\n\nNet Worth Of Address: ${netWorth} USD`;
+
+  await createMessageTrader(message, currentTime);
   emitter.emit("message", JSON.stringify(message));
   console.log("Sent message:", message);
 }
+
 function getInvolvedAddresses(logs) {
   const addresses = logs.reduce((acc, log) => {
     if (log.triggered_by) {
@@ -117,8 +110,6 @@ function getToData(transfers, addresses) {
 function getChainName(chainId) {
   const chainNames = {
     "0x1": "Ethereum Mainnet",
-    "0x89": "Polygon Mainnet",
-    "0x38": "BSC Mainnet",
     "0xa86a": "Avalanche Mainnet",
     "0xfa": "Fantom Opera",
     "0x19": "Cronos Mainnet",
@@ -129,21 +120,4 @@ function getChainName(chainId) {
     "0xe705": "Milkomeda Mainnet"
   };
   return chainNames[chainId] || "Unknown Chain";
-}
-
-function getExplorerUrl(chainId) {
-  const explorerUrls = {
-    "0x1": "https://etherscan.io",
-    "0x89": "https://polygonscan.com",
-    "0x38": "https://bscscan.com",
-    "0xa86a": "https://snowtrace.io",
-    "0xfa": "https://ftmscan.com",
-    "0x19": "https://cronoscan.com",
-    "0xa4b1": "https://arbiscan.io",
-    "0x64": "https://blockscout.com/xdai/mainnet",
-    "0x2105": "https://explorer.step.network",
-    "0xa": "https://optimistic.etherscan.io",
-    "0xe705": "https://explorer-mainnet-cardano-evm.c1.milkomeda.com"
-  };
-  return explorerUrls[chainId] || "https://etherscan.io";
 }
