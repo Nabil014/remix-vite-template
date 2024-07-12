@@ -1,4 +1,4 @@
-import { Link } from '@remix-run/react';
+import { Link, useNavigate } from '@remix-run/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCopy } from '@fortawesome/free-solid-svg-icons';
 
@@ -7,9 +7,15 @@ const copyToClipboard = (text) => {
 };
 
 const Table = ({ data, title, description, columns, networks = [], selectedNetwork, onNetworkChange, showCopyIcon = false }) => {
+  const navigate = useNavigate();
+
   if (!data || !Array.isArray(data)) {
     return <p>No data available</p>;
   }
+
+  const handleRowClick = (item, link) => {
+    navigate(link(item));
+  };
 
   return (
     <div className="max-w-[1328px] flex flex-col h-full">
@@ -52,7 +58,11 @@ const Table = ({ data, title, description, columns, networks = [], selectedNetwo
                   </thead>
                   <tbody className="divide-y divide-[#04E6E6]">
                     {data.map((item, index) => (
-                      <tr key={index} className="hover:bg-[#014147]">
+                      <tr
+                        key={index}
+                        className="hover:bg-[#014147] cursor-pointer"
+                        onClick={() => handleRowClick(item, columns.find(col => col.link).link)}
+                      >
                         {columns.map((col) => (
                           <td key={col.key} className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center space-x-2">
@@ -61,7 +71,10 @@ const Table = ({ data, title, description, columns, networks = [], selectedNetwo
                               </span>
                               {showCopyIcon && col.key === 'account' && (
                                 <button
-                                  onClick={() => copyToClipboard(item[col.key])}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    copyToClipboard(item[col.key]);
+                                  }}
                                   className="text-[#04E6E6] hover:text-[#00ffff]"
                                   title="Copy Address"
                                 >
