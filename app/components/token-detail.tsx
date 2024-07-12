@@ -2,6 +2,16 @@ import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCopy, faCheck } from '@fortawesome/free-solid-svg-icons';
 
+function formatPrice(price: number | null): string {
+  if (price === null || isNaN(price)) {
+    return 'N/A';
+  }
+  return `$${new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 6,
+  }).format(price)}`;
+}
+
 const TokenDetails = ({ tokenData, currentPrice }) => {
   const [copied, setCopied] = useState(false);
 
@@ -17,24 +27,26 @@ const TokenDetails = ({ tokenData, currentPrice }) => {
     totalSupply: tokenData?.self_reported_circulating_supply || "N/A",
     fullyDilutedValuation: tokenData?.self_reported_market_cap ? `$${tokenData.self_reported_market_cap}` : "N/A",
     dateCreated: tokenData?.date_added ? new Date(tokenData.date_added).toISOString().split('T')[0] : "N/A",
-    currentPrice: currentPrice ? `$${currentPrice.toFixed(4)}` : "N/A",
-    tokenAddress: tokenData?.contract_address?.[0]?.contract_address || "N/A",
+    currentPrice: formatPrice(currentPrice),
+    tokenAddress: tokenData?.platform?.token_address || "N/A",
     name: tokenData?.name || "N/A",
     symbol: tokenData?.symbol || "N/A",
     contractType: tokenData?.platform?.name || "N/A",
     decimals: tokenData?.decimals || "N/A",
-    tokenAge: tokenData?.date_launched ? calculateDaysFromCreatedAt(tokenData.date_launched) + " days" : "N/A",
+    tokenAge: tokenData?.date_added ? calculateDaysFromCreatedAt(tokenData.date_added) + " days" : "N/A",
   };
 
   const formatAddress = (address) => {
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+    return address !== "N/A" ? `${address.slice(0, 6)}...${address.slice(-4)}` : "N/A";
   };
 
   const copyToClipboard = (address) => {
-    navigator.clipboard.writeText(address).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
+    if (address !== "N/A") {
+      navigator.clipboard.writeText(address).then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      });
+    }
   };
 
   return (

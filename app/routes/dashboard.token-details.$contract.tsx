@@ -51,37 +51,39 @@ export const loader: LoaderFunction = async ({ params }) => {
     const tokenPrices = prices.map((quote) => ({
       x: new Date(quote.timestamp).toISOString(),
       y: quote.quote.USD.price,
-      block: new Date(quote.timestamp).getTime(),
+      timestamp: quote.timestamp,
     }));
 
     const currentPrice = tokenPrices[tokenPrices.length - 1]?.y || 0;
-    const percentageChange = ((currentPrice - tokenPrices[0]?.y) / tokenPrices[0]?.y) * 100;
+    const timestamp = tokenPrices[tokenPrices.length - 1]?.timestamp || '';
+    const percentageChange = tokenPrices[0]?.y ? ((currentPrice - tokenPrices[0]?.y) / tokenPrices[0]?.y) * 100 : 0;
+    const block = Math.floor(new Date(timestamp).getTime() / 1000); 
 
-    return json({ contract, tokenData, tokenPrices, currentPrice, percentageChange });
+    return json({ contract, tokenData, tokenPrices, currentPrice, percentageChange, block });
   } catch (error) {
     console.error('Error fetching data:', error);
     return json(
-      { contract, tokenData: null, tokenPrices: [], currentPrice: 0, percentageChange: 0, error: error.message },
+      { contract, tokenData: null, tokenPrices: [], currentPrice: 0, percentageChange: 0, block: 0, error: error.message },
       { status: 500 }
     );
   }
 };
 
 export default function CryptoDetails() {
-  const { contract, tokenData, tokenPrices, currentPrice, percentageChange, error } = useLoaderData();
+  const { contract, tokenData, tokenPrices, currentPrice, percentageChange, block, error } = useLoaderData();
 
   return (
     <div className="h-auto bg-gradient-radial p-8">
       <div className="flex flex-col items-center lg:items-start">
         {tokenData ? (
           <>
-            <TokenInfo coin={tokenData} usdPrice={currentPrice} percentageChange={percentageChange} />
+            <TokenInfo coin={tokenData} currentPrice={currentPrice} percentageChange={percentageChange} block={block} />
             <div className="mt-8 flex w-full flex-col lg:flex-row lg:items-start">
               <div className="w-full lg:w-1/3 lg:pr-4">
                 <h3 className="mb-4 text-[16px] font-semibold leading-[19.36px] text-[#F5F5F5]">
                   Token Details
                 </h3>
-                <TokenDetails tokenData={tokenData} />
+                <TokenDetails tokenData={tokenData} currentPrice={currentPrice} />
               </div>
               <div className="mt-8 w-full lg:mt-0 lg:w-2/3 lg:pl-4">
                 <h3 className="mb-4 text-[16px] font-semibold leading-[19.36px] text-[#F5F5F5]">
@@ -95,7 +97,7 @@ export default function CryptoDetails() {
               </div>
             </div>
             <div className="mt-8 w-full">
-              <TokenAnalysis />
+              {/* <TokenAnalysis /> */}
             </div>
           </>
         ) : (

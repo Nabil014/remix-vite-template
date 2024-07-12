@@ -3,6 +3,7 @@ import { useLoaderData, useParams, Link } from '@remix-run/react';
 import Table from '~/components/table-list';
 import Footer from '~/components/footer';
 import { formatPrice, formatVolume } from '~/utils/formatters';
+import { useState } from 'react';
 
 const API_KEY = process.env.CMC_API_KEY;
 const baseURL = "https://pro-api.coinmarketcap.com/v1";
@@ -31,7 +32,7 @@ async function fetchTokens() {
     }
 
     const data = await res.json();
-    return data.data;  // La API de CoinMarketCap devuelve los tokens bajo la clave `data`
+    return data.data;  // The CoinMarketCap API returns tokens under the `data` key
   } catch (error) {
     console.error('Error fetching data:', error);
     return [];
@@ -54,7 +55,7 @@ async function fetchTokenDetailsByContract(contract) {
     }
 
     const data = await res.json();
-    return Object.values(data.data)[0];  // Asumiendo que la dirección del contrato coincidirá con el primer elemento
+    return Object.values(data.data)[0];  // Assuming the contract address will match the first element
   } catch (error) {
     console.error('Error fetching token details:', error);
     return null;
@@ -110,6 +111,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 export default function Index() {
   const { tokens, token } = useLoaderData();
   const { contract } = useParams();
+  const [selectedNetwork, setSelectedNetwork] = useState("");
 
   if (contract && token) {
     // Render token details view
@@ -127,8 +129,15 @@ export default function Index() {
     );
   }
 
-  // Render tokens list view
-  const data = tokens.map((token) => ({
+  // Filter tokens based on the selected network
+  const filteredTokens = selectedNetwork
+    ? tokens.filter(token => token.platform.name === selectedNetwork)
+    : tokens;
+
+  // Get the available networks in the current tokens
+  const availableNetworks = [...new Set(tokens.map(token => token.platform.name))];
+
+  const data = filteredTokens.map((token) => ({
     contract: token.platform.token_address,
     name: token.name,
     symbol: token.symbol,
@@ -155,6 +164,9 @@ export default function Index() {
           title="Top 10 Coins by Volume"
           description="Top 10 cryptocurrencies by trading volume in the past 24 hours."
           columns={columns}
+          networks={availableNetworks}
+          selectedNetwork={selectedNetwork}
+          onNetworkChange={setSelectedNetwork}
         />
       </div>
       <Footer />
