@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { InfiniteMovingCards } from '~/components/infinite-moving-cards';
 import { PlaceholdersAndVanishInput } from '~/components/placeholders-and-vanish-input';
 import Table from '~/components/table-list';
@@ -34,14 +34,11 @@ async function fetchTokens() {
         Accept: 'application/json',
       },
     });
-
     if (!res.ok) {
-      const message = await res.json();
-      throw new Error(`Error fetching tokens: ${res.statusText} - ${JSON.stringify(message)}`);
+      throw new Error(`Error fetching tokens: ${res.statusText}`);
     }
-
     const data = await res.json();
-    return data.data; // The CoinMarketCap API returns tokens under the `data` key
+    return data.data;
   } catch (error) {
     console.error('Error fetching data:', error);
     return [];
@@ -57,14 +54,11 @@ async function fetchTokenDetailsByContract(contract) {
         Accept: 'application/json',
       },
     });
-
     if (!res.ok) {
-      const message = await res.json();
-      throw new Error(`Error fetching token details: ${res.statusText} - ${JSON.stringify(message)}`);
+      throw new Error(`Error fetching token details: ${res.statusText}`);
     }
-
     const data = await res.json();
-    return Object.values(data.data)[0]; // Assuming the contract address will match the first element
+    return Object.values(data.data)[0];
   } catch (error) {
     console.error('Error fetching token details:', error);
     return null;
@@ -88,7 +82,6 @@ async function fetchTraders() {
         ],
       }),
     });
-
     const data = await res.json();
     return data.result || [];
   } catch (error) {
@@ -97,27 +90,25 @@ async function fetchTraders() {
   }
 }
 
-export const loader = async ({ request, params }) => {
+export const loader = async ({ params }) => {
   const { contract } = params;
   if (contract) {
-    // Fetching token details for a specific contract
     const tokenDetails = await fetchTokenDetailsByContract(contract);
-
     if (!tokenDetails) {
       throw new Response('Token not found', { status: 404 });
     }
-
     return json({ token: tokenDetails });
   } else {
-    // Fetching the list of tokens
     const now = Date.now();
     if (cache.tokens.length > 0 && now - cache.timestamp < 60000) {
-      // Use cached data if it is less than 1 minute old
-      return json({ tokens: cache.tokens });
+      console.log('Using cached tokens:', cache.tokens);
+      return json({ tokens: cache.tokens, traders: cache.traders });
     }
 
     try {
       const [tokens, traders] = await Promise.all([fetchTokens(), fetchTraders()]);
+      console.log('Fetched tokens:', tokens);
+      console.log('Fetched traders:', traders);
 
       const filteredTokens = tokens.filter(
         (token) =>
@@ -133,14 +124,9 @@ export const loader = async ({ request, params }) => {
       );
 
       filteredTokens.sort((a, b) => b.quote.USD.volume_24h - a.quote.USD.volume_24h);
-
       const topTokens = filteredTokens.slice(0, 10);
 
-      // Update cache
-      cache = {
-        tokens: topTokens,
-        timestamp: now,
-      };
+      cache = { tokens: topTokens, traders, timestamp: now };
 
       return json({ tokens: topTokens, traders });
     } catch (error) {
@@ -155,22 +141,19 @@ const formatAddress = (address) => {
   return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
 };
 
-const formatVolume = (volume) => {
-  if (volume >= 1e9) {
-    return (volume / 1e9).toFixed(2) + 'B';
-  } else if (volume >= 1e6) {
-    return (volume / 1e6).toFixed(2) + 'M';
-  } else {
-    return volume.toFixed(2);
-  }
-};
-
-export default function Index() {
-  const { tokens, traders } = useLoaderData();
+const Index = () => {
+  const { tokens = [], traders = [] } = useLoaderData();
   const { contract } = useParams();
   const [selectedNetwork, setSelectedNetwork] = useState('');
 
-  // Carousel items
+  console.log('Tokens:', tokens);
+  console.log('Traders:', traders);
+
+  useEffect(() => {
+    console.log('Tokens:', tokens);
+    console.log('Traders:', traders);
+  }, [tokens, traders]);
+
   const items = [
     { token: 'DOSE', inflow: '$190,083', average: '51' },
     { token: 'DOSE', inflow: '$190,083', average: '51' },
@@ -179,23 +162,19 @@ export default function Index() {
     { token: 'DOSE', inflow: '$190,083', average: '51' },
   ];
 
-  // Handle search bar change
   const handleChange = (e) => {
     console.log(e.target.value);
   };
 
-  // Handle search bar submit
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('Form submitted');
   };
 
-  // Filter tokens based on the selected network
   const filteredTokens = selectedNetwork
     ? tokens.filter((token) => token.platform.name === selectedNetwork)
     : tokens;
 
-  // Get the available networks in the current tokens
   const availableNetworks = [...new Set(tokens.map((token) => token.platform.name))];
 
   const tokenData = filteredTokens.map((token) => ({
@@ -207,6 +186,8 @@ export default function Index() {
     image: `https://s2.coinmarketcap.com/static/img/coins/64x64/${token.id}.png`,
     network: token.platform.name,
   }));
+
+  console.log('Token Data:', tokenData);
 
   const tokenColumns = [
     {
@@ -253,6 +234,8 @@ export default function Index() {
     swaps: trader.swaps || null,
     positions: trader.positions || 0,
   }));
+
+  console.log('Trader Data:', traderData);
 
   const traderColumns = [
     {
@@ -322,4 +305,6 @@ export default function Index() {
       <Footer />
     </div>
   );
-}
+};
+
+export default Index;

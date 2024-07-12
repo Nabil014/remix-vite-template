@@ -1,19 +1,12 @@
-import React, { useState } from 'react';
+import { Link } from '@remix-run/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCopy, faCheck } from '@fortawesome/free-solid-svg-icons';
+import { faCopy } from '@fortawesome/free-solid-svg-icons';
+
+const copyToClipboard = (text) => {
+  navigator.clipboard.writeText(text);
+};
 
 const Table = ({ data, title, description, columns, networks = [], selectedNetwork, onNetworkChange, showCopyIcon = false }) => {
-  const [copiedIndex, setCopiedIndex] = useState(null);
-
-  const handleCopy = (text, index) => {
-    navigator.clipboard.writeText(text).then(() => {
-      setCopiedIndex(index);
-      setTimeout(() => {
-        setCopiedIndex(null);
-      }, 1000); // Mostrar el icono de verificación durante 1 segundo
-    });
-  };
-
   if (!data || !Array.isArray(data)) {
     return <p>No data available</p>;
   }
@@ -68,11 +61,11 @@ const Table = ({ data, title, description, columns, networks = [], selectedNetwo
                               </span>
                               {showCopyIcon && col.key === 'account' && (
                                 <button
-                                  onClick={() => handleCopy(item[col.key], index)}
+                                  onClick={() => copyToClipboard(item[col.key])}
                                   className="text-[#04E6E6] hover:text-[#00ffff]"
                                   title="Copy Address"
                                 >
-                                  <FontAwesomeIcon icon={copiedIndex === index ? faCheck : faCopy} className="w-4 h-4" />
+                                  <FontAwesomeIcon icon={faCopy} />
                                 </button>
                               )}
                             </div>
