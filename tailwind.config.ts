@@ -30,21 +30,6 @@ module.exports = {
         aurora: "aurora 60s linear infinite",
         scroll: "scroll var(--animation-duration, 40s) var(--animation-direction, forwards) linear infinite",
       },
-      keyframes: {
-        aurora: {
-          from: {
-            backgroundPosition: "50% 50%, 50% 50%",
-          },
-          to: {
-            backgroundPosition: "350% 50%, 350% 50%",
-          },
-        },
-        scroll: {
-          to: {
-            transform: "translate(calc(-50% - 0.5rem))",
-          },
-        },
-      },
       colors: {
         customDark: "#0f172a",
         customCard: "#1e293b",
@@ -59,6 +44,31 @@ module.exports = {
       backgroundImage: {
         'gradient-radial': 'radial-gradient(circle, #043033 0%, #000D0E 100%)',
         'custom-radial': 'radial-gradient(50.48% 50.48% at 47.61% 57.74%, rgba(4, 230, 230, 0.5) 0%, rgba(115, 115, 115, 0) 70%)',
+      },
+
+
+      
+      animation: {
+        
+        scroll:
+          "scroll var(--animation-duration, 40s) var(--animation-direction, forwards) linear infinite",
+      
+        aurora: "aurora 60s linear infinite",
+      }, 
+      keyframes: {
+        scroll: {
+          to: {
+            transform: "translate(calc(-50% - 0.5rem))",
+          },
+        },
+        aurora: {
+          from: {
+            backgroundPosition: "50% 50%, 50% 50%",
+          },
+          to: {
+            backgroundPosition: "350% 50%, 350% 50%",
+          },
+        },
       },
     },
   },

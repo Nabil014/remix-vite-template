@@ -4,7 +4,6 @@
 #
 
 app = 'crypto-ghost'
-primary_region = 'scl'
 
 [build]
 

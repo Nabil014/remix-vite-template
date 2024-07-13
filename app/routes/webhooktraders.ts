@@ -65,14 +65,21 @@ async function checkAndSendSwapHook(address, fromData, toData, chainId, transact
     console.log("Invalid data");
   }
 }
-
 async function sendHook(address, fromTransfer, toTransfer, netWorth, chainId, transactionHash) {
   const chainName = getChainName(chainId);
   const currentTime = new Date().toISOString();
 
-  const message = `Trader alert on ${chainName}\n\nSwapped:\n${fromTransfer.valueWithDecimals} ${fromTransfer.tokenSymbol}\nFrom: ${fromTransfer.to}\nTo: ${toTransfer.from}\n\nNet Worth Of Address: ${netWorth} USD`;
+  const message = {
+    alert: `Trader alert on ${chainName}`,
+    chain: chainName,
+    swapped: `${fromTransfer.valueWithDecimals} ${fromTransfer.tokenSymbol}`,
+    from: fromTransfer.to,
+    to: toTransfer.from,
+    netWorth: `${netWorth} USD`,
+    time: currentTime
+  };
 
-  await createMessageTrader(message, currentTime);
+  await createMessageTrader(JSON.stringify(message), currentTime);
   emitter.emit("message", JSON.stringify(message));
   console.log("Sent message:", message);
 }
