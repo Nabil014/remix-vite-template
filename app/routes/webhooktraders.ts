@@ -73,7 +73,7 @@ async function sendHook(address, fromTransfer, toTransfer, netWorth, chainId, tr
     alert: `Trader alert on ${chainName}`,
     chain: chainName,
     swapped: `${fromTransfer.valueWithDecimals} ${fromTransfer.tokenSymbol}`,
-    from: fromTransfer.to,
+    from: fromTransfer.from,
     to: toTransfer.from,
     netWorth: `${netWorth} USD`,
     time: currentTime

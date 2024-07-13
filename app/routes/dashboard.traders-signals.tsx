@@ -1,76 +1,132 @@
-import { useLoaderData } from "@remix-run/react";
-import { json, LoaderFunction } from "@remix-run/node";
-import { useEffect, useState } from "react";
-import { useEventSource } from "remix-utils/sse/react";
-import { getMessagesTraders } from "~/utils/queries";
+import { json, ActionFunctionArgs } from "@remix-run/node";
+import Moralis from "moralis";
+import { emitter } from "~/services/emittertraders.server";
+import { createMessageTrader } from "~/utils/queries";
 
-export const loader: LoaderFunction = async () => {
-  const messages = await getMessagesTraders();
-  return json({ messages });
-};
+const moralisAPIKey = process.env.MORALIS_API_KEY;
 
-const parseMessage = (message: any) => {
-  return {
-    alert: message.alert,
-    chain: message.chain,
-    swapped: message.swapped,
-    from: message.from,
-    to: message.to,
-    netWorth: message.netWorth
-  };
-};
+export const action = async ({ request }: ActionFunctionArgs) => {
+  console.log("Received request");
 
-export default function WhaleSignals() {
-  const { messages: initialMessages } = useLoaderData<{ messages: any[] }>();
-  const [messages, setMessages] = useState(initialMessages);
-  const liveResponse = useEventSource(`https://crypto-ghost.fly.dev/api/subscribetraders`, { event: "new-message" });
+  if (request.method !== "POST") {
+    console.log("Method not allowed");
+    return json({ error: "Method not allowed" }, { status: 405 });
+  }
 
-  useEffect(() => {
-    if (liveResponse) {
-      try {
-        const parsedLiveResponse = JSON.parse(liveResponse);
-        if (parsedLiveResponse.message) {
-          const message = JSON.parse(parsedLiveResponse.message);
-          setMessages(prevMessages => [...prevMessages, message]);
-        } else {
-          console.error("Received message with missing fields:", parsedLiveResponse);
-        }
-      } catch (error) {
-        console.error("Failed to parse live response:", error);
+  if (!Moralis.Core.isStarted) {
+    console.log("Starting Moralis");
+    await Moralis.start({ apiKey: moralisAPIKey });
+  }
+
+  try {
+    const webhookBody = await request.json();
+    console.log("Webhook Streaming");
+
+    if (webhookBody.logs.length > 0 && !webhookBody.confirmed) {
+      console.log("Processing logs");
+
+      const decodedLogs = Moralis.Streams.parsedLogs(webhookBody);
+      const addresses = getInvolvedAddresses(webhookBody.logs);
+      const fromData = getFromData(webhookBody.erc20Transfers, addresses);
+      const toData = getToData(webhookBody.erc20Transfers, addresses);
+
+      for (const address of addresses) {
+        console.log("Processing address:", address);
+        await checkAndSendSwapHook(address, fromData[address], toData[address], webhookBody.chainId, webhookBody.transactionHash);
       }
     }
-  }, [liveResponse]);
+    return json({ status: "ok", transactionHash: webhookBody.transactionHash }, { status: 200 });
+  } catch (error) {
+    console.error('Error handling webhook:', error);
+    return json({ error: "Internal Server Error" }, { status: 500 });
+  }
+}
 
-  return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Traders Signals</h1>
-      <div className="space-y-4 h-96 p-10 overflow-x-hidden overflow-y-scroll">
-        {messages.map((message, index) => {
-          const parsedMessage = parseMessage(JSON.parse(message));
-          return (
-            <div
-              key={index}
-              className="bg-gradient-to-b from-[#043234] to-[#000D0E] text-white p-4 rounded-lg shadow-lg transition-transform transform hover:scale-105 hover:shadow-2xl border border-gray-600"
-            >
-              <div className="text-xl mb-2 font-bold">
-                {parsedMessage.alert}
-              </div>
-              <div className="text-lg mb-2">
-                <span className="font-semibold">Swapped:</span> {parsedMessage.swapped}
-              </div>
-              <div className="text-lg mb-2">
-                <span className="font-semibold">From:</span> {parsedMessage.from}
-              </div>
-              <div className="text-lg mb-2">
-                <span className="font-semibold">To:</span> {parsedMessage.to}
-              </div>
-              <div className="text-lg">
-                <span className="font-semibold">Net Worth Of Address:</span> {parsedMessage.netWorth}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
+async function checkAndSendSwapHook(address, fromData, toData, chainId, transactionHash) {
+  if (
+    fromData.length === 1 && fromData[0].tokenName && fromData[0].value && fromData[0].to !== null && fromData[0].to !== "0x0000000000000000000000000000000000000000"
+    && toData.length === 1 && toData[0].tokenName && toData[0].from !== null && toData[0].from !== "0x0000000000000000000000000000000000000000"
+  ) {
+    console.log("Valid data for net worth check");
+
+    const response = await Moralis.EvmApi.wallets.getWalletNetWorth({
+      chains: [chainId],
+      address: address,
+      excludeSpam: true,
+      excludeUnverifiedContracts: true,
+    });
+
+    let netWorth = response.toJSON();
+
+    console.log("Net worth in USD:", netWorth.total_networth_usd);
+
+    await sendHook(address, fromData[0], toData[0], netWorth.total_networth_usd, chainId, transactionHash);
+  } else {
+    console.log("Invalid data");
+  }
+}
+async function sendHook(address, fromTransfer, toTransfer, netWorth, chainId, transactionHash) {
+  const chainName = getChainName(chainId);
+  const currentTime = new Date().toISOString();
+
+  const message = {
+    alert: `Trader alert on ${chainName}`,
+    chain: chainName,
+    swapped: `${fromTransfer.valueWithDecimals} ${fromTransfer.tokenSymbol}`,
+    from: fromTransfer.from,
+    to: toTransfer.from,
+    netWorth: `${netWorth} USD`,
+    time: currentTime,
+    transactionHash: transactionHash
+  };
+
+  await createMessageTrader(JSON.stringify(message), currentTime);
+  emitter.emit("message", JSON.stringify(message));
+  console.log("Sent message:", message);
+}
+
+function getInvolvedAddresses(logs) {
+  const addresses = logs.reduce((acc, log) => {
+    if (log.triggered_by) {
+      acc.push(...log.triggered_by);
+    }
+    return acc;
+  }, []);
+  return [...new Set(addresses)];
+}
+
+function getFromData(transfers, addresses) {
+  const results = {};
+  addresses.forEach(address => {
+    results[address.toLowerCase()] = transfers.filter(
+      transfer => transfer.from.toLowerCase() === address.toLowerCase()
+    );
+  });
+  return results;
+}
+
+function getToData(transfers, addresses) {
+  const results = {};
+  addresses.forEach(address => {
+    results[address.toLowerCase()] = transfers.filter(
+      transfer => transfer.to.toLowerCase() === address.toLowerCase()
+    );
+  });
+  return results;
+}
+
+function getChainName(chainId) {
+  const chainNames = {
+    "0x1": "Ethereum Mainnet",
+    "0xa86a": "Avalanche Mainnet",
+    "0xfa": "Fantom Opera",
+    "0x19": "Cronos Mainnet",
+    "0xa4b1": "Arbitrum One",
+    "0x38": "Binance Smart Chain",
+    "0xe708": "Linea",
+    "0x2105": "Base Network",
+    "0xa": "Optimism",
+    "0x89": "Polygon"
+  };
+  return chainNames[chainId] || "Unknown Chain";
 }
