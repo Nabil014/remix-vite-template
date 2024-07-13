@@ -114,7 +114,7 @@ export default function SidebarMain({ showSidebar }: Props) {
                 </li>
                 <li>
                   <Link
-                    to="/dashboard/wallets-swaps"
+                    to="/dashboard/top-traders-swaps"
                     className="group flex items-center gap-x-4 rounded-lg p-2 text-[#6EEAEA] hover:bg-gray-100 hover:text-gray-900"
                   >
                     <BiCoinStack className="h-4 w-4" />

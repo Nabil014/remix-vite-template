@@ -2,6 +2,8 @@ import { json, ActionFunctionArgs } from "@remix-run/node";
 import Moralis from "moralis";
 import { emitter } from "~/services/emittertraders.server";
 import { createMessageTrader } from "~/utils/queries";
+import { emitter } from "~/services/emittertraders.server";
+import { createMessageTrader } from "~/utils/queries";
 
 const moralisAPIKey = process.env.MORALIS_API_KEY;
 
@@ -62,6 +64,7 @@ async function checkAndSendSwapHook(address, fromData, toData, chainId, transact
 
     await sendHook(address, fromData[0], toData[0], netWorth.total_networth_usd, chainId, transactionHash);
   } else {
+    console.log("Invalid data");
     console.log("Invalid data");
   }
 }
