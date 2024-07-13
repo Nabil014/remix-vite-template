@@ -85,6 +85,10 @@ export default function WhaleSignals() {
               <div className="text-lg mb-2">
                 <span className="font-semibold">Net Worth Of Address:</span> {parsedMessage.netWorth}
               </div>
+              
+              <div className="text-lg mb-2">
+                <span className="font-semibold">Trasaction link:</span> {parsedMessage.transactionHash}
+              </div>
               <div className="text-lg">
                 <a href={explorerLink} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">
                   View Transaction

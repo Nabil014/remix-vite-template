@@ -32,19 +32,31 @@ export async function createAccount(email: string, password: string,firstName: s
   });
 }
 
-export async function createMessageWhale(message: string, currentTime: any) {
-  await prisma.messageWhales.create({
+export async function createMessageWhale(message: any, currentTime: any) {
+  await prisma.signalwhale.create({
     data: {
-      description:message,
-    time:currentTime
+      alert: message.alert,
+      chain: message.chain,
+      swapped: message.swapped,
+      from: message.from,
+      to: message.to,
+      netWorth: message.netWorth,
+      transactionHash: message.transactionHash,
+      time: currentTime,
     },
   });
 }
-export async function createMessageTrader(message: string, currentTime: any) {
-  await prisma.messageTraders.create({
+export async function createMessageTrader(message: any, currentTime: any) {
+  await prisma.signaltrader.create({
     data: {
-      description:message,
-    time:currentTime
+      alert: message.alert,
+      chain: message.chain,
+      swapped: message.swapped,
+      from: message.from,
+      to: message.to,
+      netWorth: message.netWorth,
+      transactionHash: message.transactionHash,
+      time: currentTime,
     },
   });
 }
@@ -75,28 +87,41 @@ export async function login(email: string, password: string) {
   // Devuelve el identificador del usuario si las contraseñas coinciden
   return user.id;
 }
+
 export async function getMessagesWhales() {
-  const messages = await prisma.messageWhales.findMany({
+  const messages = await prisma.signalwhale.findMany({
     select: {
-      description: true
+      alert: true,
+      chain: true,
+      swapped: true,
+      from: true,
+      to: true,
+      netWorth: true,
+      transactionHash: true,
+      time: true
     },
     orderBy: {
-      createdAt: "desc",
+      time: "desc",
     },
   });
-  return messages.map(message => message.description);
+  return messages;
 }
 
 export async function getMessagesTraders() {
-  const messages = await prisma.messageTraders.findMany({
+  const messages = await prisma.signaltrader.findMany({
     select: {
-      description: true
+      alert: true,
+      chain: true,
+      swapped: true,
+      from: true,
+      to: true,
+      netWorth: true,
+      transactionHash: true,
+      time: true
     },
     orderBy: {
-      createdAt: "desc",
+      time: "desc",
     },
   });
-  console.log("getMessagesTraders "+JSON.stringify(messages))
-
-  return messages.map(message => message.description);
+  return messages;
 }

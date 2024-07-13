@@ -1,15 +1,10 @@
 import { json, ActionFunctionArgs } from "@remix-run/node";
 import Moralis from "moralis";
 import { emitter } from "~/services/emittertraders.server";
-import { prisma } from "~/utils/prisma.server";
-import { createMessageWhale } from "~/utils/queries";
+import { createMessageTrader, createMessageWhale } from "~/utils/queries";
 
+const moralisAPIKey = process.env.MORALIS_API_KEY;
 
-const moralisAPIKey =process.env.MORALIS
-
-
-
-// Funciones existentes de Moralis
 export const action = async ({ request }: ActionFunctionArgs) => {
   console.log("Received request");
 
@@ -31,9 +26,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       console.log("Processing logs");
 
       const decodedLogs = Moralis.Streams.parsedLogs(webhookBody);
-
       const addresses = getInvolvedAddresses(webhookBody.logs);
-
       const fromData = getFromData(webhookBody.erc20Transfers, addresses);
       const toData = getToData(webhookBody.erc20Transfers, addresses);
 
@@ -42,7 +35,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         await checkAndSendSwapHook(address, fromData[address], toData[address], webhookBody.chainId, webhookBody.transactionHash);
       }
     }
-    return json({ status: "ok" }, { status: 200 });
+    return json({ status: "ok", transactionHash: webhookBody.transactionHash }, { status: 200 });
   } catch (error) {
     console.error('Error handling webhook:', error);
     return json({ error: "Internal Server Error" }, { status: 500 });
@@ -69,21 +62,29 @@ async function checkAndSendSwapHook(address, fromData, toData, chainId, transact
 
     await sendHook(address, fromData[0], toData[0], netWorth.total_networth_usd, chainId, transactionHash);
   } else {
-    console.log("Invalid data or volume less than 50,000 USD, skipping net worth check");
+    console.log("Invalid data");
   }
 }
-
 async function sendHook(address, fromTransfer, toTransfer, netWorth, chainId, transactionHash) {
   const chainName = getChainName(chainId);
-  const explorerUrl = getExplorerUrl(chainId);
-  const currentTime = new Date().toISOString(); // Obtener el tiempo actual en formato ISO
- 
-  const message =  `Whale alert on ${chainName}\n\n🔥 Swapped:\n   ${fromTransfer.valueWithDecimals} ${fromTransfer.tokenSymbol} \n From: ${fromTransfer.to} \n   ➡️ ${toTransfer.valueWithDecimals} ${toTransfer.tokenSymbol} \n To: ${toTransfer.from} \n\n💰 Net Worth Of Address: ${netWorth} USD `;
-  await createMessageWhale(message,currentTime)
+  const currentTime = new Date().toISOString();
 
+  const message = {
+    alert: `Trader alert on ${chainName}`,
+    chain: chainName,
+    swapped: `${fromTransfer.valueWithDecimals} ${fromTransfer.tokenSymbol}`,
+    from: fromTransfer.from,
+    to: toTransfer.from,
+    netWorth: `${netWorth} USD`,
+    time: currentTime,
+    transactionHash: transactionHash
+  };
+
+  await createMessageWhale(message, currentTime);
   emitter.emit("message", JSON.stringify(message));
   console.log("Sent message:", message);
 }
+
 function getInvolvedAddresses(logs) {
   const addresses = logs.reduce((acc, log) => {
     if (log.triggered_by) {
@@ -117,33 +118,15 @@ function getToData(transfers, addresses) {
 function getChainName(chainId) {
   const chainNames = {
     "0x1": "Ethereum Mainnet",
-    "0x89": "Polygon Mainnet",
-    "0x38": "BSC Mainnet",
     "0xa86a": "Avalanche Mainnet",
     "0xfa": "Fantom Opera",
     "0x19": "Cronos Mainnet",
     "0xa4b1": "Arbitrum One",
-    "0x64": "xDai",
-    "0x2105": "Step Network",
+    "0x38": "Binance Smart Chain",
+    "0xe708": "Linea",
+    "0x2105": "Base Network",
     "0xa": "Optimism",
-    "0xe705": "Milkomeda Mainnet"
+    "0x89": "Polygon"
   };
   return chainNames[chainId] || "Unknown Chain";
-}
-
-function getExplorerUrl(chainId) {
-  const explorerUrls = {
-    "0x1": "https://etherscan.io",
-    "0x89": "https://polygonscan.com",
-    "0x38": "https://bscscan.com",
-    "0xa86a": "https://snowtrace.io",
-    "0xfa": "https://ftmscan.com",
-    "0x19": "https://cronoscan.com",
-    "0xa4b1": "https://arbiscan.io",
-    "0x64": "https://blockscout.com/xdai/mainnet",
-    "0x2105": "https://explorer.step.network",
-    "0xa": "https://optimistic.etherscan.io",
-    "0xe705": "https://explorer-mainnet-cardano-evm.c1.milkomeda.com"
-  };
-  return explorerUrls[chainId] || "https://etherscan.io";
 }

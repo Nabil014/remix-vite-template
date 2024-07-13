@@ -16,9 +16,25 @@ const parseMessage = (message: any) => {
     swapped: message.swapped,
     from: message.from,
     to: message.to,
-    netWorth: message.netWorth
-    
+    netWorth: message.netWorth,
+    transactionHash: message.transactionHash
   };
+};
+
+const getExplorerLink = (chainId, transactionHash) => {
+  const explorers = {
+    "Ethereum Mainnet": `https://etherscan.io/tx/${transactionHash}`,
+    "Avalanche Mainnet": `https://snowtrace.io/tx/${transactionHash}`,
+    "Fantom Opera": `https://ftmscan.com/tx/${transactionHash}`,
+    "Cronos Mainnet": `https://cronoscan.com/tx/${transactionHash}`,
+    "Arbitrum One": `https://arbiscan.io/tx/${transactionHash}`,
+    "Binance Smart Chain": `https://bscscan.com/tx/${transactionHash}`,
+    "Linea": `https://explorer.linea.build/tx/${transactionHash}`,
+    "Base Network": `https://basescan.org/tx/${transactionHash}`,
+    "Optimism": `https://optimistic.etherscan.io/tx/${transactionHash}`,
+    "Polygon": `https://polygonscan.com/tx/${transactionHash}`
+  };
+  return explorers[chainId] || "#";
 };
 
 export default function WhaleSignals() {
@@ -48,6 +64,7 @@ export default function WhaleSignals() {
       <div className="space-y-4 h-96 p-10 overflow-x-hidden overflow-y-scroll">
         {messages.map((message, index) => {
           const parsedMessage = parseMessage(JSON.parse(message));
+          const explorerLink = getExplorerLink(parsedMessage.chain, parsedMessage.transactionHash);
           return (
             <div
               key={index}
@@ -65,8 +82,13 @@ export default function WhaleSignals() {
               <div className="text-lg mb-2">
                 <span className="font-semibold">To:</span> {parsedMessage.to}
               </div>
-              <div className="text-lg">
+              <div className="text-lg mb-2">
                 <span className="font-semibold">Net Worth Of Address:</span> {parsedMessage.netWorth}
+              </div>
+              <div className="text-lg">
+                <a href={explorerLink} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">
+                  View Transaction
+                </a>
               </div>
             </div>
           );

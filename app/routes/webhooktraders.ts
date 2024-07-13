@@ -80,7 +80,7 @@ async function sendHook(address, fromTransfer, toTransfer, netWorth, chainId, tr
     transactionHash: transactionHash
   };
 
-  await createMessageTrader(JSON.stringify(message), currentTime);
+  await createMessageTrader(message, currentTime);
   emitter.emit("message", JSON.stringify(message));
   console.log("Sent message:", message);
 }

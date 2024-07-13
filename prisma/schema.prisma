@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,37 +8,48 @@ datasource db {
 }
 
 model User {
-  id             Int        @id @default(autoincrement())
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
-  email          String     @unique
-  password       Password?  // Relación opcional con Password
-  firstName      String
-  lastName       String
-  bio            String?
-  birthday       DateTime?  // Cambiado a DateTime para manejar fechas correctamente
-  gender         String?
-  avatar         String? 
-  address        String?
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  email     String    @unique
+  firstName String
+  lastName  String
+  bio       String?
+  birthday  DateTime?
+  gender    String?
+  avatar    String?
+  address   String?
+  password  Password?
 }
-model MessageWhales {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  description   String
-  time        DateTime
+
+model Signalwhale {
+  id              Int      @id @default(autoincrement())
+  alert           String
+  chain           String
+  swapped         String
+  from            String
+  to              String
+  netWorth        String
+  transactionHash String
+  time            DateTime @default(now())
 }
-  
-model MessageTraders {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  time        DateTime
-  description   String
+
+model Signaltrader {
+  id              Int      @id @default(autoincrement())
+  alert           String
+  chain           String
+  swapped         String
+  from            String
+  to              String
+  netWorth        String
+  transactionHash String
+  time            DateTime @default(now())
 }
-  
+
 model Password {
-  id       String @id @default(uuid())
-  salt     String
-  hash     String
-  userId   Int    @unique // Relaciona la contraseña con el usuario
-  user     User   @relation(fields: [userId], references: [id])
+  id     String @id @default(uuid())
+  salt   String
+  hash   String
+  userId Int    @unique
+  user   User   @relation(fields: [userId], references: [id])
 }

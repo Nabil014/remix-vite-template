@@ -97,7 +97,7 @@ export default function CryptoDetails() {
               </div>
             </div>
             <div className="mt-8 w-full">
-              {/* <TokenAnalysis /> */}
+             <TokenAnalysis /> 
             </div>
           </>
         ) : (

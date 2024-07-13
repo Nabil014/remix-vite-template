@@ -27,8 +27,12 @@ RUN npm install --production=false
 # Generate Prisma Client
 COPY --link prisma .
 
+
+# Generar el cliente Prisma
 RUN npx prisma generate
+
 RUN npx prisma db push
+
 
 # Copy application code
 COPY --link . .
