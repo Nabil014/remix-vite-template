@@ -35,7 +35,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         await checkAndSendSwapHook(address, fromData[address], toData[address], webhookBody.chainId, webhookBody.transactionHash);
       }
     }
-    return json({ status: "ok" }, { status: 200 });
+    return json({ status: "ok", transactionHash: webhookBody.transactionHash }, { status: 200 });
   } catch (error) {
     console.error('Error handling webhook:', error);
     return json({ error: "Internal Server Error" }, { status: 500 });
@@ -76,7 +76,8 @@ async function sendHook(address, fromTransfer, toTransfer, netWorth, chainId, tr
     from: fromTransfer.from,
     to: toTransfer.from,
     netWorth: `${netWorth} USD`,
-    time: currentTime
+    time: currentTime,
+    transactionHash: transactionHash
   };
 
   await createMessageTrader(JSON.stringify(message), currentTime);
