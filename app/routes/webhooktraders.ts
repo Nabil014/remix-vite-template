@@ -121,10 +121,11 @@ function getChainName(chainId) {
     "0xfa": "Fantom Opera",
     "0x19": "Cronos Mainnet",
     "0xa4b1": "Arbitrum One",
-    "0x64": "xDai",
-    "0x2105": "Step Network",
+    "0x38": "Binance Smart Chain",
+    "0xe708": "Linea",
+    "0x2105": "Base Network",
     "0xa": "Optimism",
-    "0xe705": "Milkomeda Mainnet"
+    "0x89": "Polygon"
   };
   return chainNames[chainId] || "Unknown Chain";
 }

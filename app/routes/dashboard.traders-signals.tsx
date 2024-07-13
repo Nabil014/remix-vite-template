@@ -46,7 +46,7 @@ export default function WhaleSignals() {
       <h1 className="text-2xl font-bold mb-4">Traders Signals</h1>
       <div className="space-y-4 h-96 p-10 overflow-x-hidden overflow-y-scroll">
         {messages.map((message, index) => {
-          const parsedMessage = parseMessage(message);
+          const parsedMessage = parseMessage(JSON.parse(message));
           return (
             <div
               key={index}
