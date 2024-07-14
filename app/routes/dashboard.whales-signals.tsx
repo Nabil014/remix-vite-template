@@ -2,42 +2,57 @@ import { useLoaderData } from "@remix-run/react";
 import { json, LoaderFunction } from "@remix-run/node";
 import { useEffect, useState } from "react";
 import { useEventSource } from "remix-utils/sse/react";
-import { getMessagesTraders } from "~/utils/queries";
+import {  getMessagesWhales } from "~/utils/queries";
 
 export const loader: LoaderFunction = async () => {
-  const messages = await getMessagesTraders();
+  const messages = await getMessagesWhales();
   return json({ messages });
 };
 
-// Function to parse the messages
-const parseMessage = (message: string) => {
-  const [header, swapDetails, netWorth] = message.split('\n\n');
-  const [alert, chain] = header.split(' on ');
-  const [swapped, from, to] = swapDetails.split('\n');
-  
-  return {
-    alert,
-    chain,
-    swapped: swapped.replace('Swapped: ', ''),
-    from: from.replace('From: ', ''),
-    to: to.replace('To: ', ''),
-    netWorth: netWorth.replace('Net Worth Of Address: ', '')
+const parseMessage = (message: any) => {
+  return {    
+    address: message.address,
+    alert: message.alert,
+    chain: message.chain,
+    swapped: message.swapped,
+    from: message.from,
+    to: message.to,
+    netWorth: message.netWorth,
+    transactionHash: message.transactionHash
   };
 };
 
-export default function WhaleSignals() {
+const getExplorerLink = (chain, transactionHash) => {
+  const explorers = {
+    "Ethereum Mainnet": `https://etherscan.io/tx/${transactionHash}`,
+    "Avalanche Mainnet": `https://snowtrace.io/tx/${transactionHash}`,
+    "Fantom Opera": `https://ftmscan.com/tx/${transactionHash}`,
+    "Cronos Mainnet": `https://cronoscan.com/tx/${transactionHash}`,
+    "Arbitrum One": `https://arbiscan.io/tx/${transactionHash}`,
+    "Binance Smart Chain": `https://bscscan.com/tx/${transactionHash}`,
+    "Linea": `https://explorer.linea.build/tx/${transactionHash}`,
+    "Base Network": `https://basescan.org/tx/${transactionHash}`,
+    "Optimism": `https://optimistic.etherscan.io/tx/${transactionHash}`,
+    "Polygon": `https://polygonscan.com/tx/${transactionHash}`
+  };
+  return explorers[chain] || "#";
+};
+
+export default function TradeSignals() {
   const { messages: initialMessages } = useLoaderData<{ messages: any[] }>();
   const [messages, setMessages] = useState(initialMessages);
   const liveResponse = useEventSource(`https://crypto-ghost.fly.dev/api/subscribewhales`, { event: "new-message" });
 
   useEffect(() => {
     if (liveResponse) {
+      console.log("liveResponse "+liveResponse)
       try {
-        const message = JSON.parse(liveResponse);
-        if (message) {
+        const parsedLiveResponse = JSON.parse(liveResponse);
+        if (parsedLiveResponse) {
+          const message = parsedLiveResponse; // No parsear nuevamente
           setMessages(prevMessages => [...prevMessages, message]);
         } else {
-          console.error("Received message with missing fields:", message);
+          console.error("Received message with missing fields:", parsedLiveResponse);
         }
       } catch (error) {
         console.error("Failed to parse live response:", error);
@@ -46,30 +61,42 @@ export default function WhaleSignals() {
   }, [liveResponse]);
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Traders Signals</h1>
-      <div className="space-y-4 h-96 p-10 overflow-x-hidden overflow-y-scroll">
+    <div className="p-4 h-screen w-screen ">
+      <h1 className="text-3xl font-bold text-white mb-6">Traders Signals</h1>
+      <div className="space-y-6">
         {messages.map((message, index) => {
           const parsedMessage = parseMessage(message);
+          const explorerLink = getExplorerLink(parsedMessage.chain, parsedMessage.transactionHash);
           return (
             <div
               key={index}
-              className="bg-gradient-to-b from-[#043234] to-[#000D0E] text-white p-4 rounded-lg shadow-lg transition-transform transform hover:scale-105 hover:shadow-2xl border border-gray-600"
+              className="bg-gradient-to-b from-[#043234] to-[#000D0E] text-white p-6 rounded-lg shadow-lg border border-gray-700 hover:shadow-2xl transition-transform"
             >
-              <div className="text-xl mb-2 font-bold">
-                {parsedMessage.alert} on {parsedMessage.chain}
+              <div className="flex justify-between items-center mb-4">
+                <div className="text-xl font-bold">{parsedMessage.alert}</div>
+                <div className="text-right">
+                  <div className="text-sm text-gray-400">{parsedMessage.chain}</div>
+                  <div className="text-lg font-semibold">{parsedMessage.netWorth} USD</div>
+                </div>
               </div>
-              <div className="text-lg mb-2">
-                <span className="font-semibold">Swapped:</span> {parsedMessage.swapped}
-              </div>
-              <div className="text-lg mb-2">
-                <span className="font-semibold">From:</span> {parsedMessage.from}
-              </div>
-              <div className="text-lg mb-2">
-                <span className="font-semibold">To:</span> {parsedMessage.to}
-              </div>
-              <div className="text-lg">
-                <span className="font-semibold">Net Worth Of Address:</span> {parsedMessage.netWorth}
+              <div className="space-y-2">
+                <div>
+                  <span className="font-semibold">Whale:</span> {parsedMessage.address}
+                </div>
+                <div>
+                  <span className="font-semibold">Swapped:</span> {parsedMessage.swapped}
+                </div>
+                <div>
+                  <span className="font-semibold">From:</span> {parsedMessage.from}
+                </div>
+                <div>
+                  <span className="font-semibold">To:</span> {parsedMessage.to}
+                </div>
+                <div className="text-right mt-4">
+                  <a href={explorerLink} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">
+                    View Transaction
+                  </a>
+                </div>
               </div>
             </div>
           );

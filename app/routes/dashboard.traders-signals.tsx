@@ -10,7 +10,8 @@ export const loader: LoaderFunction = async () => {
 };
 
 const parseMessage = (message: any) => {
-  return {
+  return {    
+    address: message.address,
     alert: message.alert,
     chain: message.chain,
     swapped: message.swapped,
@@ -21,7 +22,7 @@ const parseMessage = (message: any) => {
   };
 };
 
-const getExplorerLink = (chainId, transactionHash) => {
+const getExplorerLink = (chain, transactionHash) => {
   const explorers = {
     "Ethereum Mainnet": `https://etherscan.io/tx/${transactionHash}`,
     "Avalanche Mainnet": `https://snowtrace.io/tx/${transactionHash}`,
@@ -34,20 +35,21 @@ const getExplorerLink = (chainId, transactionHash) => {
     "Optimism": `https://optimistic.etherscan.io/tx/${transactionHash}`,
     "Polygon": `https://polygonscan.com/tx/${transactionHash}`
   };
-  return explorers[chainId] || "#";
+  return explorers[chain] || "#";
 };
 
-export default function WhaleSignals() {
+export default function TradeSignals() {
   const { messages: initialMessages } = useLoaderData<{ messages: any[] }>();
   const [messages, setMessages] = useState(initialMessages);
   const liveResponse = useEventSource(`https://crypto-ghost.fly.dev/api/subscribetraders`, { event: "new-message" });
 
   useEffect(() => {
     if (liveResponse) {
+      console.log("liveResponse "+liveResponse)
       try {
         const parsedLiveResponse = JSON.parse(liveResponse);
-        if (parsedLiveResponse.message) {
-          const message = JSON.parse(parsedLiveResponse.message);
+        if (parsedLiveResponse) {
+          const message = parsedLiveResponse; // No parsear nuevamente
           setMessages(prevMessages => [...prevMessages, message]);
         } else {
           console.error("Received message with missing fields:", parsedLiveResponse);
@@ -59,36 +61,42 @@ export default function WhaleSignals() {
   }, [liveResponse]);
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Traders Signals</h1>
-      <div className="space-y-4 h-96 p-10 overflow-x-hidden overflow-y-scroll">
+    <div className="p-4 h-screen w-screen ">
+      <h1 className="text-3xl font-bold text-white mb-6">Traders Signals</h1>
+      <div className="space-y-6">
         {messages.map((message, index) => {
-          const parsedMessage = parseMessage(JSON.parse(message));
+          const parsedMessage = parseMessage(message);
           const explorerLink = getExplorerLink(parsedMessage.chain, parsedMessage.transactionHash);
           return (
             <div
               key={index}
-              className="bg-gradient-to-b from-[#043234] to-[#000D0E] text-white p-4 rounded-lg shadow-lg transition-transform transform hover:scale-105 hover:shadow-2xl border border-gray-600"
+              className="bg-gradient-to-b from-[#043234] to-[#000D0E] text-white p-6 rounded-lg shadow-lg border border-gray-700 hover:shadow-2xl transition-transform"
             >
-              <div className="text-xl mb-2 font-bold">
-                {parsedMessage.alert}
+              <div className="flex justify-between items-center mb-4">
+                <div className="text-xl font-bold">{parsedMessage.alert}</div>
+                <div className="text-right">
+                  <div className="text-sm text-gray-400">{parsedMessage.chain}</div>
+                  <div className="text-lg font-semibold">{parsedMessage.netWorth} USD</div>
+                </div>
               </div>
-              <div className="text-lg mb-2">
-                <span className="font-semibold">Swapped:</span> {parsedMessage.swapped}
-              </div>
-              <div className="text-lg mb-2">
-                <span className="font-semibold">From:</span> {parsedMessage.from}
-              </div>
-              <div className="text-lg mb-2">
-                <span className="font-semibold">To:</span> {parsedMessage.to}
-              </div>
-              <div className="text-lg mb-2">
-                <span className="font-semibold">Net Worth Of Address:</span> {parsedMessage.netWorth}
-              </div>
-              <div className="text-lg">
-                <a href={explorerLink} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">
-                  View Transaction
-                </a>
+              <div className="space-y-2">
+                <div>
+                  <span className="font-semibold">Trader:</span> {parsedMessage.address}
+                </div>
+                <div>
+                  <span className="font-semibold">Swapped:</span> {parsedMessage.swapped}
+                </div>
+                <div>
+                  <span className="font-semibold">From:</span> {parsedMessage.from}
+                </div>
+                <div>
+                  <span className="font-semibold">To:</span> {parsedMessage.to}
+                </div>
+                <div className="text-right mt-4">
+                  <a href={explorerLink} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">
+                    View Transaction
+                  </a>
+                </div>
               </div>
             </div>
           );

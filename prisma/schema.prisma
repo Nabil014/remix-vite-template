@@ -24,6 +24,8 @@ model User {
 
 model Signalwhale {
   id              Int      @id @default(autoincrement())
+  address           String
+
   alert           String
   chain           String
   swapped         String
@@ -36,6 +38,8 @@ model Signalwhale {
 
 model Signaltrader {
   id              Int      @id @default(autoincrement())
+  address           String
+
   alert           String
   chain           String
   swapped         String

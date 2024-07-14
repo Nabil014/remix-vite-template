@@ -35,6 +35,7 @@ export async function createAccount(email: string, password: string,firstName: s
 export async function createMessageWhale(message: any, currentTime: any) {
   await prisma.signalwhale.create({
     data: {
+      address: message.address,
       alert: message.alert,
       chain: message.chain,
       swapped: message.swapped,
@@ -47,8 +48,10 @@ export async function createMessageWhale(message: any, currentTime: any) {
   });
 }
 export async function createMessageTrader(message: any, currentTime: any) {
+  console.log("message.transactionHash "+message.transactionHash)
   await prisma.signaltrader.create({
-    data: {
+    data: {  
+          address: message.address,
       alert: message.alert,
       chain: message.chain,
       swapped: message.swapped,
@@ -91,6 +94,8 @@ export async function login(email: string, password: string) {
 export async function getMessagesWhales() {
   const messages = await prisma.signalwhale.findMany({
     select: {
+      address: true,
+
       alert: true,
       chain: true,
       swapped: true,
@@ -110,6 +115,8 @@ export async function getMessagesWhales() {
 export async function getMessagesTraders() {
   const messages = await prisma.signaltrader.findMany({
     select: {
+      address: true,
+
       alert: true,
       chain: true,
       swapped: true,

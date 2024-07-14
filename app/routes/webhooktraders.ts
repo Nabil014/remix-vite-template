@@ -29,10 +29,17 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       const addresses = getInvolvedAddresses(webhookBody.logs);
       const fromData = getFromData(webhookBody.erc20Transfers, addresses);
       const toData = getToData(webhookBody.erc20Transfers, addresses);
+      console.log("webhookBody.logs ", JSON.stringify(webhookBody.logs));
 
+      console.log("decodedLogs ", JSON.stringify(decodedLogs));
+      console.log("addresses ", JSON.stringify(addresses));
+      console.log("fromData ", JSON.stringify(fromData));
+      console.log("toData ", JSON.stringify(toData));
+
+      
       for (const address of addresses) {
         console.log("Processing address:", address);
-        await checkAndSendSwapHook(address, fromData[address], toData[address], webhookBody.chainId, webhookBody.transactionHash);
+        await checkAndSendSwapHook(address, fromData[address], toData[address], webhookBody.chainId);
       }
     }
     return json({ status: "ok", transactionHash: webhookBody.transactionHash }, { status: 200 });
@@ -40,9 +47,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     console.error('Error handling webhook:', error);
     return json({ error: "Internal Server Error" }, { status: 500 });
   }
-}
-
-async function checkAndSendSwapHook(address, fromData, toData, chainId, transactionHash) {
+};
+async function checkAndSendSwapHook(address, fromData, toData, chainId) {
   if (
     fromData.length === 1 && fromData[0].tokenName && fromData[0].value && fromData[0].to !== null && fromData[0].to !== "0x0000000000000000000000000000000000000000"
     && toData.length === 1 && toData[0].tokenName && toData[0].from !== null && toData[0].from !== "0x0000000000000000000000000000000000000000"
@@ -60,7 +66,7 @@ async function checkAndSendSwapHook(address, fromData, toData, chainId, transact
 
     console.log("Net worth in USD:", netWorth.total_networth_usd);
 
-    await sendHook(address, fromData[0], toData[0], netWorth.total_networth_usd, chainId, transactionHash);
+    await sendHook(address, fromData[0], toData[0], netWorth.total_networth_usd, chainId, toData[0].transactionHash);
   } else {
     console.log("Invalid data");
   }
@@ -73,6 +79,7 @@ async function sendHook(address, fromTransfer, toTransfer, netWorth, chainId, tr
     alert: `Trader alert on ${chainName}`,
     chain: chainName,
     swapped: `${fromTransfer.valueWithDecimals} ${fromTransfer.tokenSymbol}`,
+    address: address,
     from: fromTransfer.from,
     to: toTransfer.from,
     netWorth: `${netWorth} USD`,
@@ -84,7 +91,6 @@ async function sendHook(address, fromTransfer, toTransfer, netWorth, chainId, tr
   emitter.emit("message", JSON.stringify(message));
   console.log("Sent message:", message);
 }
-
 function getInvolvedAddresses(logs) {
   const addresses = logs.reduce((acc, log) => {
     if (log.triggered_by) {
