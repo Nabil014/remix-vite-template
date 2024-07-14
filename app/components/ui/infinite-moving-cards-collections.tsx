@@ -71,7 +71,7 @@ export const InfiniteMovingCardsCollections = ({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       className={cn(
-        "scroller relative z-20 max-w-7xl overflow-hidden",
+        "scroller relative z-20 max-w-[70vw] overflow-hidden",
         "[mask-image:linear-gradient(to right, transparent, white 20%, white 80%, transparent)]",
         isPaused ? "paused" : ""
       )}
