@@ -18,7 +18,7 @@ export default function LayoutMain({ userId }: any) {
   return (
     <>
       <NavbarMain toggleSidebar={toggleSidebar} showSidebar={showSidebar} userId={userId} />
-      <div className={`h-dvh mt-[72px] ${!isLandingPage && 'sm:ml-0 md:ml-[250px]'}`}>
+      <div className={`h-full mt-[72px] ${!isLandingPage && 'sm:ml-0 md:ml-[250px]'}`}>
         {!isLandingPage && <SidebarMain showSidebar={showSidebar} />}
         <Outlet />
       </div>
